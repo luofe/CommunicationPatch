@@ -40,6 +40,9 @@ u8 g_RecServerPackageSN[2] = {0x00,0x01};
 // 接收报文解析结果
 u8  g_RecServerPackageResult = SUCCEED;
 
+// 最新一次发送的命令码
+u16 g_LastSendServerCmd = SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE; //默认是握手包
+
 
 uc16 CRC_TABLE_XW[256] =
 {
@@ -164,16 +167,16 @@ void Server_Comm_Usart_Init(void)
     GPIO_InitTypeDef  GPIO_InitStructure;
     USART_InitTypeDef USART_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;	//初始化NVIC结构体
-
+    
     //复位SERVER_COMM_USART模块
     USART_DeInit(SERVER_COMM_USART);
-
+    
     //使能SERVER_COMM_USART_TX引脚模块时钟
     RCC_APB2PeriphClockCmd(SERVER_COMM_USART_TX_GPIO_CLK, ENABLE);
-
+    
     //使能SERVER_COMM_USART_RX引脚模块时钟
     RCC_APB2PeriphClockCmd(SERVER_COMM_USART_RX_GPIO_CLK, ENABLE);
-
+    
     //使能USART模块时钟
     if(SERVER_COMM_USART == USART1)
     {
@@ -183,10 +186,10 @@ void Server_Comm_Usart_Init(void)
     {
         RCC_APB1PeriphClockCmd(SERVER_COMM_USART_CLK, ENABLE);
     }
-
-
+    
+    
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-
+    
     //SERVER_COMM_USART的GPIO配置
     //SERVER_COMM_USART_TX: 推挽复用输出
     GPIO_InitStructure.GPIO_Pin   = SERVER_COMM_USART_TX_GPIO_PIN;
@@ -198,7 +201,7 @@ void Server_Comm_Usart_Init(void)
     GPIO_InitStructure.GPIO_Pin   = SERVER_COMM_USART_RX_GPIO_PIN;
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN_FLOATING;//浮空输入
     GPIO_Init(SERVER_COMM_USART_RX_GPIO_PORT, &GPIO_InitStructure);
-
+    
     //SERVER_COMM_USART模块参数配置
     //波特率: USART1_BAUDRATE；8个数据位；1个停止位；无校验位；无硬件流控制；使能发送和接收；
     USART_InitStructure.USART_BaudRate            = SERVER_COMM_USART_BAUDRATE;
@@ -208,7 +211,7 @@ void Server_Comm_Usart_Init(void)
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_InitStructure.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
     USART_Init(SERVER_COMM_USART, &USART_InitStructure); 
-
+    
     USART_Cmd(SERVER_COMM_USART, ENABLE);                         //使能SERVER_COMM_USART模块
     
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	//使用优先级分组2	
@@ -217,7 +220,7 @@ void Server_Comm_Usart_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority           = 0;                //响应优先级为0
     NVIC_InitStructure.NVIC_IRQChannelCmd                   = ENABLE;
     NVIC_Init(&NVIC_InitStructure);	//配置USART的嵌套向量中断
-
+    
 	USART_ITConfig(SERVER_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断     
 }
 
@@ -229,26 +232,26 @@ void Server_Comm_Usart_Init(void)
 ******************************************/
 void Server_Comm_Send_Data(u8 *buffer, u16 data_l)
 {  
-        
+    
 #if (SERVER_PRINTF_EN)
-printf("\r\n发送数据给服务器:");
+    printf("\r\n发送数据给服务器:");
 #endif
     
     while(data_l--)  
     {
         
 #if (SERVER_PRINTF_EN)
-printf("%02X ", *buffer);
+        printf("%02X ", *buffer);
 #endif
-            
+        
         USART_SendData(SERVER_COMM_USART, *buffer++); 
         while(USART_GetFlagStatus(SERVER_COMM_USART, USART_FLAG_TXE) == RESET);//等待发送完成
     } 
-        
+    
 #if (SERVER_PRINTF_EN)
-printf("\r\n");
+    printf("\r\n");
 #endif
-              
+    
 }
 
 //********************************************************
@@ -262,7 +265,7 @@ u16 GetCheckCRC_XW(u8 *pData, u16 len)
 {
     u16 i=0;
     u16 crc = 0xffff;
-
+    
     for ( i = 0; i < len; i++ )
     {
         crc = ( crc >> 8 ) ^ CRC_TABLE_XW[( crc ^ pData[i] ) & 0xff];
@@ -291,9 +294,10 @@ void Server_Comm_Package_Send(void)
     s_ServerCommTx.Buffer[s_ServerCommTx.Index++] = (u8)s_ServerCommPackage.ADF.SN;
     s_ServerCommTx.Buffer[s_ServerCommTx.Index++] = (u8)(s_ServerCommPackage.ADF.CMD >> 8);
     s_ServerCommTx.Buffer[s_ServerCommTx.Index++] = (u8)s_ServerCommPackage.ADF.CMD;
+    g_LastSendServerCmd = s_ServerCommPackage.ADF.CMD;  //保留本次发送的命令码
     memcpy(&s_ServerCommTx.Buffer[s_ServerCommTx.Index], s_ServerCommPackage.ADF.Data, (s_ServerCommPackage.Length - 6));
     s_ServerCommTx.Index += s_ServerCommPackage.Length - 6;
-    temp_crc = GetCheckCRC_XW(s_ServerCommTx.Buffer, s_ServerCommTx.Index);
+    temp_crc = GetCheckCRC_XW(&s_ServerCommTx.Buffer[4], s_ServerCommTx.Index - 4);
     s_ServerCommTx.Buffer[s_ServerCommTx.Index++] = (u8)(temp_crc >> 8);
     s_ServerCommTx.Buffer[s_ServerCommTx.Index++] = (u8)temp_crc;
     
@@ -337,6 +341,7 @@ void Server_Comm_Package_Bale(u16 cmd)
         {
             i = 0;
             //放入RTC时间
+            s_RTC.year = 2018;
             u32 temp_data = ((s_RTC.year - 1970) * 365 * 24 * 60 * 60); //先简单赋值
             s_ServerCommPackage.ADF.Data[i++] = (u8)(temp_data >> 24);  
             s_ServerCommPackage.ADF.Data[i++] = (u8)(temp_data >> 16);
@@ -348,7 +353,7 @@ void Server_Comm_Package_Bale(u16 cmd)
             s_ServerCommPackage.ADF.Data[i++] = s_SystemPara.manu_type;
             //设备类型
             s_ServerCommPackage.ADF.Data[i++] = s_SystemPara.device_type;
-            //设备类型
+            //设备编号
             memcpy(&s_ServerCommPackage.ADF.Data[i], s_SystemPara.deviceID, 4);
             i += 4; 
             //CODE码
@@ -667,7 +672,7 @@ void Server_Comm_Package_Bale(u16 cmd)
             Server_Comm_Package_Send();
         }
         break;
-
+        
         case SERVER_COMM_PACKAGE_CMD_REPORT_GPS:   //上报GPS
         {
             i = 0;
@@ -724,7 +729,7 @@ void Server_Comm_Package_Bale(u16 cmd)
 void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
 {
     u16 i;
-
+    
     switch(cmd)
     {
         case SERVER_COMM_PACKAGE_CMD_RESPONSE:   //通用应答
@@ -735,6 +740,10 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
             //判断应答结果
             if(data[i++] == SUCCEED)
             {
+                if(g_LastSendServerCmd == SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE) //如果之前发送的是握手包，说明握手成功
+                {
+                    g_SysInitStatusFlag = TRUE;
+                }
                 s_ServerCommTx.WaitResponse = DONT_RESPONSE;    //等待应答标志复位
                 s_ServerCommTx.RepeatNum = 0;   //重发次数复位
             }
@@ -904,23 +913,27 @@ u8 Server_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
     ServerCommPackageStruct *p_Package;
     
 #if (SERVER_PRINTF_EN)
-printf("接收到服务器数据: ");
+    printf("接收到服务器数据: ");
 #endif	
-
+    
 	for(temp_index = 0; temp_index < rec_length; temp_index++)        //
 	{
 		temp_data = rec_array[temp_index];  //取出接收缓存区数据
         
 #if (SERVER_PRINTF_EN)
-printf("%c",temp_data);  // 
+        printf("%02X ",temp_data);  // 
 #endif
-
+        
 		switch(data_analysis_status)    //根据查找状态处理
 		{
 			case SERVER_COMM_PACKAGE_ANALYSIS_HEAD:	    //如果是包头
             {
                 if(temp_data == SERVER_COMM_PACKAGE_HEAD)   //如果是包头
-                {
+                {        
+#if (SERVER_PRINTF_EN)
+                    printf("是包头"); 
+#endif
+                    
                     data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_IDENT; //接收状态转为接收标识符
                 }
                 else
@@ -929,13 +942,18 @@ printf("%c",temp_data);  //
                 }
             }
             break;
-                
+            
 			case SERVER_COMM_PACKAGE_ANALYSIS_IDENT:	        //如果是标识符
             {
                 if(temp_data == SERVER_COMM_PACKAGE_IDENTIFY)   //如果是标识符
-                {
+                {     
+#if (SERVER_PRINTF_EN)
+                    printf("是标识符"); 
+#endif
+                    
                     data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_LEN; //接收状态转为接收数据长度
-                    s_ServerCommPackage.Length = 0;
+                    i = 0;
+                    p_Package->Length = 0;
                 }
                 else
                 {
@@ -943,52 +961,66 @@ printf("%c",temp_data);  //
                 }
             }
             break;
-                
+            
 			case SERVER_COMM_PACKAGE_ANALYSIS_LEN:    //如果是数据长度
             {
                 p_Package->Length += temp_data; 
                 i++;
                 if(i == 2)
-                {
+                {     
+#if (SERVER_PRINTF_EN)
+                    printf("是数据长度"); 
+#endif
+                    
                     data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_SN; //接收状态转为接收数据体流水号
                     i = 0;
-                    s_ServerCommPackage.ADF.SN = 0;
                 }
             }
             break;
-                
+            
 			case SERVER_COMM_PACKAGE_ANALYSIS_SN:          //如果是流水号
             {
-//                p_Package->ADF.SN <<= (i * 8);
-//                p_Package->ADF.SN += temp_data; 
-//                i++;
                 g_RecServerPackageSN[i++] = temp_data;
                 if(i == 2)
-                {
+                {     
+#if (SERVER_PRINTF_EN)
+                    printf("是流水号"); 
+#endif
+                    
                     data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_CMD; //接收状态转为接收数据体命令码
                     i = 0;
                     p_Package->ADF.CMD = 0;
                 }
             }
-                
+            
 			case SERVER_COMM_PACKAGE_ANALYSIS_CMD:          //如果是命令码
             {
                 p_Package->ADF.CMD <<= (i * 8);
                 p_Package->ADF.CMD += temp_data; 
                 i++;
                 if(i == 2)
-                {
+                {     
+#if (SERVER_PRINTF_EN)
+                    printf("是命令码"); 
+#endif
+                    
                     data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_DATA; //接收状态转为接收数据体数据内容
                     i = 0;
                 }
             }
-                
+            
 			case SERVER_COMM_PACKAGE_ANALYSIS_DATA:          //如果是数据内容
             {
                 p_Package->ADF.Data[i++] = temp_data;      //获取数据内容
                 if(i == (p_Package->Length - 6)) //接收长度够了
-                {
+                {     
+#if (SERVER_PRINTF_EN)
+                    printf("是数据内容"); 
+#endif
+                    
                     data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_CRC; //接收状态转为校验码
+                    i = 0;
+                    p_Package->ADF.Crc = 0;
                 }
             }
             break;
@@ -1001,7 +1033,7 @@ printf("%c",temp_data);  //
                 if(i == 2)
                 {
                     i = 0;
-                    if(p_Package->ADF.Crc == GetCheckCRC_XW(p_Package->ADF.Buff, p_Package->Length - 2))  //假如校验码相等
+                    if(p_Package->ADF.Crc == GetCheckCRC_XW(p_Package->ADF.Buff, (p_Package->Length - 2)))  //假如校验码相等
                     {                        
 #if (SERVER_PRINTF_EN)
                         printf("数据包解析成功\r\n");
@@ -1059,13 +1091,13 @@ void Server_Comm_Rec_Monitor(void)
             //解析数据包如果不成功，则返回对方错误
             if(Server_Comm_Package_Analysis(g_PublicDataBuffer, temp_l) != PACKAGE_ANALYSIS_SUCCEED)   //u8 i = 
             {
-//                  Server_Comm_Error_Process();
+                //                  Server_Comm_Error_Process();
             }
-        
-//#if (SERVER_PRINTF_EN)
-//printf("\r\n");
-//printf("数据包解析 %d\r\n", i);
-//#endif
+            
+            //#if (SERVER_PRINTF_EN)
+            //printf("\r\n");
+            //printf("数据包解析 %d\r\n", i);
+            //#endif
             
         }
     }
@@ -1116,7 +1148,7 @@ void Server_Comm_Test(void)
             s_ServerCommRx.Timeout_Count = 0;
             s_ServerCommRx.Index = 0;
             
-//            Delay_ms(500);
+            //            Delay_ms(500);
         }
     }
 }

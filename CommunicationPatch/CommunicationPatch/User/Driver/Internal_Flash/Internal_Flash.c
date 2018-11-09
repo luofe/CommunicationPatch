@@ -158,23 +158,7 @@ u8 Internal_Flash_Write_HalfWord(u32 addr, u16 *buffer, u16 length)
 **********************************/ 
 void Internal_Flash_ReadOut(void)
 {        
-    //存储到Flash内的坐标数据
-    u16 temp_array[INTERNAL_FLASH_MAX_LENGTH];
-
-    g_InternalFlashStartAddr = DATA_EEPROM_START_ADDR;
     
-    //读取出温度及设备编号数据
-    Internal_Flash_Read_HalfWord(FLASH_ADD_TEMPERATURE_STORE_INFO, temp_array, INTERNAL_FLASH_MAX_LENGTH); 
-    
-    //温度数据
-    if((temp_array[0] != 0x0000) && (temp_array[0] != 0xFFFF))  //s_GoodsCoordsIndex.RowNum如果货道层数不为空
-    {
-        SysTempInfoStoredFlag = TRUE;                   //置位标志 
-    }
-    else
-    {
-        SysTempInfoStoredFlag = FALSE;     //数据未存储  
-    }
 }
 
 /**********************************
@@ -185,37 +169,7 @@ void Internal_Flash_ReadOut(void)
 **********************************/ 
 void Internal_Flash_StoreIn(u8 store_param_type)
 {      
-    u8  temp_index;
-    u8  i = 10;
-    //存储到Flash内的温度策略和设备编号
-    u16 temp_array[INTERNAL_FLASH_MAX_LENGTH];
-
-    g_InternalFlashStartAddr = DATA_EEPROM_START_ADDR;
-    //先读取出所有数据
-    Internal_Flash_Read_HalfWord(FLASH_ADD_TEMPERATURE_STORE_INFO, temp_array, INTERNAL_FLASH_MAX_LENGTH);
-    switch(store_param_type)
-    {
-        case FLASH_STORE_TEMPERATURN:
-        {
-            
-        }
-        break;
-        
-        case FLASH_STORE_DEVICE_ID:
-        {
-            
-        }
-        break;
-    }
     
-    //存入温度策略数据
-    while(i--)
-    {
-        if(Internal_Flash_Write_HalfWord(FLASH_ADD_TEMPERATURE_STORE_INFO, temp_array, INTERNAL_FLASH_MAX_LENGTH) == SUCCEED)
-        {
-            break;
-        }
-    }
 }
 
 /**********************************

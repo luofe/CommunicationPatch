@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "E:\Personer\通讯补丁\CommunicationPatch\CommunicationPatch\settings\CommunicationPatch.Debug.general.xcl" --backend -f "E:\Personer\通讯补丁\CommunicationPatch\CommunicationPatch\settings\CommunicationPatch.Debug.driver.xcl" 
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "E:\Personer\MyRepository\CommunicationPatch\CommunicationPatch\settings\CommunicationPatch.Debug.general.xcl" --backend -f "E:\Personer\MyRepository\CommunicationPatch\CommunicationPatch\settings\CommunicationPatch.Debug.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "E:\Personer\通讯补丁\CommunicationPatch\CommunicationPatch\settings\CommunicationPatch.Debug.general.xcl" "--debug_file=%~1" --backend -f "E:\Personer\通讯补丁\CommunicationPatch\CommunicationPatch\settings\CommunicationPatch.Debug.driver.xcl" 
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "E:\Personer\MyRepository\CommunicationPatch\CommunicationPatch\settings\CommunicationPatch.Debug.general.xcl" "--debug_file=%~1" --backend -f "E:\Personer\MyRepository\CommunicationPatch\CommunicationPatch\settings\CommunicationPatch.Debug.driver.xcl" 
 
 @echo off 
 :end

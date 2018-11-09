@@ -117,14 +117,17 @@
 
 
 //与服务器通信的数据最大长度
-#define PC_COM_MAX_DATA_LENGTH              (1024 - 4)     //是对设备端进行升级时的数据包大小
+#define PC_COM_MAX_DATA_LENGTH                  (255 - 4)     //是对设备端进行升级时的数据包大小
 
 //USART接收超时
 #define SERVER_COMM_RX_DATA_TIMEOUT             5	    //没有接收超时5ms就是接收完毕
 //与服务器通信最大重发次数
 #define SERVER_COMM_REPEAT_SEND_TIME            2       //重发次数2次
 //与服务器通信最大等待间隔时间
-#define SERVER_COMM_WAIT_RESPONSE_TIMEOUT       (1000 * 1)  //等待服务器应答超时为1s
+#define SERVER_COMM_WAIT_RESPONSE_TIMEOUT       (1000 * 3)  //等待服务器应答超时
+
+//发送握手指令给服务器的时间间隔
+#define SERVER_COMM_HANDSHAKE_INTERVAL          (1000 * 10) //
 
 
 

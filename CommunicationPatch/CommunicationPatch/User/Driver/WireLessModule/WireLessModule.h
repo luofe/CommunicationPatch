@@ -55,29 +55,49 @@
 // 等待无线模块重启完毕的最大等待时间
 #define WIRELESS_WAIT_RDY_TIMEOUT       (1000 * 20)     //20s
 // 等待SIM卡状态的最大等待时间
-#define WIRELESS_WAIT_CPIN_TIMEOUT      (1000 * 3)      //20s
+#define WIRELESS_WAIT_CPIN_TIMEOUT      (1000 * 20)      //20s
 // 等待SIM卡的网络注册状态最大等待时间
 #define WIRELESS_WAIT_CREG_TIMEOUT      (1000 * 90)     //90s
 // 等待SIM卡的GPRS网络注册状态最大等待时间
 #define WIRELESS_WAIT_CGREG_TIMEOUT     (1000 * 60)     //60s
 // 等待配置APN和上下文ID的最大等待时间
-#define WIRELESS_WAIT_QICSGP_TIMEOUT    (1000 * 1)     //1s
+#define WIRELESS_WAIT_QICSGP_TIMEOUT    (1000 * 10)     //1s
 // 等待配置可接受的最小服务质量的最大等待时间
-#define WIRELESS_WAIT_CGQMIN_TIMEOUT    (1000 * 1)     //1s
+#define WIRELESS_WAIT_CGQMIN_TIMEOUT    (1000 * 5)     //1s
 // 等待失能PDP上下文的最大等待时间
-#define WIRELESS_WAIT_QIDEACT_TIMEOUT   (1000 * 10)    //10s
+#define WIRELESS_WAIT_QIDEACT_TIMEOUT   (1000 * 40)    //10s
 // 等待激活PDP上下文的最大等待时间
-#define WIRELESS_WAIT_QIACT_EN_TIMEOUT  (1000 * 10)    //10s
+#define WIRELESS_WAIT_QIACT_EN_TIMEOUT  (1000 * 150)    //10s
 // 等待检测PDP上下文的最大等待时间
-#define WIRELESS_WAIT_QIACT_DE_TIMEOUT  (1000 * 10)    //10s 
+#define WIRELESS_WAIT_QIACT_DE_TIMEOUT  (1000 * 5)    //10s 
 // 等待检测可接受的最小服务质量的最大等待时间
-#define WIRELESS_WAIT_CGQMIN_DE_TIMEOUT (1000 * 10)    //10s 
+#define WIRELESS_WAIT_CGQMIN_DE_TIMEOUT (1000 * 5)    //10s 
 // 等待配置服务器IP地址和端口号、建立连接的最大等待时间
-#define WIRELESS_WAIT_QIOPEN_TIMEOUT    (1000 * 10)    //10s
+#define WIRELESS_WAIT_QIOPEN_TIMEOUT    (1000 * 150)    //10s 
+// 等待关闭TCP连接的最大等待时间
+#define WIRELESS_WAIT_QICLOSE_TIMEOUT   (1000 * 5)    //10s 
+// 等待切换到命令模式的最大等待时间
+#define WIRELESS_WAIT_SWITCH_CMD_TIMEOUT (1000 * 5)    //10s 
+// 等待切换回透传模式的最大等待时间
+#define WIRELESS_WAIT_ATO_TIMEOUT       (1000 * 5)    //10s 
+// 等待获取SIM卡的CCID号的最大等待时间
+#define WIRELESS_WAIT_QCCID_TIMEOUT     (1000 * 5)    //10s 
+// 等待获取SIM卡的ISMI号的最大等待时间
+#define WIRELESS_WAIT_CIMI_TIMEOUT      (1000 * 5)    //10s 
+// 等待获取SIM卡的IMEI号的最大等待时间
+#define WIRELESS_WAIT_CGSN_TIMEOUT      (1000 * 5)    //10s
+
+
+
 
 // AT指令的应答包含2部分，分别是重复一遍指令和应答指令
 // 与SUCCEED、FAILURE同步使用，所以要避开前面2个值
 #define RECEIVE_AT_COMMAND_REPEAT       2
+
+
+
+//USART接收超时
+#define WIRELESS_RX_AT_DATA_TIMEOUT     30	    //没有接收超时
 
 
 
@@ -109,7 +129,8 @@
 /******************************************************************************
 //变量定义/声明
 *******************************************************************************/
-
+// 无线模块初始化完成标志
+extern u8  g_WireLessModuleInitFlag;
 
 
 
@@ -124,6 +145,12 @@
 *******************************************************************************/
 //功能: 发送AT指令的函数
 void WireLess_Send_AT_Command(u8 cmd);
+
+//功能: 无线模块AT指令控制函数
+u8 WireLess_AT_Command_Ctr(u8 cmd);
+
+//功能: 无线模块初始化函数
+u8 WireLess_Initial(void);
 
 
 

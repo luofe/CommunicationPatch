@@ -19,6 +19,8 @@
 /******************************************************************************
 //变量定义
 *******************************************************************************/
+// 无线模块初始化完成标志
+u8  g_WireLessModuleInitFlag = FALSE;
 
 
 
@@ -42,6 +44,12 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta);
 
 //函数功能: 无线模块接收AT指令应答的监测函数
 u8 WireLess_Rec_AT_Command_Monitor(u8 cmd);
+
+//功能: 无线模块AT指令控制函数
+u8 WireLess_AT_Command_Ctr(u8 cmd);
+
+//功能: 无线模块初始化函数
+u8 WireLess_Initial(void);
 
 
 
@@ -69,26 +77,26 @@ u8 WireLess_Rec_AT_Command_Monitor(u8 cmd);
 ******************************************/
 void WireLess_Send_Str(char *str)
 {  
-        
-#if (SERVER_PRINTF_EN)
-printf("\r\n发送AT指令给WL:");
+    
+#if (SERVER_AT_PRINTF_EN)
+    printf("\r\n发送AT指令给无线模块:");
 #endif
     
     while(*str != '\0')  //发送AT命令
     {
         
-#if (SERVER_PRINTF_EN)
-printf("%c ", *str);
+#if (SERVER_AT_PRINTF_EN)
+        printf("%c", *str);
 #endif
-            
+        
         USART_SendData(SERVER_COMM_USART, *str++); 
         while(USART_GetFlagStatus(SERVER_COMM_USART, USART_FLAG_TXE) == RESET);//等待发送完成
     } 
-        
-#if (SERVER_PRINTF_EN)
-printf("\r\n");
+    
+#if (SERVER_AT_PRINTF_EN)
+    printf("\r\n");
 #endif
-              
+    
 }
 
 /*****************************************
@@ -287,12 +295,16 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
     {
         case AT_COMMAND_QPWOD:  //如果是重启命令
         {
-            str_len = strlen("RDY");
-            for(i = 0; i < len - (str_len - 1); i++)
+            for(i = 0; i < len; i++)
             {
-                if((g_PublicDataBuffer[i] == 'R') && (g_PublicDataBuffer[i + 1] == 'D') && (g_PublicDataBuffer[i + 2] == 'Y'))
+                if((buf[i] == 'R') && (buf[i + 1] == 'D') && (buf[i + 2] == 'Y'))
                 {
                     return SUCCEED;
+                }
+                else if((buf[i] == 'P') && (buf[i + 1] == 'O') && (buf[i + 2] == 'W') && (buf[i + 3] == 'E') 
+                        && (buf[i + 4] == 'R') && (buf[i + 5] == 'E') && (buf[i + 6] == 'D'))
+                {
+                    return RECEIVE_AT_COMMAND_REPEAT;
                 }
             }
         }
@@ -300,269 +312,266 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
         
         case AT_COMMAND_CPIN:   //检测SIM卡状态
         {
-            str_len = strlen("AT+CPIN?\r\n\r\n+CPIN: READY\r\n\r\nOK\r\n");
-            if(len < str_len)
+            for(i = 0; i < len; i++)
             {
-                if(repeat_sta == TRUE)  //重复AT
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
-                    for(i = 0; i < len - (str_len - 1); i++)
-                    {
-                        if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                           && (g_PublicDataBuffer[i + 3] == 'C') && (g_PublicDataBuffer[i + 4] == 'P') && (g_PublicDataBuffer[i + 5] == 'I')
-                               && (g_PublicDataBuffer[i + 6] == 'N') && (g_PublicDataBuffer[i + 7] == '?'))
-                        {
-//                        if((g_PublicDataBuffer[i + 19] == 'R') && (g_PublicDataBuffer[i + 20] == 'E') && (g_PublicDataBuffer[i + 21] == 'A')
-//                           && (g_PublicDataBuffer[i + 22] == 'D') && (g_PublicDataBuffer[i + 23] == 'Y'))
-                            {
-                                return RECEIVE_AT_COMMAND_REPEAT;
-                            }
-                        }
-                    }
-                }
-                else    //应答
-                {
-                    str_len = strlen("\r\nOK\r\n");
-                    for(i = 0; i < len - (str_len - 1); i++)
-                    {
-                        if((g_PublicDataBuffer[i] == 'O') && (g_PublicDataBuffer[i + 1] == 'K'))
-                        {
-                            return SUCCEED;
-                        }
-                    }
+                    return SUCCEED;
                 }
             }
-            else
+            if(repeat_sta == TRUE)  //重复AT
             {
-                for(i = 0; i < len - (str_len - 1); i++)
-                {
-                    if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                       && (g_PublicDataBuffer[i + 3] == 'C') && (g_PublicDataBuffer[i + 4] == 'P') && (g_PublicDataBuffer[i + 5] == 'I')
-                           && (g_PublicDataBuffer[i + 6] == 'N') && (g_PublicDataBuffer[i + 7] == '?'))
-                    {
-                        if((g_PublicDataBuffer[i + 19] == 'R') && (g_PublicDataBuffer[i + 20] == 'E') && (g_PublicDataBuffer[i + 21] == 'A')
-                           && (g_PublicDataBuffer[i + 22] == 'D') && (g_PublicDataBuffer[i + 23] == 'Y') 
-                           && (g_PublicDataBuffer[i + 28] == 'O') && (g_PublicDataBuffer[i + 29] == 'K'))
-                        {
-                            return SUCCEED;
-                        }
-                    }
-                }
+                return RECEIVE_AT_COMMAND_REPEAT;
             }
-            
         }
         break;
         
         case AT_COMMAND_CREG:   //检测卡的网络注册状态
         {
-            str_len = strlen("AT+CREG?\r\n\r\n+CREG: 0,1\r\n\r\nOK\r\n");
-            if(len < str_len)
+            for(i = 0; i < len; i++)
             {
-                if(repeat_sta == TRUE)  //重复AT
+                if((buf[i] == '0') && (buf[i + 2] == '1') && (buf[i + 7] == 'O') && (buf[i + 8] == 'K'))
                 {
-                    for(i = 0; i < len - (str_len - 1); i++)
-                    {
-                        if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                           && (g_PublicDataBuffer[i + 3] == 'C') && (g_PublicDataBuffer[i + 4] == 'R') && (g_PublicDataBuffer[i + 5] == 'E')
-                               && (g_PublicDataBuffer[i + 6] == 'G') && (g_PublicDataBuffer[i + 7] == '?'))
-                        {
-//                            if((g_PublicDataBuffer[i + 19] == '0') && (g_PublicDataBuffer[i + 21] == '1')
-//                               && (g_PublicDataBuffer[i + 26] == 'O') && (g_PublicDataBuffer[i + 27] == 'K'))
-                            {
-                                return RECEIVE_AT_COMMAND_REPEAT;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    str_len = strlen("\r\nOK\r\n");
-                    for(i = 0; i < len - (str_len - 1); i++)
-                    {
-                        if((g_PublicDataBuffer[i] == 'O') && (g_PublicDataBuffer[i + 1] == 'K'))
-                        {
-                            return SUCCEED;
-                        }
-                    }
+                    return SUCCEED;
                 }
             }
-            else
+            if(repeat_sta == TRUE)  //重复AT
             {
-                for(i = 0; i < len - (str_len - 1); i++)
-                {
-                    if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                       && (g_PublicDataBuffer[i + 3] == 'C') && (g_PublicDataBuffer[i + 4] == 'R') && (g_PublicDataBuffer[i + 5] == 'E')
-                           && (g_PublicDataBuffer[i + 6] == 'G') && (g_PublicDataBuffer[i + 7] == '?'))
-                    {
-                        if((g_PublicDataBuffer[i + 19] == '0') && (g_PublicDataBuffer[i + 21] == '1')
-                           && (g_PublicDataBuffer[i + 26] == 'O') && (g_PublicDataBuffer[i + 27] == 'K'))
-                        {
-                            return SUCCEED;
-                        }
-                    }
-                }
+                return RECEIVE_AT_COMMAND_REPEAT;
             }
         }
         break;
         
         case AT_COMMAND_CGREG:  //检测卡的GPRS网络注册状态
         {
-            str_len = strlen("AT+CGREG?\r\n\r\n+CGREG: 0,1\r\n\r\nOK\r\n");
-            for(i = 0; i < len - (str_len - 1); i++)
+            for(i = 0; i < len; i++)
             {
-                if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                    && (g_PublicDataBuffer[i + 3] == 'C') && (g_PublicDataBuffer[i + 4] == 'G') && (g_PublicDataBuffer[i + 5] == 'R') 
-                    && (g_PublicDataBuffer[i + 6] == 'E') && (g_PublicDataBuffer[i + 7] == 'G') && (g_PublicDataBuffer[i + 8] == '?'))
+                if((buf[i] == '0') && (buf[i + 2] == '1') && (buf[i + 7] == 'O') && (buf[i + 8] == 'K'))
                 {
-                    if((g_PublicDataBuffer[i + 21] == '0') && (g_PublicDataBuffer[i + 23] == '1')
-                        && (g_PublicDataBuffer[i + 28] == 'O') && (g_PublicDataBuffer[i + 29] == 'K'))
-                    {
-                        return SUCCEED;
-                    }
+                    return SUCCEED;
                 }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
             }
         }
         break;
         
-        case WIRELESS_WAIT_QICSGP_TIMEOUT:  //配置APN和上下文ID
+        case AT_COMMAND_QICSGP:  //配置APN和上下文ID
         {
-            str_len = strlen("AT+QICSGP=1,1,\"CMNET\",\"\",\"\",1\r\n\r\nOK\r\n");
-            for(i = 0; i < len - (str_len - 1); i++)
+            for(i = 0; i < len; i++)
             {
-                if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                    && (g_PublicDataBuffer[i + 3] == 'Q') && (g_PublicDataBuffer[i + 4] == 'I') && (g_PublicDataBuffer[i + 5] == 'C') 
-                    && (g_PublicDataBuffer[i + 6] == 'S') && (g_PublicDataBuffer[i + 7] == 'G') && (g_PublicDataBuffer[i + 8] == 'P'))
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
-                    if((g_PublicDataBuffer[i + 33] == 'O') && (g_PublicDataBuffer[i + 34] == 'K'))
-                    {
-                        return SUCCEED;
-                    }
+                    return SUCCEED;
                 }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
             }
         }
         break;
         
         case AT_COMMAND_CGQMIN:  //配置可接受的最小服务质量
         {
-            str_len = strlen("AT+CGQMIN=1,1,4,5,2,31\r\n\r\nOK\r\n");
-            for(i = 0; i < len - (str_len - 1); i++)
+            for(i = 0; i < len; i++)
             {
-                if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                    && (g_PublicDataBuffer[i + 3] == 'C') && (g_PublicDataBuffer[i + 4] == 'G') && (g_PublicDataBuffer[i + 5] == 'Q') 
-                    && (g_PublicDataBuffer[i + 6] == 'M') && (g_PublicDataBuffer[i + 7] == 'I') && (g_PublicDataBuffer[i + 8] == 'N'))
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
-                    if((g_PublicDataBuffer[i + 26] == 'O') && (g_PublicDataBuffer[i + 27] == 'K'))
-                    {
-                        return SUCCEED;
-                    }
+                    return SUCCEED;
                 }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
             }
         }
         break;
         
         case AT_COMMAND_QIDEACT:  //失能PDP上下文
         {
-            str_len = strlen("AT+QIDEACT=1\r\n\r\nOK\r\n");
-            for(i = 0; i < len - (str_len - 1); i++)
+            for(i = 0; i < len; i++)
             {
-                if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                    && (g_PublicDataBuffer[i + 3] == 'Q') && (g_PublicDataBuffer[i + 4] == 'I') && (g_PublicDataBuffer[i + 5] == 'D') 
-                    && (g_PublicDataBuffer[i + 6] == 'E') && (g_PublicDataBuffer[i + 7] == 'A') && (g_PublicDataBuffer[i + 8] == 'C') 
-                    && (g_PublicDataBuffer[i + 9] == 'T'))
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
-                    if((g_PublicDataBuffer[i + 16] == 'O') && (g_PublicDataBuffer[i + 17] == 'K'))
-                    {
-                        return SUCCEED;
-                    }
+                    return SUCCEED;
                 }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
             }
         }
         break;
         
         case AT_COMMAND_QIACT_EN:  //激活PDP上下文
         {
-            str_len = strlen("AT+QIACT=1\r\n\r\nOK\r\n");
-            for(i = 0; i < len - (str_len - 1); i++)
+            for(i = 0; i < len; i++)
             {
-                if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                    && (g_PublicDataBuffer[i + 3] == 'Q') && (g_PublicDataBuffer[i + 4] == 'I') && (g_PublicDataBuffer[i + 5] == 'A') 
-                    && (g_PublicDataBuffer[i + 6] == 'C') && (g_PublicDataBuffer[i + 7] == 'T'))
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
-                    if((g_PublicDataBuffer[i + 14] == 'O') && (g_PublicDataBuffer[i + 15] == 'K'))
-                    {
-                        return SUCCEED;
-                    }
+                    return SUCCEED;
                 }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
             }
         }
         break;
         
         case AT_COMMAND_QIACT_DE:  //检测PDP上下文
         {
-            str_len = strlen("AT+QIACT?\r\n\r\n+QIACT: 1,1,1,\"10.219.117.219\"\r\n\r\nOK\r\n");
-            for(i = 0; i < len - (str_len - 1); i++)
+            for(i = 0; i < len; i++)
             {
-                if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                    && (g_PublicDataBuffer[i + 3] == 'Q') && (g_PublicDataBuffer[i + 4] == 'I') && (g_PublicDataBuffer[i + 5] == 'A') 
-                    && (g_PublicDataBuffer[i + 6] == 'C') && (g_PublicDataBuffer[i + 7] == 'T') && (g_PublicDataBuffer[i + 8] == '?'))
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
-                    if((g_PublicDataBuffer[i + 21] == '1') && (g_PublicDataBuffer[i + 23] == '1') 
-                       && (g_PublicDataBuffer[i + 25] == '1'))
-                    {
-                        return SUCCEED;
-                    }
+                    return SUCCEED;
                 }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
             }
         }
         break;
         
         case AT_COMMAND_CGQMIN_DE:  //检测可接受的最小服务质量
         {
-            str_len = strlen("AT+CGQMIN?\r\n\r\n+CGQMIN: 1,1,4,5,2,31\r\n\r\nOK\r\n");
-            for(i = 0; i < len - (str_len - 1); i++)
+            for(i = 0; i < len; i++)
             {
-                if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                    && (g_PublicDataBuffer[i + 3] == 'C') && (g_PublicDataBuffer[i + 4] == 'G') && (g_PublicDataBuffer[i + 5] == 'Q') 
-                    && (g_PublicDataBuffer[i + 6] == 'M') && (g_PublicDataBuffer[i + 7] == 'I') && (g_PublicDataBuffer[i + 8] == 'N'))
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
-                    if((g_PublicDataBuffer[i + 39] == 'O') && (g_PublicDataBuffer[i + 40] == 'K'))
-                    {
-                        return SUCCEED;
-                    }
+                    return SUCCEED;
                 }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
             }
         }
         break;
         
         case AT_COMMAND_QIOPEN:  //配置服务器IP地址和端口号、建立连接
         {
-            if(repeat_sta == TRUE)
+            for(i = 0; i < len; i++)
             {
-                str_len = strlen("AT+QIOPEN=1,0,\"TCP\",\"58.83.189.147\",21009,0,2\r\n");
-                for(i = 0; i < len - (str_len - 1); i++)
+                if((buf[i] == 'C') && (buf[i + 1] == 'O') && (buf[i + 2] == 'N') 
+                   && (buf[i + 3] == 'N') && (buf[i + 4] == 'E') && (buf[i + 5] == 'C') 
+                       && (buf[i + 6] == 'T'))
                 {
-                    if((g_PublicDataBuffer[i] == 'A') && (g_PublicDataBuffer[i + 1] == 'T') && (g_PublicDataBuffer[i + 2] == '+') 
-                       && (g_PublicDataBuffer[i + 3] == 'Q') && (g_PublicDataBuffer[i + 4] == 'I') && (g_PublicDataBuffer[i + 5] == 'O') 
-                           && (g_PublicDataBuffer[i + 6] == 'P') && (g_PublicDataBuffer[i + 7] == 'E') && (g_PublicDataBuffer[i + 8] == 'N'))
-                    {
-                        if((g_PublicDataBuffer[i + 10] == '1') && (g_PublicDataBuffer[i + 12] == '0'))
-                        {
-                            return RECEIVE_AT_COMMAND_REPEAT;
-                        }
-                    }
+                    return SUCCEED;
                 }
             }
-            else
+            if(repeat_sta == TRUE)  //重复AT
             {
-                str_len = strlen("\r\nCONNECT\r\n");
-                for(i = 0; i < len - (str_len - 1); i++)
+                return RECEIVE_AT_COMMAND_REPEAT;
+            }
+        }
+        break;
+        
+        case AT_COMMAND_QICLOSE:  //关闭TCP连接
+        {
+            for(i = 0; i < len; i++)
+            {
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
-                    if((g_PublicDataBuffer[i] == 'C') && (g_PublicDataBuffer[i + 1] == 'O') && (g_PublicDataBuffer[i + 2] == 'N') 
-                       && (g_PublicDataBuffer[i + 3] == 'N') && (g_PublicDataBuffer[i + 4] == 'E') && (g_PublicDataBuffer[i + 5] == 'C') 
-                       && (g_PublicDataBuffer[i + 6] == 'T'))
-                    {
-                        return SUCCEED;
-                    }
+                    return SUCCEED;
                 }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
+            }
+        }
+        break;
+        
+        case AT_COMMAND_SWITCH_CMD:  //切换到命令模式
+        {
+            str_len = strlen("\r\nOK\r\n");
+            for(i = 0; i < len - (str_len - 1); i++)
+            {
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
+                {
+                    return SUCCEED;
+                }
+            }
+        }
+        break;
+        
+        case AT_COMMAND_ATO:  //切换回透传模式
+        {
+            for(i = 0; i < len; i++)
+            {
+                if((buf[i] == 'C') && (buf[i + 1] == 'O') && (buf[i + 2] == 'N') 
+                   && (buf[i + 3] == 'N') && (buf[i + 4] == 'E') && (buf[i + 5] == 'C') 
+                       && (buf[i + 6] == 'T'))
+                {
+                    return SUCCEED;
+                }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
+            }
+        }
+        break;
+        
+        case AT_COMMAND_QCCID:  //获取SIM卡的CCID号
+        {
+            for(i = 0; i < len; i++)
+            {
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
+                {
+                    s_SIMCardPara.CCID_len = 20;
+                    memcpy(s_SIMCardPara.CCID, &buf[i - 4 - s_SIMCardPara.CCID_len], s_SIMCardPara.CCID_len);
+                    
+                    return SUCCEED;
+                }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
+            }
+        }
+        break;
+        
+        case AT_COMMAND_CIMI:  //获取SIM卡的ISMI号
+        {
+            for(i = 0; i < len; i++)
+            {
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
+                {
+                    s_SIMCardPara.IMSI_len = 15;
+                    memcpy(s_SIMCardPara.IMSI, &buf[i - 4 - s_SIMCardPara.IMSI_len], s_SIMCardPara.IMSI_len);
+                    
+                    return SUCCEED;
+                }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
+            }
+        }
+        break;
+        
+        case AT_COMMAND_CGSN:  //获取SIM卡的IMEI号
+        {
+            for(i = 0; i < len; i++)
+            {
+                if((buf[i] == 'O') && (buf[i + 1] == 'K'))
+                {
+                    s_SIMCardPara.IMEI_len = 15;
+                    memcpy(s_SIMCardPara.IMEI, &buf[i - 4 - s_SIMCardPara.IMEI_len], s_SIMCardPara.IMEI_len);
+                    
+                    return SUCCEED;
+                }
+            }
+            if(repeat_sta == TRUE)  //重复AT
+            {
+                return RECEIVE_AT_COMMAND_REPEAT;
             }
         }
         break;
@@ -585,16 +594,24 @@ u8 WireLess_Rec_AT_Command_Monitor(u8 cmd)
 {
     u32 temp_time_count = 0;
     u16 temp_l = 0;
-    u8  temp_sta = FAILURE;
-    u8  repeat_sta = TRUE;
+    u8  temp_sta = FAILURE; //解析结果：包括成功、失败、只是接收到无线模块对请求指令的重复包（还没有结果的）
+    u8  repeat_sta = TRUE;  //无线模块对请求指令的重复包标志
     
     s_ServerCommRx.Timeout_Count = 0;
     while(9)
     {
         if(s_ServerCommRx.Status == TRUE)   //有接收
         {
-            if(s_ServerCommRx.Timeout_Count >= SERVER_COMM_RX_DATA_TIMEOUT)    //是否超时了
+            if(s_ServerCommRx.Timeout_Count >= WIRELESS_RX_AT_DATA_TIMEOUT)    //是否超时了
             {
+                if((s_ServerCommRx.Index < 3))   //如果是一个无效值，抛弃 && (s_ServerCommRx.Buffer[0] == '\0')
+                {
+                    s_ServerCommRx.Status = FALSE;
+                    s_ServerCommRx.Index = 0;
+                    s_ServerCommRx.Timeout_Count = 0;
+                    
+                    continue; 
+                }
                 temp_l = s_ServerCommRx.Index;    //拷贝出数据长度
                 //将数据拷贝至公共缓冲区，防止被新的数据淹没
                 memcpy(g_PublicDataBuffer, s_ServerCommRx.Buffer, temp_l); 
@@ -602,6 +619,14 @@ u8 WireLess_Rec_AT_Command_Monitor(u8 cmd)
                 s_ServerCommRx.Status = FALSE;
                 s_ServerCommRx.Index = 0;
                 s_ServerCommRx.Timeout_Count = 0;
+                
+#if (SERVER_AT_PRINTF_EN)
+                printf("接收到无线模块应答AT：");
+                for(u16 i = 0; i < temp_l; i++)
+                {
+                    printf("%c", g_PublicDataBuffer[i]);
+                }
+#endif
                 
                 //解析接收到的AT指令
                 temp_sta = WireLess_AT_Command_Analysis(cmd, g_PublicDataBuffer, temp_l, repeat_sta);
@@ -690,6 +715,42 @@ u8 WireLess_Rec_AT_Command_Monitor(u8 cmd)
                 }
                 break;
                 
+                case AT_COMMAND_QICLOSE:  //关闭TCP连接
+                {
+                    temp_time_count = WIRELESS_WAIT_QICLOSE_TIMEOUT;
+                }
+                break;
+                
+                case AT_COMMAND_SWITCH_CMD:  //切换到命令模式“+++”
+                {
+                    temp_time_count = WIRELESS_WAIT_SWITCH_CMD_TIMEOUT;
+                }
+                break;
+                
+                case AT_COMMAND_ATO:  //切换回透传模式
+                {
+                    temp_time_count = WIRELESS_WAIT_ATO_TIMEOUT;
+                }
+                break;
+                
+                case AT_COMMAND_QCCID:  //获取SIM卡的CCID号
+                {
+                    temp_time_count = WIRELESS_WAIT_QCCID_TIMEOUT;
+                }
+                break;
+                
+                case AT_COMMAND_CIMI:  //获取SIM卡的ISMI号
+                {
+                    temp_time_count = WIRELESS_WAIT_CIMI_TIMEOUT;
+                }
+                break;
+                
+                case AT_COMMAND_CGSN:  //获取SIM卡的IMEI号
+                {
+                    temp_time_count = WIRELESS_WAIT_CGSN_TIMEOUT;
+                }
+                break;
+                
                 default:
                 break;
             }
@@ -705,6 +766,45 @@ u8 WireLess_Rec_AT_Command_Monitor(u8 cmd)
 }
 
 /*****************************************
+//名称: WireLess_AT_Command_Ctr
+//功能: 无线模块AT指令控制函数
+//入口: u8 cmd—命令码
+//出口: u8—返回控制结果
+******************************************/
+u8 WireLess_AT_Command_Ctr(u8 cmd)
+{
+    u8 index;
+    u8 temp_sta = FAILURE;
+    
+    WireLess_Send_AT_Command(cmd);
+    
+    index = 0;
+    while(9)
+    {
+        temp_sta = WireLess_Rec_AT_Command_Monitor(cmd);
+        if(temp_sta == FAILURE) //如果失败了
+        {
+            index++;
+            if(index > 1)   //超时1次，就退出
+            {
+                return FAILURE;
+            }
+            else
+            {
+                //重发一次
+                WireLess_Send_AT_Command(cmd);
+            }
+        }
+        else    //如果成功了，则进入下一步
+        {
+            break;
+        }
+    }
+    
+    return SUCCEED;
+}
+
+/*****************************************
 //名称: WireLess_Initial
 //功能: 无线模块初始化函数
 //入口: 无
@@ -712,281 +812,181 @@ u8 WireLess_Rec_AT_Command_Monitor(u8 cmd)
 ******************************************/
 u8 WireLess_Initial(void)
 {
-    u8 index;
-    u8 temp_sta = FAILURE;
+    u8  index = 0;
+    u8  temp_sta = FALSE;
     
-    //1、先等待接收无线模块启动后的“RDY”
-    index = 0;
-    while(9)
+#if (SERVER_AT_PRINTF_EN)
+    printf("等待无线模块启动后的\"RDY\"\r\n");
+#endif	
+    
+    //先等待接收无线模块启动后的“RDY”
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_QPWOD) == FAILURE)
     {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(AT_COMMAND_QPWOD);
-        if(temp_sta == FAILURE) //如果失败了
-        {
-            index++;
-            if(index > 1)   //超时1次，就退出
-            {
-                return FAILURE;
-            }
-            else
-            {
-                //重启无线模块
-                WireLess_Send_AT_Command(AT_COMMAND_QPWOD);
-            }
-        }
-        else    //如果成功了，则进入下一步
-        {
-            break;
-        }
-    }
-    //2、检测SIM卡状态
-    WireLess_Send_AT_Command(AT_COMMAND_CPIN);
-    index = 0;
-    while(9)
-    {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(AT_COMMAND_CPIN);
-        if(temp_sta == FAILURE) //如果失败了
-        {
-            index++;
-            if(index > 1)   //超时1次，就退出
-            {
-                return FAILURE;
-            }
-            else
-            {
-                //重启无线模块
-                WireLess_Send_AT_Command(AT_COMMAND_CPIN);
-            }
-        }
-        else    //如果成功了，则进入下一步
-        {
-            break;
-        }
+        return FAILURE;
     }
     
-    //3、检测卡的网络注册状态
-    WireLess_Send_AT_Command(AT_COMMAND_CREG); 
-    index = 0;
-    while(9)
+#if (SERVER_AT_PRINTF_EN)
+    printf("检测SIM卡状态\r\n");
+#endif	
+    
+    //检测SIM卡状态
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_CPIN) == FAILURE)
     {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(AT_COMMAND_CREG);
-        if(temp_sta == FAILURE) //如果失败了
-        {
-            index++;
-            if(index > 1)   //超时1次，就退出
-            {
-                return FAILURE;
-            }
-            else
-            {
-                //重启无线模块
-                WireLess_Send_AT_Command(AT_COMMAND_CREG);
-            }
-        }
-        else    //如果成功了，则进入下一步
-        {
-            break;
-        }
+        return FAILURE;
     }
     
-    //4、检测卡的GPRS网络注册状态
-    WireLess_Send_AT_Command(AT_COMMAND_CGREG); 
-    index = 0;
-    while(9)
+#if (SERVER_AT_PRINTF_EN)
+    printf("获取SIM卡的CCID号\r\n");
+#endif	
+    
+    //获取SIM卡的CCID号
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_QCCID) == FAILURE)
     {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(AT_COMMAND_CGREG);
-        if(temp_sta == FAILURE) //如果失败了
-        {
-            index++;
-            if(index > 1)   //超时1次，就退出
-            {
-                return FAILURE;
-            }
-            else
-            {
-                //重启无线模块
-                WireLess_Send_AT_Command(AT_COMMAND_CGREG);
-            }
-        }
-        else    //如果成功了，则进入下一步
-        {
-            break;
-        }
+        return FAILURE;
     }
     
-    //5、配置APN和上下文ID
-    WireLess_Send_AT_Command(AT_COMMAND_QICSGP); 
-    index = 0;
-    while(9)
+#if (SERVER_AT_PRINTF_EN)
+    printf("获取SIM卡的ISMI号\r\n");
+#endif	
+    
+    //获取SIM卡的ISMI号
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_CIMI) == FAILURE)
     {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(AT_COMMAND_QICSGP);
-        if(temp_sta == FAILURE) //如果失败了
+        return FAILURE;
+    }
+    
+#if (SERVER_AT_PRINTF_EN)
+    printf("获取SIM卡的IMEI号\r\n");
+#endif	
+    
+    //获取SIM卡的IMEI号
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_CGSN) == FAILURE)
+    {
+        return FAILURE;
+    }
+    
+#if (SERVER_AT_PRINTF_EN)
+    printf("检测卡的网络注册状态\r\n");
+#endif	
+    
+    //检测卡的网络注册状态
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_CREG) == FAILURE)
+    {
+        return FAILURE;
+    }
+    
+#if (SERVER_AT_PRINTF_EN)
+    printf("检测卡的GPRS网络注册状态\r\n");
+#endif	
+    
+    //检测卡的GPRS网络注册状态
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_CGREG) == FAILURE)
+    {
+        return FAILURE;
+    }
+    
+#if (SERVER_AT_PRINTF_EN)
+    printf("配置APN和上下文ID\r\n");
+#endif	
+    
+    //配置APN和上下文ID
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_QICSGP) == FAILURE)
+    {
+        return FAILURE;
+    }
+    
+#if (SERVER_AT_PRINTF_EN)
+    printf("配置可接受的最小服务质量\r\n");
+#endif	
+    
+    //配置可接受的最小服务质量
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_CGQMIN) == FAILURE)
+    {
+        return FAILURE;
+    }
+    
+    ForceReconnect:
+    if(temp_sta == TRUE)
+    {
+        
+#if (SERVER_AT_PRINTF_EN)
+        printf("失能PDP上下文\r\n");
+#endif	
+        
+        //失能PDP上下文
+        if(WireLess_AT_Command_Ctr(AT_COMMAND_QIDEACT) == FAILURE)
         {
-            index++;
-            if(index > 1)   //超时1次，就退出
-            {
-                return FAILURE;
-            }
-            else
-            {
-                //重启无线模块
-                WireLess_Send_AT_Command(AT_COMMAND_QICSGP);
-            }
-        }
-        else    //如果成功了，则进入下一步
-        {
-            break;
+            return FAILURE;
         }
     }
     
-    //6、配置可接受的最小服务质量
-    WireLess_Send_AT_Command(AT_COMMAND_CGQMIN); 
-    index = 0;
-    while(9)
+#if (SERVER_AT_PRINTF_EN)
+    printf("激活PDP上下文\r\n");
+#endif	
+    
+    //激活PDP上下文
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_QIACT_EN) == FAILURE)
     {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(AT_COMMAND_CGQMIN);
-        if(temp_sta == FAILURE) //如果失败了
+        index++;
+        if(index >= 2)
         {
-            index++;
-            if(index > 1)   //超时1次，就退出
-            {
-                return FAILURE;
-            }
-            else
-            {
-                //重启无线模块
-                WireLess_Send_AT_Command(AT_COMMAND_CGQMIN);
-            }
+            return FAILURE;
         }
-        else    //如果成功了，则进入下一步
+        else
         {
-            break;
+            temp_sta = TRUE;
+            goto ForceReconnect;
+        }
+    }
+    index = 0;
+    temp_sta = FALSE;
+    
+#if (SERVER_AT_PRINTF_EN)
+    printf("检测PDP上下文\r\n");
+#endif	
+    
+    //检测PDP上下文
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_QIACT_DE) == FAILURE)
+    {
+        return FAILURE;
+    }
+    
+#if (SERVER_AT_PRINTF_EN)
+    printf("检测可接受的最小服务质量\r\n");
+#endif	
+    
+    //检测可接受的最小服务质量
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_CGQMIN_DE) == FAILURE)
+    {
+        return FAILURE;
+    }
+    
+#if (SERVER_AT_PRINTF_EN)
+    printf("配置服务器IP地址和端口号，建立连接\r\n");
+#endif	
+    
+    //配置服务器IP地址和端口号，建立连接
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_QIOPEN) == FAILURE)
+    {
+        index++;
+        if(index >= 2)
+        {
+            return FAILURE;
+        }
+        else
+        {
+            temp_sta = TRUE;
+            goto ForceReconnect;
         }
     }
     
-    //7、失能PDP上下文
-    WireLess_Send_AT_Command(AT_COMMAND_QIDEACT); 
-    index = 0;
-    while(9)
-    {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(AT_COMMAND_QIDEACT);
-        if(temp_sta == FAILURE) //如果失败了
-        {
-            index++;
-            if(index > 1)   //超时1次，就退出
-            {
-                return FAILURE;
-            }
-            else
-            {
-                //重启无线模块
-                WireLess_Send_AT_Command(AT_COMMAND_QIDEACT);
-            }
-        }
-        else    //如果成功了，则进入下一步
-        {
-            break;
-        }
-    }
+    //    Delay_ms(100);
     
-    //8、激活PDP上下文
-    WireLess_Send_AT_Command(AT_COMMAND_QIACT_EN); 
-    index = 0;
-    while(9)
-    {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(AT_COMMAND_QIACT_EN);
-        if(temp_sta == FAILURE) //如果失败了
-        {
-            index++;
-            if(index > 1)   //超时1次，就退出
-            {
-                return FAILURE;
-            }
-            else
-            {
-                //重启无线模块
-                WireLess_Send_AT_Command(AT_COMMAND_QIACT_EN);
-            }
-        }
-        else    //如果成功了，则进入下一步
-        {
-            break;
-        }
-    }
+    g_WireLessModuleInitFlag = TRUE;    //无线模块初始化完成
     
-    //9、检测PDP上下文
-    WireLess_Send_AT_Command(AT_COMMAND_QIACT_DE); 
-    index = 0;
-    while(9)
-    {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(AT_COMMAND_QIACT_DE);
-        if(temp_sta == FAILURE) //如果失败了
-        {
-            index++;
-            if(index > 1)   //超时1次，就退出
-            {
-                return FAILURE;
-            }
-            else
-            {
-                //重启无线模块
-                WireLess_Send_AT_Command(AT_COMMAND_QIACT_DE);
-            }
-        }
-        else    //如果成功了，则进入下一步
-        {
-            break;
-        }
-    }
-    
-    //10、检测可接受的最小服务质量
-    WireLess_Send_AT_Command(AT_COMMAND_CGQMIN_DE); 
-    index = 0;
-    while(9)
-    {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(AT_COMMAND_CGQMIN_DE);
-        if(temp_sta == FAILURE) //如果失败了
-        {
-            index++;
-            if(index > 1)   //超时1次，就退出
-            {
-                return FAILURE;
-            }
-            else
-            {
-                //重启无线模块
-                WireLess_Send_AT_Command(AT_COMMAND_CGQMIN_DE);
-            }
-        }
-        else    //如果成功了，则进入下一步
-        {
-            break;
-        }
-    }
-    
-    //11、配置服务器IP地址和端口号，建立连接
-    WireLess_Send_AT_Command(AT_COMMAND_QIOPEN); 
-    index = 0;
-    while(9)
-    {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(AT_COMMAND_QIOPEN);
-        if(temp_sta == FAILURE) //如果失败了
-        {
-            index++;
-            if(index > 1)   //超时1次，就退出
-            {
-                return FAILURE;
-            }
-            else
-            {
-                //重启无线模块
-                WireLess_Send_AT_Command(AT_COMMAND_QIOPEN);
-            }
-        }
-        else    //如果成功了，则进入下一步
-        {
-            break;
-        }
-    }
+#if (SERVER_AT_PRINTF_EN)
+    printf("初始化成功！\r\n");
+#endif	
     
     return SUCCEED;
 }

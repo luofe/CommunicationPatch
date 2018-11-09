@@ -62,7 +62,7 @@ u8 g_PulloutBoardReseted = FALSE;    //默认设备端未复位完毕
 u8 g_SysCorrectDateTimeFlag = FALSE;    //默认没有校时
 
 // 系统初始化状态标志
-u8 g_SysInitStatusFlag = TRUE;         //默认未完成
+u8 g_SysInitStatusFlag = FALSE;         //默认未完成
 
 // 系统进入/退出故障状态时保存整机状态值的变量
 u8 g_SysAccessExitErrorVMCStatus;
@@ -414,9 +414,8 @@ void SysPeripheralInit(void)
 //    //打开GPS信息打印
 //    Device_Comm_Package_Bale(DEVICE_CTR_GPS_PRINTF_CMD);
     
-    
-    //    FATFS_Init();       //SD卡文件系统初始化
-    
+    //无线模块的初始化
+    WireLess_Initial();
     
 	USART_ITConfig(DEBUG_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
 }
@@ -430,7 +429,7 @@ void SysPeripheralInit(void)
 //********************************************************
 void SysGlobalVariableInit(void)
 {
-    //读取片内Flash的数据，得到温度上次的温度策略
+    //读取片内Flash的数据
     Internal_Flash_ReadOut();
     
     //与服务器端通信相关的变量
@@ -439,7 +438,28 @@ void SysGlobalVariableInit(void)
     s_ServerCommRx.Index = 0;
     memset(s_ServerCommRx.Buffer, 0, sizeof(s_ServerCommRx.Buffer));
     
+    // 与服务器通信的数据包结构体
+    s_ServerCommPackage.Head        = SERVER_COMM_PACKAGE_HEAD;
+    s_ServerCommPackage.Identify    = SERVER_COMM_PACKAGE_IDENTIFY;
+    s_ServerCommPackage.Length      = 0;
+    s_ServerCommPackage.ADF.SN      = 1;    //序列号从1开始
+    s_ServerCommPackage.ADF.CMD     = SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE;
     
+    //系统参数
+    s_SystemPara.proc_type      = 0x10;
+    s_SystemPara.manu_type      = 0x01;
+    s_SystemPara.device_type    = 0x00;
+    s_SystemPara.deviceID[0]    = 0x80;
+    s_SystemPara.deviceID[1]    = 0x00;
+    s_SystemPara.deviceID[2]    = 0x31;
+    s_SystemPara.deviceID[3]    = 0x65;
+    memset(s_SystemPara.Code, 0, 8);
+    memcpy(s_SystemPara.Ver, "01.01", 5);
+    s_SIMCardPara.num_len       = 13;
+    memcpy(s_SIMCardPara.num, "8615810510449", 13);
+    memset(s_SIMCardPara.CCID, 0, s_SIMCardPara.CCID_len);
+    memset(s_SIMCardPara.IMEI, 0, s_SIMCardPara.IMEI_len);
+    memset(s_SIMCardPara.IMSI, 0, s_SIMCardPara.IMSI_len);
 }
 
 //********************************************************
@@ -459,31 +479,27 @@ void System_Function_Control(void)
         {
             g_SysPollTimeCnt = 0;
             
-//            u8 test_array[] = "$Q_ID\r\n";
-//            
-//            Device_Comm_Send_Data(test_array, (sizeof(test_array) - 1));
-//            
-//#if (SERVER_PRINTF_EN)
-//            printf("查询设备ID: ");
-//            for(u8 i = 0; i < sizeof(test_array) - 1; i++)
-//            {
-//                printf("%c", test_array[i]);
-//            }
-//            printf("\r\n");
-//#endif	
-//            
-//            u8 test_array2[] = "AT+CGPADDR=1";
-//            Server_Comm_Send_Data(test_array2, (sizeof(test_array2) - 1));
-//                        
-//#if (SERVER_PRINTF_EN)
-//            printf("查看PDP地址: ");
-//            for(u8 i = 0; i < sizeof(test_array2) - 1; i++)
-//            {
-//                printf("%c", test_array2[i]);
-//            }
-//            printf("\r\n");
-//#endif	
-            
+        }
+    }
+    else 
+    {
+        if(g_WireLessModuleInitFlag == TRUE)   //假如无线模块也初始化完成了
+        {
+            //与服务器握手
+            if(g_SysPollTimeCnt >= SERVER_COMM_HANDSHAKE_INTERVAL)
+            {
+                g_SysPollTimeCnt = 0;
+                
+                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE);
+            }
+        }
+        else
+        {
+            //重启无线模块
+            WireLess_Send_AT_Command(AT_COMMAND_QPWOD);
+            Delay_ms(5000);
+            //无线模块的初始化
+            WireLess_Initial();
         }
     }
 }
