@@ -28,7 +28,7 @@
 *******************************************************************************/
 //延时计数值
 extern __IO u32 g_ms_Timing_Count;	//ms计时
-extern __IO u32 s_Timing_Count;	//s计时
+extern u32 s_Timing_Count;	//s计时
 
 
 

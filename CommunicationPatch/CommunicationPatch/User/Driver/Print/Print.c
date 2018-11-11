@@ -269,14 +269,23 @@ void Debug_Comm_Rec_Monitor(void)
             {
             
 #if (SERVER_PRINTF_EN)
-            printf("接收到Debug口数据包\r\n");
+            printf("转发Debug口数据包\r\n");
 #endif	
             
+//                // 转发给无线模块端
+//                for(u16 i = 0; i < temp_len; i++)
+//                {
+//                    USART_SendData(SERVER_COMM_USART, s_DebugComm.RxBuffer[i]); 
+//                    while(USART_GetFlagStatus(SERVER_COMM_USART, USART_FLAG_TXE) == RESET);//等待发送完成
+//                }
+            
+                // 转发给设备端
                 for(u16 i = 0; i < temp_len; i++)
                 {
-                    USART_SendData(SERVER_COMM_USART, s_DebugComm.RxBuffer[i]); 
-                    while(USART_GetFlagStatus(SERVER_COMM_USART, USART_FLAG_TXE) == RESET);//等待发送完成
+                    USART_SendData(DEVICE_COMM_USART, s_DebugComm.RxBuffer[i]); 
+                    while(USART_GetFlagStatus(DEVICE_COMM_USART, USART_FLAG_TXE) == RESET);//等待发送完成
                 }
+                
                 s_DebugComm.RxStatus = FALSE;
                 s_DebugComm.RxIndex = 0;
                 s_DebugComm.RxTimeout_Count = 0;

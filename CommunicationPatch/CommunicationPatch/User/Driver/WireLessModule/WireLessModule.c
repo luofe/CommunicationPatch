@@ -214,9 +214,12 @@ void WireLess_Send_AT_Command(u8 cmd)
             index = strlen(at_array);
             sprintf(&at_array[index], "\"%s\",", WIRELESS_SOCKET_TYPE);
             index = strlen(at_array);
-            sprintf(&at_array[index], "\"%s\",", WIRELESS_SERVER_IP);
+            strcat(at_array, (const char*)s_IPAddrPort.ip_port);
+            strcat(at_array, ",");
             index = strlen(at_array);
-            sprintf(&at_array[index], "%s,", WIRELESS_SERVER_REMOTE_PORT);
+//            sprintf(&at_array[index], "\"%s\",", WIRELESS_SERVER_IP);
+//            index = strlen(at_array);
+//            sprintf(&at_array[index], "%s,", WIRELESS_SERVER_REMOTE_PORT);
             strcat(at_array, "0,");
             index = strlen(at_array);
             sprintf(&at_array[index], "%d", WIRELESS_SERVER_ACCESS_MODE);
@@ -604,7 +607,7 @@ u8 WireLess_Rec_AT_Command_Monitor(u8 cmd)
         {
             if(s_ServerCommRx.Timeout_Count >= WIRELESS_RX_AT_DATA_TIMEOUT)    //是否超时了
             {
-                if((s_ServerCommRx.Index < 3))   //如果是一个无效值，抛弃 && (s_ServerCommRx.Buffer[0] == '\0')
+                if((s_ServerCommRx.Index < 3))   //如果是无效值，抛弃 && (s_ServerCommRx.Buffer[0] == '\0')
                 {
                     s_ServerCommRx.Status = FALSE;
                     s_ServerCommRx.Index = 0;
@@ -795,7 +798,7 @@ u8 WireLess_AT_Command_Ctr(u8 cmd)
                 WireLess_Send_AT_Command(cmd);
             }
         }
-        else    //如果成功了，则进入下一步
+        else    //如果成功了，则退出
         {
             break;
         }

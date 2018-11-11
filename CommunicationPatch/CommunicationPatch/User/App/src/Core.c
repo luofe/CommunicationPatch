@@ -29,7 +29,7 @@ u8 g_PublicDataBuffer[PUBLIC_DATA_BUFFER_MAX_LENGTH] = {0};
 u8 g_SysPulloutEnableFlag = TRUE;       //
 
 //系统发送POLL数据包给服务器的计时
-u16 g_SysPollTimeCnt = SEND_POLL_PACKAGE_TIME_INTERVAL;     //默认启动后发送一次POLL包  
+u32 g_SysPollTimeCnt = 0;     //默认启动后发送一次POLL包  
 
 //系统查询设备端状态的计时
 u32 g_GetPulloutStatusTimeCnt = 0;
@@ -72,6 +72,12 @@ u8 g_SysAccessExitErrorVMCStatus;
 
 // 设备故障标志
 u8 g_SystemDeviceErrorFlag = FALSE;
+
+// 发送传感器数据的计时
+u32 g_SendSensorDataTimeCnt = 0;
+
+// 读取传感器数据的计时
+u32 g_GetDeviceSensorDataTimeCnt = 0;
 
 
 
@@ -403,20 +409,14 @@ u16 U16_Change_Order(u16 data)
 //********************************************************
 void SysPeripheralInit(void)
 {
-    //先禁止设备端的所有打印信息
-    Device_Comm_Package_Bale(DEVICE_CTR_ALL_HIDE_CMD);
-    
-    Delay_ms(100);
-    //打开传感器信息打印
-    Device_Comm_Package_Bale(DEVICE_CTR_SENSOR_PRINTF_CMD);
-        
-//    Delay_ms(100);
-//    //打开GPS信息打印
-//    Device_Comm_Package_Bale(DEVICE_CTR_GPS_PRINTF_CMD);
-    
+	USART_ITConfig(SERVER_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
     //无线模块的初始化
     WireLess_Initial();
     
+	USART_ITConfig(DEVICE_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
+    //设备端初始化
+    Device_Initial();
+
 	USART_ITConfig(DEBUG_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
 }
 
@@ -429,6 +429,7 @@ void SysPeripheralInit(void)
 //********************************************************
 void SysGlobalVariableInit(void)
 {
+    u8  i = 0;
     //读取片内Flash的数据
     Internal_Flash_ReadOut();
     
@@ -460,6 +461,57 @@ void SysGlobalVariableInit(void)
     memset(s_SIMCardPara.CCID, 0, s_SIMCardPara.CCID_len);
     memset(s_SIMCardPara.IMEI, 0, s_SIMCardPara.IMEI_len);
     memset(s_SIMCardPara.IMSI, 0, s_SIMCardPara.IMSI_len);
+    
+    i = 0;
+    s_IPAddrPort.ip_port[i++] = '"';
+    memcpy(&s_IPAddrPort.ip_port[i], WIRELESS_SERVER_IP, strlen(WIRELESS_SERVER_IP));
+    i += strlen(WIRELESS_SERVER_IP);
+    s_IPAddrPort.ip_port[i++] = '"';
+    s_IPAddrPort.ip_port[i++] = ',';
+    memcpy(&s_IPAddrPort.ip_port[i], WIRELESS_SERVER_REMOTE_PORT, strlen(WIRELESS_SERVER_REMOTE_PORT));
+    
+    
+    // 设备端相关参数
+    s_UploadInterval.time1      = SEND_SENSOR_DATA_TIME_INTERVAL;
+    s_UploadInterval.heartbeat  = SEND_POLL_PACKAGE_TIME_INTERVAL;
+    memset(s_SensorData.device_sta, 0xFF, sizeof(s_SensorData.device_sta));
+    s_SensorData.got_status     = FALSE;
+    s_SensorData.bat_vol[0]     = (u8)(1256 >> 8);
+    s_SensorData.bat_vol[1]     = (u8)1256;
+    s_SensorData.sensor_num     = 15;
+    s_SensorData.PM2_5.real_val = 0;
+    s_SensorData.PM2_5.label_val= 0;
+    s_SensorData.PM2_5.app_val  = 0;
+    s_SensorData.PM10.real_val  = 0;
+    s_SensorData.PM10.label_val = 0;
+    s_SensorData.PM10.app_val   = 0;
+    s_SensorData.CO.real_val    = 0;
+    s_SensorData.CO.label_val   = 0;
+    s_SensorData.CO.app_val     = 0;
+    s_SensorData.NO2.real_val   = 0;
+    s_SensorData.NO2.label_val  = 0;
+    s_SensorData.NO2.app_val    = 0;
+    s_SensorData.O3.real_val    = 0;
+    s_SensorData.O3.label_val   = 0;
+    s_SensorData.O3.app_val     = 0;
+    s_SensorData.SO2.real_val   = 0;
+    s_SensorData.SO2.label_val  = 0;
+    s_SensorData.SO2.app_val    = 0;
+    s_SensorData.NO.real_val    = 0;
+    s_SensorData.NO.label_val   = 0;
+    s_SensorData.NO.app_val     = 0;
+    s_SensorData.TVOC.real_val  = 0;
+    s_SensorData.TVOC.label_val = 0;
+    s_SensorData.TVOC.app_val   = 0;
+    s_SensorData.ExtSensor.humi = 0;
+    s_SensorData.ExtSensor.pa   = 0;
+    s_SensorData.ExtSensor.temp = 0;
+    s_SensorData.ExtSensor.wd   = 0;
+    s_SensorData.ExtSensor.ws   = 0;
+    s_SensorData.Fan.m_freq     = 0;
+    s_SensorData.Fan.pm10_freq  = 0;
+    s_SensorData.TRH.humi       = 0;
+    s_SensorData.TRH.temp       = 0;
 }
 
 //********************************************************
@@ -471,36 +523,62 @@ void SysGlobalVariableInit(void)
 //********************************************************
 void System_Function_Control(void)
 {
-    //假如发送心跳包给服务器的时间到了，并且初始化已完毕
-    if(g_SysInitStatusFlag == TRUE) //初始化完毕
+//    if(g_SysInitStatusFlag == TRUE) //初始化完毕
+//    {
+//        //如果到发送心跳的时间了
+//        if(abs(g_ms_Timing_Count - g_SysPollTimeCnt) >= (s_UploadInterval.heartbeat * 60 * 1000))
+//        {
+//            g_SysPollTimeCnt = g_ms_Timing_Count;
+//            
+//            Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_HEARTBEAT);
+//        }
+//        //如果到发送传感器数据的时间了
+//        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))
+//        {
+//            //只有等获得了设备端的传感器数据才上报
+//            if(s_SensorData.got_status == TRUE)
+//            {
+//                g_SendSensorDataTimeCnt = g_ms_Timing_Count;
+//                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);
+//            }
+//            else    //否则得上报心跳包，防止网络断联
+//            {
+//                g_SendSensorDataTimeCnt = g_ms_Timing_Count - (s_UploadInterval.heartbeat * 60 * 1000);
+//            }
+//        }
+//    }
+//    else 
+//    {
+//        if(g_WireLessModuleInitFlag == TRUE)   //假如无线模块也初始化完成了
+//        {
+//            //与服务器握手
+//            if(abs(g_ms_Timing_Count - g_SysPollTimeCnt) >= SERVER_COMM_HANDSHAKE_INTERVAL)
+//            {
+//                g_SysPollTimeCnt = g_ms_Timing_Count;
+//                
+//                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE);
+//            }
+//        }
+//        else
+//        {
+//            //无线模块的初始化
+//            WireLess_Initial();
+//        }
+//    }
+    
+    // 到读取设备端传感器数据的时候了
+    if(abs(g_ms_Timing_Count - g_GetDeviceSensorDataTimeCnt) >= DEVICE_COMM_GET_SENSOR_DATA_INTERVAL)
     {
-        //如果不是重发后一直没有接收，并且到时间了
-        if((g_SysPollTimeCnt >= SEND_POLL_PACKAGE_TIME_INTERVAL))   //(s_ServerCommTx.RepeatNum < SERVER_COMM_REPEAT_SEND_TIME) && 
-        {
-            g_SysPollTimeCnt = 0;
-            
-        }
+        g_GetDeviceSensorDataTimeCnt = g_ms_Timing_Count;
+        // 控制显示传感器数据的打印
+        Device_Printf_Ctr(DEVICE_CTR_SENSOR_PRINTF_CMD);
     }
-    else 
+    
+    //
+    if(abs(g_ms_Timing_Count - s_Timing_Count) >= 1000)
     {
-        if(g_WireLessModuleInitFlag == TRUE)   //假如无线模块也初始化完成了
-        {
-            //与服务器握手
-            if(g_SysPollTimeCnt >= SERVER_COMM_HANDSHAKE_INTERVAL)
-            {
-                g_SysPollTimeCnt = 0;
-                
-                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE);
-            }
-        }
-        else
-        {
-            //重启无线模块
-            WireLess_Send_AT_Command(AT_COMMAND_QPWOD);
-            Delay_ms(5000);
-            //无线模块的初始化
-            WireLess_Initial();
-        }
+        s_Timing_Count = g_ms_Timing_Count;
+        s_RTC.utc_seconds++;
     }
 }
 

@@ -10,6 +10,13 @@
 *******************************************************************************/
 
 
+20181111:
+1、完成发送、接收及处理与设备端通信的程序，能发送控制显示若干打印、重启、传感器数据接收解析等功能；
+
+
+20181110:
+1、完成接收服务器数据包的解析及处理程序，能发送握手包给服务器，而且能正常接收、处理服务器发来的时间同步和通用应答包；
+
 20181108:
 1、完成无线模块所有的AT指令操作程序，待验证、测试和修改；
 
@@ -32,6 +39,31 @@
 1、先禁止所有的信息打印，即"$HIDE_ALL"；
 2、再打开传感器信息打印，即"$SHOW_DATA"；
 3、
+
+
+
+
+设备重启后打印：
+[RTC]: Software reset occurred....
+
+[RTC]: No need to configure RTC....
+
+------<SYSTEM START>-----
+[Init]: FLASH......(ok)!
+[Init]: GAS........(ok)(4)!
+[Init]: RS485......(ok)!
+[Init]: WK2114.....(ok)!
+[Init]: ADS1248....(ok)!
+[Init]: NET........(ok)!
+[Init]: GSM........(checking)!
+[Init]: TRH........(ok)(1)!
+[Init]: GPS........(ok)!
+[Init]: Weather....(ok)!
+[Init]: PM2.5......(ok)!
+[Init]: CO2........(error)!
+[EVENT]: Sampling start!
+
+
 /*
 ******************************************************************************
 * Function Name  : SSInfoPrint()
@@ -44,23 +76,23 @@
 */
 static	void	SSInfoPrint (void)
 {
-		myPrintf("\r\n[SS-Temp  ]=%-d",	(s32)(s_trhData.Ttrue * 100 + 0.5));
-		myPrintf("\r\n[SS-RH    ]=%-d",	(s32)(s_trhData.RHtrue * 100 + 0.5));
-		myPrintf("\r\n[SS-PM2.5 ]=%-d,%-d,%-d",	s_pm25Data.trueNd, s_pm25Data.labVal, s_pm25Data.appVal);
-		myPrintf("\r\n[SS-PM10  ]=%-d,%-d,%-d",	s_pm10Data.trueVol, s_pm10Data.labVal, s_pm10Data.appVal);
-		myPrintf("\r\n[SS-CO(3) ]=%-d,%-d,%-d",	s_gasCalc.COTrueVol, s_gasCalc.COVal[0], s_gasCalc.COVal[1]);
-		myPrintf("\r\n[SS-NO2(4)]=%-d,%-d,%-d",	s_gasCalc.NO2TrueVol, s_gasCalc.NO2Val[0], s_gasCalc.NO2Val[1]);
-		myPrintf("\r\n[SS-O3(5) ]=%-d,%-d,%-d",	s_gasCalc.O3TrueVol, s_gasCalc.O3Val[0], s_gasCalc.O3Val[1]);
-		myPrintf("\r\n[SS-SO2(6)]=%-d,%-d,%-d",	s_gasCalc.SO2TrueVol, s_gasCalc.SO2Val[0], s_gasCalc.SO2Val[1]);
-		myPrintf("\r\n[SS-NO(7) ]=%-d,%-d,%-d",	s_gasCalc.NOTrueVol, s_gasCalc.NOVal[0], s_gasCalc.NOVal[1]);	
-		myPrintf("\r\n[SS-TVOC(9]=%-d,%-d,%-d",	s_gasCalc.TVOCTrueVol, s_gasCalc.TVOCVal[0], s_gasCalc.TVOCVal[1]);	
-		myPrintf("\r\n[SS-Temp-W]=%-d",	(s32)(s_exorData.T.a * 100 + 0.5));
-		myPrintf("\r\n[SS-RH-W  ]=%-d",	(s32)(s_exorData.RH.a * 100 + 0.5));
-		myPrintf("\r\n[SS-WD    ]=%-d",	(s32)(s_exorData.WD.a * 100 + 0.5));
-		myPrintf("\r\n[SS-WS    ]=%-d",	(s32)(s_exorData.WS.a * 100 + 0.5));
-		myPrintf("\r\n[SS-PA    ]=%-d",	(s32)(s_exorData.PA.a * 100 + 0.5));
-		myPrintf("\r\n[FUN-main ]=%d/min",	s_fun.mFreq);
-		myPrintf("\r\n[FUN-pm10 ]=%d/min",	s_fun.pm10Freq);	
+[SS-Temp  ]=2236
+[SS-RH    ]=7075
+[SS-PM2.5 ]=9000,3006,5039
+[SS-PM10  ]=12000,7120,12104
+[SS-CO(3) ]=54183,3010342,1270803
+[SS-NO2(4)]=1846,4702,80053
+[SS-O3(5) ]=13190,-56089,104090
+[SS-SO2(6)]=167870,264521,4639
+[SS-NO(7) ]=0,0,0
+[SS-Temp-W]=2480
+[SS-RH-W  ]=6240
+[SS-WD    ]=20700
+[SS-WS    ]=0
+[SS-PA    ]=101950
+[FUN-main ]=0/min
+[FUN-pm10 ]=0/min
+2018-9-28	4:39:22	
 }
 
 /*
@@ -110,6 +142,17 @@ static	void	GPSInfoPrint (void)
 #define	DEF_DFT_SYSCFG_SMSCENTER			("")						// 监控平台SMS猫电话号码	
 
 
+
+以下功能为必须实现功能。
+?	支持传感器远程校准（k1、b1等）。
+?	支持数据上传。
+?	支持GPS定位。
+?	握手指令（0x80）。
+?	设置和查询系统RTC时间。
+?	设置IP地址。
+?	设置和查询通用数据上传间隔。
+?	设置和查询健康包上传时间间隔。
+?	设备复位指令。
 
 
 

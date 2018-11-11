@@ -9,7 +9,7 @@ core.h	核心算法函数头文件
 //宏定义
 *******************************************************************************/
 // 公用数据缓冲区大小
-#define PUBLIC_DATA_BUFFER_MAX_LENGTH       255        //默认为255
+#define PUBLIC_DATA_BUFFER_MAX_LENGTH       1024        //默认为255
 
 
 //求整形的高低字节
@@ -42,13 +42,16 @@ core.h	核心算法函数头文件
 #define JUDGE_TUNNEL_RESIDUE_NUMBER         0x3F   
 
 //发送POLL指令给服务器的时间间隔
-#define SEND_POLL_PACKAGE_TIME_INTERVAL     (1000 * 5) //默认是1min
+#define SEND_POLL_PACKAGE_TIME_INTERVAL     (60) //默认是1h，单位是分钟
+
+//发送传感器数据给服务器的时间间隔
+#define SEND_SENSOR_DATA_TIME_INTERVAL      (60) //默认是1min，单位是秒
 
 //发送自检完毕给服务器,请求初始化的时间间隔
 #define SEND_STARTUP_RPT_TIME_INTERVAL      (1000 * 5)  //默认是5s
 
 //没有接收到服务器的数据最大超时时间
-#define SERVER_COMM_NO_DATA_REC_TIMEOUT         (1000UL * 60 * 3)   //没有接收到服务器的数据超时时间为3min
+#define SERVER_COMM_NO_DATA_REC_TIMEOUT     (1000UL * 60 * 3)   //没有接收到服务器的数据超时时间为3min
 
 //向设备端查询状态的时间间隔
 #define GET_PULLOUT_STATUS_TIME_INTERVAL    (1000 * 5)  //默认是5s
@@ -113,6 +116,12 @@ core.h	核心算法函数头文件
 
 //最大支持的一次性出货货道数量
 #define ONCE_PULLOUT_MAX_CHANNEL_NUMBER     8
+
+
+
+
+
+
 
 /******************************************************************************
 //枚举、结构体类型定义
@@ -361,7 +370,7 @@ extern u8 g_PublicDataBuffer[];
 extern u8 g_SysPulloutEnableFlag;
 
 //系统发送POLL数据包给服务器的计时
-extern u16 g_SysPollTimeCnt;   
+extern u32 g_SysPollTimeCnt;   
 
 //系统查询设备端状态的计时
 extern u32 g_GetPulloutStatusTimeCnt;
@@ -404,6 +413,9 @@ extern u8 g_SysAccessExitErrorVMCStatus;
 
 // 设备故障标志
 extern u8 g_SystemDeviceErrorFlag;
+
+// 发送传感器数据的计时
+extern u32 g_SendSensorDataTimeCnt;
 
 
 

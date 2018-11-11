@@ -72,9 +72,9 @@ void  MCU_Init(void)
 
     Debug_Init();                       //调试口初始化
     
-    Server_Comm_Init();                     //与服务器通信相关的初始化
+    Server_Comm_Init();                 //与服务器通信相关的初始化
     
-    Device_Comm_Init();                //与设备端通信相关的初始化
+    Device_Comm_Init();                 //与设备端通信相关的初始化
 
 //    SDcard_Comm_Init();                 //SD卡通信相关的初始化
     

@@ -172,20 +172,16 @@ void SysTick_Handler(void)
 {
 	g_ms_Timing_Count++;	            //ms计时
     
-    s_ServerCommRx.Timeout_Count++;         //接收服务器数据超时等待计数
+    s_ServerCommRx.Timeout_Count++;     //接收服务器数据超时等待计数
     
     s_DeviceCommRx.Timeout_Count++;     //接收设备端的数据超时等待计数
     
     s_DebugComm.RxTimeout_Count++;      //与调试口通信的数据接收等待超时计数
     
-    g_SysPollTimeCnt++;                 //发送Poll的时间计数
+//    g_SysPollTimeCnt++;                 //发送Poll的时间计数
+//    
+//    g_GetPulloutStatusTimeCnt++;        //查询设备端工作状态的时间计数
     
-    g_GetPulloutStatusTimeCnt++;        //查询设备端工作状态的时间计数
-    
-    g_SysTempCtrTimeCnt++;              //系统温度控制的时间计数
-    
-    g_SysWorkTimeJudgeCnt++;            //系统工作时间判断的计时
-
     s_ServerCommTx.WaitResponseTimeout++;   //与服务器通信时等待服务器应答数据包的计数
 
     s_DeviceCommTx.WaitResponseTimeout++;   //与设备端通信时等待服务器应答数据包的计数

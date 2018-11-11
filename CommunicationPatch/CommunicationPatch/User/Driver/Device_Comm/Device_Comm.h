@@ -30,7 +30,7 @@
 
 
 //Modbus通信数据最大长度
-#define DEVICE_COMM_DATA_MAX_LENGTH            255  
+#define DEVICE_COMM_DATA_MAX_LENGTH            1024  
 
 
 //数据包命令码列表
@@ -67,7 +67,17 @@
 
 
 //USART接收超时
-#define DEVICE_COMM_RX_DATA_TIMEOUT            5	    //没有数据接收超时等待时长（5个单位的Systick周期）
+#define DEVICE_COMM_RX_DATA_TIMEOUT            10	    //没有数据接收超时等待时长（5个单位的Systick周期）
+
+
+
+// 读取设备端传感器数据的时间间隔
+#define DEVICE_COMM_GET_SENSOR_DATA_INTERVAL    (1000 * 30) 
+
+// 设备启动完毕所需最大时间
+#define DEVICE_INITIAL_OVER_TIMEOUT             (1000 * 20)
+
+
 
 
 /******************************************************************************
@@ -121,6 +131,8 @@ typedef struct
     u8  hour;
     u8  min;
     u8  sec;
+    
+    u32 utc_seconds;
 }RTCStruct;
 
 // IP地址和端口号结构体
@@ -134,7 +146,7 @@ typedef struct
     u8  ip_port[25];
 }IPAddrPortStruct;
 
-// 通用数据上传时间间隔结构体
+// 数据上传时间间隔结构体
 typedef struct
 {
     u16 time1;
@@ -145,6 +157,7 @@ typedef struct
 // 通传感器数据结构体
 typedef struct
 {
+    u8  got_status;     //获取状态，TRUE—获得了
     u8  device_sta[4];  //设备状态字
     u8  bat_vol[2];     //电池电压
     u8  sensor_num;     //传感器个数
@@ -260,6 +273,9 @@ extern SensorDataStruct s_SensorData;
 // GPS定位信息
 extern GPSInfoStruct s_GPSInfo;
 
+// 设备初始化完毕标志
+extern u8  g_DeviceInitialFlag;
+
 
 
 
@@ -279,10 +295,16 @@ void Device_Comm_Send_Data(u8 *buffer, u16 data_l);
 void Device_Comm_Package_Bale(u8 cmd);
 
 //函数功能: 与设备端通信的数据包处理函数
-void Device_Comm_Package_Process(u8 cmd, u8* resp_str);
+u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len);
 
 //函数功能: 与通信板通信数据包解析函数
 u8 Device_Comm_Package_Analysis(u8 *data, u16 data_l);
+
+//功能: 设备打印输出控制函数
+u8 Device_Printf_Ctr(u8 cmd);
+
+//功能: 设备端初始化函数
+u8 Device_Initial(void);
 
 //函数功能: 与设备端通信的监测函数
 void Device_Comm_Rec_Monitor(void);

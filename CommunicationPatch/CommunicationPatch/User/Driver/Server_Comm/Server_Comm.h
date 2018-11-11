@@ -80,6 +80,7 @@
 
 // 参数类型定义
 #define SYSTEM_PARA_TYPE_IP_ADDR_PORT               0x01        //IP地址、端口号
+#define SYSTEM_PARA_TYPE_TIME_SYNCH                 0x02        //系统时间同步
 #define SYSTEM_PARA_TYPE_UPLOAD_INTERVAL            0x04        //通用数据上传间隔
 #define SYSTEM_PARA_TYPE_HEARTBEAT_INTERVAL         0x06        //心跳间隔
 #define SYSTEM_PARA_TYPE_LAB_ADJUST                 0x07        //实验室校准
@@ -117,7 +118,7 @@
 
 
 //与服务器通信的数据最大长度
-#define PC_COM_MAX_DATA_LENGTH                  (255 - 4)     //是对设备端进行升级时的数据包大小
+#define PC_COM_MAX_DATA_LENGTH                  (1024)     //是对设备端进行升级时的数据包大小
 
 //USART接收超时
 #define SERVER_COMM_RX_DATA_TIMEOUT             5	    //没有接收超时5ms就是接收完毕
@@ -127,7 +128,11 @@
 #define SERVER_COMM_WAIT_RESPONSE_TIMEOUT       (1000 * 3)  //等待服务器应答超时
 
 //发送握手指令给服务器的时间间隔
-#define SERVER_COMM_HANDSHAKE_INTERVAL          (1000 * 10) //
+#define SERVER_COMM_HANDSHAKE_INTERVAL          (1000 * 30) //
+
+
+
+
 
 
 
@@ -235,6 +240,19 @@ typedef struct
     u8  CCID[20];    //一般都是20位
 }SIMCardParaStruct;
 
+
+// 通用应答的结果枚举
+typedef enum
+{
+    RES_SUCCEED = 0,
+    RES_FAILURE,
+    RES_BUSY,
+    RES_UPGRADE,
+    RES_PARA_ERROR,
+    RES_READ_WRITE_FAILURE,
+    RES_UNKNOWN,
+    RES_AUTHEN_ERROR,
+}ComResponseResultEnum;
 
 /******************************************************************************
 //变量定义/声明
