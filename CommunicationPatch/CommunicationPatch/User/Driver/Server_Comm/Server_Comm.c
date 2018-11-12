@@ -342,10 +342,10 @@ void Server_Comm_Package_Bale(u16 cmd)
         {
             i = 0;
             //放入RTC时间
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 24);  
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 16);
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 8);  
-            s_ServerCommPackage.ADF.Data[i++] = (u8)s_RTC.utc_seconds;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 24);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime;
             //协议类型
             s_ServerCommPackage.ADF.Data[i++] = s_SystemPara.proc_type;
             //协议厂商
@@ -387,10 +387,10 @@ void Server_Comm_Package_Bale(u16 cmd)
         {
             i = 0;
             //放入RTC时间
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 24);  
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 16);
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 8);  
-            s_ServerCommPackage.ADF.Data[i++] = (u8)s_RTC.utc_seconds;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 24);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime;
             
             s_ServerCommPackage.Length = i + 6;
             Server_Comm_Package_Send();
@@ -401,10 +401,10 @@ void Server_Comm_Package_Bale(u16 cmd)
         {
             i = 0;
             //放入RTC时间
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 24);  
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 16);
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 8);  
-            s_ServerCommPackage.ADF.Data[i++] = (u8)s_RTC.utc_seconds;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 24);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime;
             //设备状态字
             memcpy(&s_ServerCommPackage.ADF.Data[i], s_SensorData.device_sta, 4);
             i += 4;
@@ -602,10 +602,10 @@ void Server_Comm_Package_Bale(u16 cmd)
         {
             i = 0;
             //放入RTC时间
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 24);  
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 16);
-            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_RTC.utc_seconds >> 8);  
-            s_ServerCommPackage.ADF.Data[i++] = (u8)s_RTC.utc_seconds; 
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 24);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime; 
             //放入之前的查询包的流水号
             s_ServerCommPackage.ADF.Data[i++] = g_RecServerPackageSN[0];
             s_ServerCommPackage.ADF.Data[i++] = g_RecServerPackageSN[1];
@@ -827,11 +827,11 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                 
                 case SYSTEM_PARA_TYPE_TIME_SYNCH: //系统时间同步
                 {
-                    s_RTC.utc_seconds = 0;
+                    s_GPSInfo.gmtTime = 0;
                     while(temp_len--)
                     {
-                        s_RTC.utc_seconds <<= 8;
-                        s_RTC.utc_seconds += data[i++];
+                        s_GPSInfo.gmtTime <<= 8;
+                        s_GPSInfo.gmtTime += data[i++];
                     }
                     g_RecServerPackageResult = RES_SUCCEED;
                 }

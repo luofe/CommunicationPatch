@@ -450,14 +450,11 @@ void SysGlobalVariableInit(void)
     s_SystemPara.proc_type      = 0x10;
     s_SystemPara.manu_type      = 0x01;
     s_SystemPara.device_type    = 0x00;
-    s_SystemPara.deviceID[0]    = 0x80;
-    s_SystemPara.deviceID[1]    = 0x00;
-    s_SystemPara.deviceID[2]    = 0x31;
-    s_SystemPara.deviceID[3]    = 0x65;
+    memset(s_SystemPara.deviceID, 0, sizeof(s_SystemPara.deviceID));
     memset(s_SystemPara.Code, 0, 8);
     memcpy(s_SystemPara.Ver, "01.01", 5);
     s_SIMCardPara.num_len       = 13;
-    memcpy(s_SIMCardPara.num, "8615810510449", 13);
+    memcpy(s_SIMCardPara.num, "8615810510449", s_SIMCardPara.num_len);
     memset(s_SIMCardPara.CCID, 0, s_SIMCardPara.CCID_len);
     memset(s_SIMCardPara.IMEI, 0, s_SIMCardPara.IMEI_len);
     memset(s_SIMCardPara.IMSI, 0, s_SIMCardPara.IMSI_len);
@@ -474,44 +471,15 @@ void SysGlobalVariableInit(void)
     // 设备端相关参数
     s_UploadInterval.time1      = SEND_SENSOR_DATA_TIME_INTERVAL;
     s_UploadInterval.heartbeat  = SEND_POLL_PACKAGE_TIME_INTERVAL;
+    
+    memset(&s_SensorData, 0, sizeof(s_SensorData));
     memset(s_SensorData.device_sta, 0xFF, sizeof(s_SensorData.device_sta));
     s_SensorData.got_status     = FALSE;
     s_SensorData.bat_vol[0]     = (u8)(1256 >> 8);
     s_SensorData.bat_vol[1]     = (u8)1256;
     s_SensorData.sensor_num     = 15;
-    s_SensorData.PM2_5.real_val = 0;
-    s_SensorData.PM2_5.label_val= 0;
-    s_SensorData.PM2_5.app_val  = 0;
-    s_SensorData.PM10.real_val  = 0;
-    s_SensorData.PM10.label_val = 0;
-    s_SensorData.PM10.app_val   = 0;
-    s_SensorData.CO.real_val    = 0;
-    s_SensorData.CO.label_val   = 0;
-    s_SensorData.CO.app_val     = 0;
-    s_SensorData.NO2.real_val   = 0;
-    s_SensorData.NO2.label_val  = 0;
-    s_SensorData.NO2.app_val    = 0;
-    s_SensorData.O3.real_val    = 0;
-    s_SensorData.O3.label_val   = 0;
-    s_SensorData.O3.app_val     = 0;
-    s_SensorData.SO2.real_val   = 0;
-    s_SensorData.SO2.label_val  = 0;
-    s_SensorData.SO2.app_val    = 0;
-    s_SensorData.NO.real_val    = 0;
-    s_SensorData.NO.label_val   = 0;
-    s_SensorData.NO.app_val     = 0;
-    s_SensorData.TVOC.real_val  = 0;
-    s_SensorData.TVOC.label_val = 0;
-    s_SensorData.TVOC.app_val   = 0;
-    s_SensorData.ExtSensor.humi = 0;
-    s_SensorData.ExtSensor.pa   = 0;
-    s_SensorData.ExtSensor.temp = 0;
-    s_SensorData.ExtSensor.wd   = 0;
-    s_SensorData.ExtSensor.ws   = 0;
-    s_SensorData.Fan.m_freq     = 0;
-    s_SensorData.Fan.pm10_freq  = 0;
-    s_SensorData.TRH.humi       = 0;
-    s_SensorData.TRH.temp       = 0;
+    
+    memset(&s_GPSInfo, 0, sizeof(s_GPSInfo));
 }
 
 //********************************************************
@@ -574,11 +542,11 @@ void System_Function_Control(void)
         Device_Printf_Ctr(DEVICE_CTR_SENSOR_PRINTF_CMD);
     }
     
-    //
+    // 秒计时
     if(abs(g_ms_Timing_Count - s_Timing_Count) >= 1000)
     {
         s_Timing_Count = g_ms_Timing_Count;
-        s_RTC.utc_seconds++;
+        s_GPSInfo.gmtTime++;
     }
 }
 

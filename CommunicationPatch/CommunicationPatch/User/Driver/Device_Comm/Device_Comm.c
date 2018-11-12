@@ -316,6 +316,14 @@ void Device_Comm_Package_Bale(u8 cmd)
         }
         break;
         
+        case DEVICE_READ_DEVICE_ID:   //如果是读取设备ID
+        {
+            index = 1;
+            strcat(data_str, "Q_ID");
+            index += strlen("Q_ID");
+        }
+        break;
+        
         case DEVICE_SET_RTC_CMD:   //如果设置RTC 
         {
             index = 1;
@@ -571,6 +579,10 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 do
                 {
                     temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
                 }while(resp_str[index] != ',');
                 temp_str[i++] = '\0';   //加结束符
                 s_SensorAdj.type = atoi(temp_str);
@@ -580,6 +592,10 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 do
                 {
                     temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
                 }while(resp_str[index] != ',');
                 temp_str[i++] = '\0';   //加结束符
                 s_SensorAdj.multiple = atoi(temp_str);
@@ -589,6 +605,10 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 do
                 {
                     temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
                 }while(resp_str[index] != ',');
                 temp_str[i++] = '\0';   //加结束符
                 s_SensorAdj.K1 = atoi(temp_str);
@@ -598,6 +618,10 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 do
                 {
                     temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
                 }while(resp_str[index] != ',');
                 temp_str[i++] = '\0';   //加结束符
                 s_SensorAdj.B1 = atoi(temp_str);
@@ -607,6 +631,10 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 do
                 {
                     temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
                 }while(resp_str[index] != ',');
                 temp_str[i++] = '\0';   //加结束符
                 s_SensorAdj.K2 = atoi(temp_str);
@@ -616,15 +644,33 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 do
                 {
                     temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
                 }while((resp_str[index] != '(') && (resp_str[index + 1] != 'O'));
                 temp_str[i++] = '\0';   //加结束符
                 s_SensorAdj.B2 = atoi(temp_str);
-                index += 2;
             }
             else    //如果失败
             {
                 return FAILURE;
             }
+        }
+        break;
+        
+        case DEVICE_READ_DEVICE_ID:   //如果是读取设备ID
+        {
+            u32 temp_id = 0;
+            //获取
+            strcpy(temp_str, (char const*)resp_str);
+            temp_str[len] = '\0';   //加结束符
+            temp_id = atoi(temp_str);
+            
+            s_SystemPara.deviceID[0] = (u8)(temp_id >> 24);
+            s_SystemPara.deviceID[1] = (u8)(temp_id >> 16);
+            s_SystemPara.deviceID[2] = (u8)(temp_id >> 8);
+            s_SystemPara.deviceID[3] = (u8)temp_id;
         }
         break;
         
@@ -733,51 +779,6 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             if(strcmp("OK!", temp_str) == SUCCEED)  //如果读取成功
             {
                 memcpy(s_IPAddrPort.ip_port, resp_str, strlen((char const*)resp_str));
-//                //获取ip1
-//                i = 0;
-//                do
-//                {
-//                    temp_str[i++] = resp_str[index++];
-//                }while(resp_str[index] != '.');
-//                temp_str[i++] = '\0';   //加结束符
-//                s_IPAddrPort.ip1 = atoi(temp_str);
-//                index += 1;
-//                //获取ip2
-//                i = 0;
-//                do
-//                {
-//                    temp_str[i++] = resp_str[index++];
-//                }while(resp_str[index] != '.');
-//                temp_str[i++] = '\0';   //加结束符
-//                s_IPAddrPort.ip2 = atoi(temp_str);
-//                index += 1;
-//                //获取ip3
-//                i = 0;
-//                do
-//                {
-//                    temp_str[i++] = resp_str[index++];
-//                }while(resp_str[index] != '.');
-//                temp_str[i++] = '\0';   //加结束符
-//                s_IPAddrPort.ip3 = atoi(temp_str);
-//                index += 1;
-//                //获取ip4
-//                i = 0;
-//                do
-//                {
-//                    temp_str[i++] = resp_str[index++];
-//                }while(resp_str[index] != ',');
-//                temp_str[i++] = '\0';   //加结束符
-//                s_IPAddrPort.ip4 = atoi(temp_str); 
-//                index += 1;               
-//                //获取port
-//                i = 0;
-//                do
-//                {
-//                    temp_str[i++] = resp_str[index++];
-//                }while((resp_str[index] != '(') && (resp_str[index + 1] != 'O'));
-//                temp_str[i++] = '\0';   //加结束符
-//                s_IPAddrPort.port = atoi(temp_str);
-//                index += 2;
             }
             else    //如果失败
             {
@@ -812,6 +813,10 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 do
                 {
                     temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
                 }while(resp_str[index] != ',');
                 temp_str[i++] = '\0';   //加结束符
                 s_UploadInterval.time1 = atoi(temp_str);
@@ -821,10 +826,13 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 do
                 {
                     temp_str[i++] = resp_str[index++];
-                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '(') && (resp_str[index + 1] != 'O'));
                 temp_str[i++] = '\0';   //加结束符
                 s_UploadInterval.time2 = atoi(temp_str);
-                index += 2;
             }
             else    //如果失败，则再读取一次
             {
@@ -859,10 +867,13 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 do
                 {
                     temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
                 }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
                 temp_str[i++] = '\0';   //加结束符
                 s_UploadInterval.heartbeat = atoi(temp_str);
-                index += 2;
             }
             else    //如果失败
             {
@@ -877,14 +888,8 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             {
                 temp_str[i] = resp_str[strlen((const char*)resp_str) - (4 - i)];
             }
-//            memcpy(temp_str, &resp_str[1], 3);
             if(strcmp("OK!", temp_str) != SUCCEED)  //如果设置不成功
             {
-                                
-#if (DEVICE_PRINTF_EN)
-printf("没有找到“OK”\r\n");
-#endif   
-  
                 return FAILURE;
             }
         }
@@ -922,19 +927,8 @@ printf("没有找到“OK”\r\n");
             {
                 temp_str[i] = resp_str[strlen((const char*)resp_str) - (4 - i)];
             }
-                        
-#if (DEVICE_PRINTF_EN)
-            printf("%s", temp_str);
-            printf("\r\n");
-#endif	
-            
             if(strcmp("OK!", temp_str) != SUCCEED)  //如果设置不成功
             {
-                                
-#if (DEVICE_PRINTF_EN)
-printf("没有找到“OK”\r\n");
-#endif   
-  
                 return FAILURE;
             }
         }
@@ -948,11 +942,6 @@ printf("没有找到“OK”\r\n");
             }
             if(strcmp("OK!", temp_str) != SUCCEED)  //如果设置不成功
             {
-                                
-#if (DEVICE_PRINTF_EN)
-printf("没有找到“OK”\r\n");
-#endif   
-  
                 return FAILURE;
             }
         }
@@ -1671,7 +1660,9 @@ printf("没有找到“OK”\r\n");
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
             s_GPSInfo.noSV = atoi(temp_str);
-            index += 2;
+            
+            // 控制隐藏GPS数据的打印
+            Device_Printf_Ctr(DEVICE_CTR_GPS_HIDE_CMD);
         }
         break;
         
@@ -1688,43 +1679,66 @@ printf("没有找到“OK”\r\n");
 //函数功能: 设备端数据解析函数
 //输    入: u8 *data——数据, u16 data_l——数据长度
 //输    出: u8——解析状态，0——成功，
-//备    注: 无
+//备    注: 此函数解析的是设备端所有主动打印的信息的数据
 //********************************************************
 u8 Device_Comm_Package_Analysis(u8 *data, u16 data_l)
 {
     u16  index;
     char com_str[100];  //公共字符串
-    char temp_str[100];
+    char const sam_start_str[] = "[EVENT]: Sampling start!";
+    char const sensor_data_str[] = "[SS-Temp";
+    char const gps_data_str[] = "[GPS-STA";
     
     memset(com_str, '\0', sizeof(com_str));
-    memset(temp_str, '\0', sizeof(com_str));
     
     for(index = 0; index < (data_l / 2); index++)
     {
         //\r\n[SS-Temp......传感器数据
-        if((data[index] == '[') && (data[index + 1] == 'S') && (data[index + 2] == 'S') && (data[index + 3] == '-') && 
-           (data[index + 4] == 'T') && (data[index + 5] == 'e') && (data[index + 6] == 'm') && (data[index + 7] == 'p'))
+//        if((data[index] == '[') && (data[index + 1] == 'S') && (data[index + 2] == 'S') && (data[index + 3] == '-') && 
+//           (data[index + 4] == 'T') && (data[index + 5] == 'e') && (data[index + 6] == 'm') && (data[index + 7] == 'p'))
+        memcpy(com_str, &data[index], strlen(sensor_data_str));
+        com_str[strlen(sensor_data_str)] = '\0';  //放入结束符
+        if(strcmp(com_str, sensor_data_str) == SUCCEED)
         {
             if(data_l >= 350)   //1、设备端是带操作系统的  有的数据会被其他任务切断，导致分成若干包接收到；2、外部传感器启动慢
             {
                 Device_Comm_Package_Process(DEVICE_GET_SENSOR_DATA_CMD, &data[index], (data_l - index));
+                
+                break;
+            }
+            else
+            {
+                break;
             }
         }
         //\r\n[GPS-STA......GPS数据
-        else if((data[index] == '[') && (data[index + 1] == 'G') && (data[index + 2] == 'P') && (data[index + 3] == 'S') && 
-                (data[index + 4] == '-') && (data[index + 5] == 'S') && (data[index + 6] == 'T') && (data[index + 7] == 'A'))
+//        if((data[index] == '[') && (data[index + 1] == 'G') && (data[index + 2] == 'P') && (data[index + 3] == 'S') 
+//        && (data[index + 4] == '-') && (data[index + 5] == 'S') && (data[index + 6] == 'T') && (data[index + 7] == 'A'))
+        memcpy(com_str, &data[index], strlen(gps_data_str));
+        com_str[strlen(gps_data_str)] = '\0';  //放入结束符
+        if(strcmp(com_str, gps_data_str) == SUCCEED)
         {
             Device_Comm_Package_Process(DEVICE_GET_SENSOR_DATA_CMD, &data[index], (data_l - index));
+            
+            break;
         }
         //\r\n[EVENT]: Sampling start!......设备启动完毕
-        else 
+        memcpy(com_str, &data[index], strlen(sam_start_str));
+        com_str[strlen(sam_start_str)] = '\0';  //放入结束符
+        if(strcmp(com_str, sam_start_str) == SUCCEED)
         {
-            strcpy(temp_str, "[EVENT]: Sampling start!");
-            memcpy(com_str, &data[index], strlen(temp_str));
-            if(strcmp(com_str, temp_str) == SUCCEED)
-            {
-                g_DeviceInitialFlag = TRUE;
-            }
+            g_DeviceInitialFlag = TRUE;
+            
+            break;
+        }
+        //\r\n[EVENT]: Sampling start!......设备启动完毕
+        memcpy(com_str, &data[index], strlen(sam_start_str));
+        com_str[strlen(sam_start_str)] = '\0';  //放入结束符
+        if(strcmp(com_str, sam_start_str) == SUCCEED)
+        {
+            g_DeviceInitialFlag = TRUE;
+            
+            break;
         }
     }
     
@@ -1736,7 +1750,7 @@ u8 Device_Comm_Package_Analysis(u8 *data, u16 data_l)
 //函数功能: 接收设备端命令类数据解析函数
 //输    入: u8 cmd——命令码, u8* buf——数据内容, u16 len——数据长度
 //输    出: u8——解析状态，0——成功，1——失败，2——非命令数据
-//备    注: 无
+//备    注: 此函数解析的是设备端所有被动打印（即应答命令）的信息的数据
 //********************************************************
 u8 Device_Rec_Command_Analysis(u8 cmd, u8* buf, u16 len)
 {
@@ -1778,6 +1792,19 @@ u8 Device_Rec_Command_Analysis(u8 cmd, u8* buf, u16 len)
         {
             //如果是“Q_SSL=”
             char cmp_str[] = "Q_SSL=";
+            memcpy(temp_str, &buf[index], strlen(cmp_str));
+            temp_str[index + strlen(cmp_str)] = '\0';
+            if(strcmp(temp_str, cmp_str) == SUCCEED)
+            {
+                index += strlen(cmp_str);
+                ana_sta = SUCCEED;
+            }
+        }
+        break;
+        
+        case DEVICE_READ_DEVICE_ID:   //如果是读取设备ID
+        {
+            char cmp_str[] = "Q_ID=";
             memcpy(temp_str, &buf[index], strlen(cmp_str));
             temp_str[index + strlen(cmp_str)] = '\0';
             if(strcmp(temp_str, cmp_str) == SUCCEED)
@@ -2161,7 +2188,6 @@ u8 Device_Initial(void)
     
     // 先复位设备
     Device_Printf_Ctr(DEVICE_CTR_RESET_CMD);
-    
     // 判断设备启动状态，检测“[EVENT]: Sampling start!”
     temp_timing_count = g_ms_Timing_Count;
     while(g_DeviceInitialFlag == FALSE)
@@ -2173,6 +2199,29 @@ u8 Device_Initial(void)
             return FAILURE;
         }
     }
+    
+    // 获取GPS信息
+    Device_Printf_Ctr(DEVICE_CTR_GPS_PRINTF_CMD);
+    // 如果GPS的gmt时间有了，说明获取到了GPS数据
+    temp_timing_count = g_ms_Timing_Count;
+    while(s_GPSInfo.gmtTime == 0)
+    {
+        Device_Comm_Rec_Monitor();
+        
+        if(abs(g_ms_Timing_Count - temp_timing_count) > DEVICE_GET_GPS_DATA_TIMEOUT)
+        {
+            return FAILURE;
+        }
+    }
+    
+    //获取设备编号
+    Device_Printf_Ctr(DEVICE_READ_DEVICE_ID); 
+    
+    //查询通用数据上传间隔
+    Device_Printf_Ctr(DEVICE_READ_UPLOAD_INTERVAL_CMD);
+    
+    //查询心跳包上传间隔
+    Device_Printf_Ctr(DEVICE_READ_HEARTBEAT_INTERVAL_CMD);
     
     return SUCCEED;
 }

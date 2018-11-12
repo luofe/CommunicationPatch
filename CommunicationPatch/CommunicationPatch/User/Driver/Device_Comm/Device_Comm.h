@@ -36,7 +36,7 @@
 //数据包命令码列表
 #define DEVICE_SET_SENSOR_ADJUST_CMD            0   //校准传感器
 #define DEVICE_READ_SENSOR_ADJUST_CMD           1   //读取传感器校准传数据
-//#define DEVICE_READ_GPS_CMD                     2   //读取GPS定位信息
+#define DEVICE_READ_DEVICE_ID                   2   //读取设备ID号
 #define DEVICE_SET_RTC_CMD                      3   //设置RTC时间
 #define DEVICE_READ_RTC_CMD                     4   //读取RTC时间
 #define DEVICE_SET_IP_ADDR_CMD                  5   //设置IP地址
@@ -76,6 +76,12 @@
 
 // 设备启动完毕所需最大时间
 #define DEVICE_INITIAL_OVER_TIMEOUT             (1000 * 20)
+
+// 设备启动后读取GPS数据的最大时间
+#define DEVICE_GET_GPS_DATA_TIMEOUT             (1000 * 10)
+
+// 设备启动后读取设备编号的最大时间
+#define DEVICE_GET_DEVICE_ID_TIMEOUT            (1000 * 2)
 
 
 
@@ -131,8 +137,6 @@ typedef struct
     u8  hour;
     u8  min;
     u8  sec;
-    
-    u32 utc_seconds;
 }RTCStruct;
 
 // IP地址和端口号结构体
