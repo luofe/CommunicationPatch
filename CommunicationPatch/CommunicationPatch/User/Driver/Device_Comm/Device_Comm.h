@@ -57,6 +57,8 @@
 #define DEVICE_GET_SENSOR_DATA_CMD              18  //获取传感器数据
 #define DEVICE_GET_GPS_DATA_CMD                 19  //获取GPS数据
 
+#define DEVICE_GET_BATTERY_VOL_CMD              20  //获取电池电压
+
 
 
 
@@ -237,13 +239,14 @@ typedef struct
 // GPS定位信息
 typedef struct 
 {
+    u8  got_status;     //获取状态
     u8  status;         // 定位状态'A'定位，'V'不定位
     u8  fs;             // 绑定状态'1'不定位，'2'2D定位，'3'3D定位
     s32 latitude;       // 以度为单位的纬度值乘以10的7次方，精确到百万分之一度
     s32 longitude;      // 以度为单位的经度值乘以10的7次方，精确到百万分之一度
     s16 high;           // 海拔高度，以m为单位
     u16 speed;          // 以km/h为单位扩大10倍赋值
-    u16 heading;        // 0-359,正北为0
+    u8  heading;        // 0-359,正北为0
     u8  noSV;           // 用于定位的卫星数量
     u32 gmtTime;        // 从1970年的秒数
 }GPSInfoStruct;

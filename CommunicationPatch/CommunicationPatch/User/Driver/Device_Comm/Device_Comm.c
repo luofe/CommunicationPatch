@@ -549,6 +549,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
     u16 i;
     u16 index = 0;
     char temp_str[100];
+    
     memset(temp_str, '\0', sizeof(temp_str));
 
     switch(cmd)
@@ -661,16 +662,11 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
         
         case DEVICE_READ_DEVICE_ID:   //如果是读取设备ID
         {
-            u32 temp_id = 0;
-            //获取
-            strcpy(temp_str, (char const*)resp_str);
-            temp_str[len] = '\0';   //加结束符
-            temp_id = atoi(temp_str);
-            
-            s_SystemPara.deviceID[0] = (u8)(temp_id >> 24);
-            s_SystemPara.deviceID[1] = (u8)(temp_id >> 16);
-            s_SystemPara.deviceID[2] = (u8)(temp_id >> 8);
-            s_SystemPara.deviceID[3] = (u8)temp_id;
+            for(i = 0; i < len; (i += 2))
+            {
+                s_SystemPara.deviceID[i] = (resp_str[i] - 0x30) * 16;
+                s_SystemPara.deviceID[i] += (resp_str[i + 1] - 0x30);
+            }
         }
         break;
         
@@ -871,7 +867,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                     {
                         return FAILURE;
                     }
-                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                }while((resp_str[index] != '(') && (resp_str[index + 1] != 'O'));
                 temp_str[i++] = '\0';   //加结束符
                 s_UploadInterval.heartbeat = atoi(temp_str);
             }
@@ -1529,11 +1525,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
             s_RTC.sec = atoi(temp_str);
-                                
-#if (DEVICE_PRINTF_EN)
-            printf("传感器数据获取完毕！\r\n");
-#endif	
-            
+
             // 控制隐藏传感器数据的打印
             Device_Printf_Ctr(DEVICE_CTR_SENSOR_HIDE_CMD);
         }
@@ -1541,125 +1533,473 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
         
         case DEVICE_GET_GPS_DATA_CMD:       //如果是GPS信息上报
         {
-            //[GPS-STA  ]=
-            //获取GPS-STA
-            index = 9 + 3;
+//            float temp_lat = 0.0;   //存放浮点数的纬度
+//            float temp_lon = 0.0;   //存放浮点数的经度
+//            u16 temp_dir = 0;       //存放真北方向值
+            //$GPGGA,
+            //获取UTC时间
+            index = 7;
+            //小时
             i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+            temp_str[i++] = resp_str[index++];
+            temp_str[i++] = resp_str[index++];
             temp_str[i++] = '\0';   //加结束符
-            s_GPSInfo.status = atoi(temp_str);
-            index += 2;
-            
-            //获取GPS-FS
-            index = 9 + 3;
+            s_RTC.hour = atoi(temp_str);
+            //分钟
             i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+            temp_str[i++] = resp_str[index++];
+            temp_str[i++] = resp_str[index++];
             temp_str[i++] = '\0';   //加结束符
-            s_GPSInfo.fs = atoi(temp_str);
-            index += 2;
-            
-            //获取GPS-LAT
-            index = 9 + 3;
+            s_RTC.min = atoi(temp_str);
+            //秒
             i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+            temp_str[i++] = resp_str[index++];
+            temp_str[i++] = resp_str[index++];
             temp_str[i++] = '\0';   //加结束符
-            s_GPSInfo.latitude = atoi(temp_str);
-            index += 2;
-            
-            //获取GPS-LON
-            index = 9 + 3;
+            s_RTC.sec = atoi(temp_str);
+            //不要小数点后面的小数
             i = 0;
-            do
+            while((resp_str[index] != ','))
             {
                 temp_str[i++] = resp_str[index++];
                 if(index >= len)
                 {
                     return FAILURE;
                 }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+            }   
+            index += 1;
+            
+            //获取纬度
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
             temp_str[i++] = '\0';   //加结束符
-            s_GPSInfo.longitude = atoi(temp_str);
-            index += 2;
-            
-            //获取GPS-HIGH
-            index = 9 + 3;
+            s_GPSInfo.latitude = (s32)(atof(temp_str) * pow(10, 7));
+            index += 1;
+            //滤掉纬度半球
             i = 0;
-            do
+            while((resp_str[index] != ','))
             {
                 temp_str[i++] = resp_str[index++];
                 if(index >= len)
                 {
                     return FAILURE;
                 }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+            }
+            index += 1;
+            
+            //获取经度
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
             temp_str[i++] = '\0';   //加结束符
-            s_GPSInfo.high = atoi(temp_str);
-            index += 2;
-            
-            //获取GPS-SPEED
-            index = 9 + 3;
+            s_GPSInfo.longitude = (s32)(atof(temp_str) * pow(10, 7));
+            index += 1;
+            //滤掉经度半球
             i = 0;
-            do
+            while((resp_str[index] != ','))
             {
                 temp_str[i++] = resp_str[index++];
                 if(index >= len)
                 {
                     return FAILURE;
                 }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_GPSInfo.speed = atoi(temp_str);
-            index += 2;
+            }
+            index += 1;
             
-            //获取GPS-HEAD
-            index = 9 + 3;
+            //滤掉GPS状态
             i = 0;
-            do
+            while((resp_str[index] != ','))
             {
                 temp_str[i++] = resp_str[index++];
                 if(index >= len)
                 {
                     return FAILURE;
                 }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_GPSInfo.heading = atoi(temp_str);
-            index += 2;
+            }
+            index += 1;
             
-            //获取GPS-NOSV
-            index = 9 + 3;
+            //获取使用卫星数
             i = 0;
-            do
+            while((resp_str[index] != ','))
             {
                 temp_str[i++] = resp_str[index++];
                 if(index >= len)
                 {
                     return FAILURE;
                 }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+            }
             temp_str[i++] = '\0';   //加结束符
             s_GPSInfo.noSV = atoi(temp_str);
+            index += 1;
+            
+            //滤掉HDOP水平精度因子
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //获取海拔高度（m）
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            temp_str[i++] = '\0';   //加结束符
+            s_GPSInfo.high = atoi(temp_str);
+            index += 1;
+            
+            //滤掉高度单位M
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //滤掉大地水准面高度异常差值
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //滤掉大地水准面高度异常差值的单位M
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //滤掉差分GPS数据期限
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //滤掉差分参考基站标号
+            i = 0;
+            while((resp_str[index] != '*'))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //滤掉校验码
+            i = 0;
+            while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 2;
+            
+            //滤掉GPGll语句
+            i = 0;
+            while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 2;
+            
+            //滤掉“$GPGSA”字
+            i = 0;
+            while((resp_str[index] != 'A') && (resp_str[index + 1] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 2;
+            
+            //滤掉定位模式
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //获取定位类型
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            temp_str[i++] = '\0';   //加结束符
+            s_GPSInfo.fs = atoi(temp_str);
+            index += 1;
+            
+            //滤掉$GPGSA语句后面所有
+            i = 0;
+            while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 2;
+            
+            //滤掉“$GPGSV”字
+            i = 0;
+            while((resp_str[index] != 'V') && (resp_str[index + 1] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 2;
+            
+            //滤掉$GPGSV语句后面所有
+            i = 0;
+            while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 2;
+            
+            //滤掉“$GPRMC”字
+            i = 0;
+            while((resp_str[index] != 'C') && (resp_str[index + 1] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 2;
+            
+            //滤掉utc时间
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //获取定位状态
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            s_GPSInfo.status = temp_str[0];
+            index += 1;
+            
+            //滤掉纬度
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            //滤掉纬度半球
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //滤掉经度
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            //滤掉经度半球
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //滤掉$GPRMC语句后面所有
+            i = 0;
+            while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 2;
+            
+            //滤掉“$GPVTG”字
+            i = 0;
+            while((resp_str[index] != 'G') && (resp_str[index + 1] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 2;
+            
+            //获取真北移动方向
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            temp_str[i++] = '\0';   //加结束符
+            s_GPSInfo.heading = (u8)(atoi(temp_str) / 2);
+            index += 1;
+            
+            //滤掉磁北方向
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //滤掉地面速率（节）
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            index += 1;
+            
+            //获取地面速度（公里/小时）
+            i = 0;
+            while((resp_str[index] != ','))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            temp_str[i++] = '\0';   //加结束符
+            s_GPSInfo.speed = atoi(temp_str) * 10;  //扩大十倍
+            index += 1;
+            
+            //滤掉$GPVTG语句后面所有
+            i = 0;
+            while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }  
+            
+            s_GPSInfo.got_status = TRUE;    //获取成功
             
             // 控制隐藏GPS数据的打印
             Device_Printf_Ctr(DEVICE_CTR_GPS_HIDE_CMD);
@@ -1687,16 +2027,13 @@ u8 Device_Comm_Package_Analysis(u8 *data, u16 data_l)
     char com_str[100];  //公共字符串
     char const sam_start_str[] = "[EVENT]: Sampling start!";
     char const sensor_data_str[] = "[SS-Temp";
-    char const gps_data_str[] = "[GPS-STA";
+    char const gps_data_str[] = "$GPGGA,";
     
     memset(com_str, '\0', sizeof(com_str));
     
     for(index = 0; index < (data_l / 2); index++)
     {
-        //\r\n[SS-Temp......传感器数据
-//        if((data[index] == '[') && (data[index + 1] == 'S') && (data[index + 2] == 'S') && (data[index + 3] == '-') && 
-//           (data[index + 4] == 'T') && (data[index + 5] == 'e') && (data[index + 6] == 'm') && (data[index + 7] == 'p'))
-        memcpy(com_str, &data[index], strlen(sensor_data_str));
+        //\r\n[SS-Temp......传感器数据memcpy(com_str, &data[index], strlen(sensor_data_str));
         com_str[strlen(sensor_data_str)] = '\0';  //放入结束符
         if(strcmp(com_str, sensor_data_str) == SUCCEED)
         {
@@ -1711,26 +2048,16 @@ u8 Device_Comm_Package_Analysis(u8 *data, u16 data_l)
                 break;
             }
         }
-        //\r\n[GPS-STA......GPS数据
-//        if((data[index] == '[') && (data[index + 1] == 'G') && (data[index + 2] == 'P') && (data[index + 3] == 'S') 
-//        && (data[index + 4] == '-') && (data[index + 5] == 'S') && (data[index + 6] == 'T') && (data[index + 7] == 'A'))
-        memcpy(com_str, &data[index], strlen(gps_data_str));
+        
+        //$GPGGA......GPS数据memcpy(com_str, &data[index], strlen(gps_data_str));
         com_str[strlen(gps_data_str)] = '\0';  //放入结束符
         if(strcmp(com_str, gps_data_str) == SUCCEED)
         {
-            Device_Comm_Package_Process(DEVICE_GET_SENSOR_DATA_CMD, &data[index], (data_l - index));
+            Device_Comm_Package_Process(DEVICE_GET_GPS_DATA_CMD, &data[index], (data_l - index));
             
             break;
         }
-        //\r\n[EVENT]: Sampling start!......设备启动完毕
-        memcpy(com_str, &data[index], strlen(sam_start_str));
-        com_str[strlen(sam_start_str)] = '\0';  //放入结束符
-        if(strcmp(com_str, sam_start_str) == SUCCEED)
-        {
-            g_DeviceInitialFlag = TRUE;
-            
-            break;
-        }
+        
         //\r\n[EVENT]: Sampling start!......设备启动完毕
         memcpy(com_str, &data[index], strlen(sam_start_str));
         com_str[strlen(sam_start_str)] = '\0';  //放入结束符
@@ -1756,7 +2083,7 @@ u8 Device_Rec_Command_Analysis(u8 cmd, u8* buf, u16 len)
 {
     u16  index;
     u16  i;
-    char temp_str[1024];
+    char temp_str[512];
     u8  ana_sta = FAILURE;
    
     memset(temp_str, '\0', sizeof(temp_str));
@@ -1998,8 +2325,8 @@ u8 Device_Rec_Command_Analysis(u8 cmd, u8* buf, u16 len)
         
         case DEVICE_CTR_GPS_PRINTF_CMD:
         {
-            //如果是“SHOW_GPS=”
-            char cmp_str[] = "SHOW_GPS=";
+            //如果是“SHOW_GPS”
+            char cmp_str[] = "SHOW_GPS";
             memcpy(temp_str, &buf[index], strlen(cmp_str));
             temp_str[index + strlen(cmp_str)] = '\0';
             if(strcmp(temp_str, cmp_str) == SUCCEED)
@@ -2012,8 +2339,8 @@ u8 Device_Rec_Command_Analysis(u8 cmd, u8* buf, u16 len)
         
         case DEVICE_CTR_GPS_HIDE_CMD:
         {
-            //如果是“HIDE_GPS=”
-            char cmp_str[] = "HIDE_GPS=";
+            //如果是“HIDE_GPS”
+            char cmp_str[] = "HIDE_GPS";
             memcpy(temp_str, &buf[index], strlen(cmp_str));
             temp_str[index + strlen(cmp_str)] = '\0';
             if(strcmp(temp_str, cmp_str) == SUCCEED)
@@ -2038,10 +2365,11 @@ u8 Device_Rec_Command_Analysis(u8 cmd, u8* buf, u16 len)
         i = 0;
         do
         {
-            temp_str[i++] = buf[index++];
+            temp_str[i++] = buf[index++];      
         }while((buf[index] != '\r') && (buf[index + 1] != '\n'));
-            
-        return Device_Comm_Package_Process(cmd, (u8*)temp_str, (len - index));
+        temp_str[i] = '\0';
+
+        return Device_Comm_Package_Process(cmd, (u8*)temp_str, i);
     }
     else
     {
@@ -2204,7 +2532,7 @@ u8 Device_Initial(void)
     Device_Printf_Ctr(DEVICE_CTR_GPS_PRINTF_CMD);
     // 如果GPS的gmt时间有了，说明获取到了GPS数据
     temp_timing_count = g_ms_Timing_Count;
-    while(s_GPSInfo.gmtTime == 0)
+    while(s_GPSInfo.got_status == FALSE)
     {
         Device_Comm_Rec_Monitor();
         
@@ -2222,6 +2550,9 @@ u8 Device_Initial(void)
     
     //查询心跳包上传间隔
     Device_Printf_Ctr(DEVICE_READ_HEARTBEAT_INTERVAL_CMD);
+    
+    //获取电池电压
+    Device_Printf_Ctr(DEVICE_GET_BATTERY_VOL_CMD); 
     
     return SUCCEED;
 }

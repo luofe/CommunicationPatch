@@ -10,8 +10,9 @@
 *******************************************************************************/
 
 20181112:
-1、增加了启动时读取设备编号和GPS信息的程序，待验证；
-2、增加了启动时读取心跳包和通用数据上报间隔，待验证；
+1、完成了启动时读取设备编号和GPS信息的程序；
+2、完成了启动时读取心跳包和通用数据上报间隔；
+3、增加了启动时读取电池电压的程序，待验证；
 
 
 20181111:
@@ -71,6 +72,12 @@
 [EVENT]: Sampling start!
 
 
+Q_ID=80003165
+Q_DATARPT=60,300(OK!)
+Q_HEALTHRPT=180(OK!)
+
+[ADC]: VBat=2759/1522V
+
 /*
 ******************************************************************************
 * Function Name  : SSInfoPrint()
@@ -114,15 +121,12 @@ static	void	SSInfoPrint (void)
 */
 static	void	GPSInfoPrint (void)
 {
-		myPrintf("\r\n[GPS-STA  ]=%c",	s_gps.sta);
-		myPrintf("\r\n[GPS-FS   ]=%c",	s_gps.fs);
-		myPrintf("\r\n[GPS-LAT  ]=%d",	s_gps.latitude);
-		myPrintf("\r\n[GPS-LON  ]=%d",	s_gps.longitude);
-		myPrintf("\r\n[GPS-HIGH ]=%-d",	s_gps.high);
-		myPrintf("\r\n[GPS-SPEED]=%d",	s_gps.speed);
-		myPrintf("\r\n[GPS-HEAD ]=%d",	s_gps.heading);
-		myPrintf("\r\n[GPS-NOSV ]=%d",	s_gps.noSV);
-		myPrintf("\r\n[GPS-24RST]=%d",	s_err.gpsResetTimes);			
+$GPGGA,235947.020,,,,,0,0,,,M,,M,,*44
+$GPGLL,,,,,235947.020,V,N*76
+$GPGSA,A,1,,,,,,,,,,,,,,,*1E
+$GPGSV,1,1,00*79
+$GPRMC,235947.020,V,,,,,0.00,0.00,050180,,,N*4D
+$GPVTG,0.00,T,,M,0.00,N,0.00,K,N*32			
 }
 
 

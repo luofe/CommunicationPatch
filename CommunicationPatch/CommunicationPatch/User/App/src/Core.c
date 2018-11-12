@@ -409,9 +409,9 @@ u16 U16_Change_Order(u16 data)
 //********************************************************
 void SysPeripheralInit(void)
 {
-	USART_ITConfig(SERVER_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
-    //无线模块的初始化
-    WireLess_Initial();
+//	USART_ITConfig(SERVER_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
+//    //无线模块的初始化
+//    WireLess_Initial();
     
 	USART_ITConfig(DEVICE_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
     //设备端初始化
@@ -479,6 +479,7 @@ void SysGlobalVariableInit(void)
     s_SensorData.bat_vol[1]     = (u8)1256;
     s_SensorData.sensor_num     = 15;
     
+    s_GPSInfo.got_status = FALSE;
     memset(&s_GPSInfo, 0, sizeof(s_GPSInfo));
 }
 
