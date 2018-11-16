@@ -409,13 +409,13 @@ u16 U16_Change_Order(u16 data)
 //********************************************************
 void SysPeripheralInit(void)
 {
-//	USART_ITConfig(SERVER_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
-//    //无线模块的初始化
-//    WireLess_Initial();
+	USART_ITConfig(SERVER_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
+    //无线模块的初始化
+    WireLess_Initial();
     
-	USART_ITConfig(DEVICE_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
-    //设备端初始化
-    Device_Initial();
+//	USART_ITConfig(DEVICE_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
+//    //设备端初始化
+//    Device_Initial();
 
 	USART_ITConfig(DEBUG_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
 }
@@ -481,6 +481,24 @@ void SysGlobalVariableInit(void)
     
     s_GPSInfo.got_status = FALSE;
     memset(&s_GPSInfo, 0, sizeof(s_GPSInfo));
+    
+    struct tm t;
+            t.tm_year = 2018 - 1900;
+            t.tm_yday = 304;
+            t.tm_wday = 5;
+            t.tm_mon = 10;
+            t.tm_mday = 15;
+            t.tm_hour = 9;
+            t.tm_min = 8;
+            t.tm_sec = 28;
+            t.tm_isdst = 0;
+            
+            u32 temp_t = mktime(&t);
+            
+#if (SERVER_PRINTF_EN)
+            printf("UTC时间=%d == %04X\r\n", temp_t, temp_t);
+#endif
+            
 }
 
 //********************************************************
@@ -492,8 +510,8 @@ void SysGlobalVariableInit(void)
 //********************************************************
 void System_Function_Control(void)
 {
-//    if(g_SysInitStatusFlag == TRUE) //初始化完毕
-//    {
+    if(g_SysInitStatusFlag == TRUE) //初始化完毕
+    {
 //        //如果到发送心跳的时间了
 //        if(abs(g_ms_Timing_Count - g_SysPollTimeCnt) >= (s_UploadInterval.heartbeat * 60 * 1000))
 //        {
@@ -501,54 +519,54 @@ void System_Function_Control(void)
 //            
 //            Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_HEARTBEAT);
 //        }
-//        //如果到发送传感器数据的时间了
-//        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))
-//        {
+        //如果到发送传感器数据的时间了
+        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (30 * 1000))//s_UploadInterval.time1
+        {
 //            //只有等获得了设备端的传感器数据才上报
 //            if(s_SensorData.got_status == TRUE)
-//            {
-//                g_SendSensorDataTimeCnt = g_ms_Timing_Count;
-//                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);
-//            }
+            {
+                g_SendSensorDataTimeCnt = g_ms_Timing_Count;
+                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);
+            }
 //            else    //否则得上报心跳包，防止网络断联
 //            {
 //                g_SendSensorDataTimeCnt = g_ms_Timing_Count - (s_UploadInterval.heartbeat * 60 * 1000);
 //            }
-//        }
-//    }
-//    else 
+        }
+    }
+    else 
+    {
+        if(g_WireLessModuleInitFlag == TRUE)   //假如无线模块也初始化完成了
+        {
+            //与服务器握手
+            if(abs(g_ms_Timing_Count - g_SysPollTimeCnt) >= SERVER_COMM_HANDSHAKE_INTERVAL)
+            {
+                g_SysPollTimeCnt = g_ms_Timing_Count;
+                
+                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE);
+            }
+        }
+        else
+        {
+            //无线模块的初始化
+            WireLess_Initial();
+        }
+    }
+    
+//    // 到读取设备端传感器数据的时候了
+//    if(abs(g_ms_Timing_Count - g_GetDeviceSensorDataTimeCnt) >= DEVICE_COMM_GET_SENSOR_DATA_INTERVAL)
 //    {
-//        if(g_WireLessModuleInitFlag == TRUE)   //假如无线模块也初始化完成了
-//        {
-//            //与服务器握手
-//            if(abs(g_ms_Timing_Count - g_SysPollTimeCnt) >= SERVER_COMM_HANDSHAKE_INTERVAL)
-//            {
-//                g_SysPollTimeCnt = g_ms_Timing_Count;
-//                
-//                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE);
-//            }
-//        }
-//        else
-//        {
-//            //无线模块的初始化
-//            WireLess_Initial();
-//        }
+//        g_GetDeviceSensorDataTimeCnt = g_ms_Timing_Count;
+//        // 控制显示传感器数据的打印
+//        Device_Printf_Ctr(DEVICE_CTR_SENSOR_PRINTF_CMD);
 //    }
-    
-    // 到读取设备端传感器数据的时候了
-    if(abs(g_ms_Timing_Count - g_GetDeviceSensorDataTimeCnt) >= DEVICE_COMM_GET_SENSOR_DATA_INTERVAL)
-    {
-        g_GetDeviceSensorDataTimeCnt = g_ms_Timing_Count;
-        // 控制显示传感器数据的打印
-        Device_Printf_Ctr(DEVICE_CTR_SENSOR_PRINTF_CMD);
-    }
-    
-    // 秒计时
-    if(abs(g_ms_Timing_Count - s_Timing_Count) >= 1000)
-    {
-        s_Timing_Count = g_ms_Timing_Count;
-        s_GPSInfo.gmtTime++;
-    }
+//    
+//    // 秒计时
+//    if(abs(g_ms_Timing_Count - s_Timing_Count) >= 1000)
+//    {
+//        s_Timing_Count = g_ms_Timing_Count;
+//        s_GPSInfo.gmtTime++;
+//    }
 }
 
 
