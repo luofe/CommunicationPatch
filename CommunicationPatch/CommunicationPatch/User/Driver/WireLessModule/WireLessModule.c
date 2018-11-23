@@ -137,6 +137,8 @@ void WireLess_Send_AT_Command(u8 cmd)
         
         case AT_COMMAND_QICSGP:   //配置APN和上下文ID
         {
+            u8 temp_mnc = ((s_SIMCardPara.IMSI[3] - 0x30) << 4);
+            temp_mnc += (s_SIMCardPara.IMSI[4] - 0x30);
             //AT+QICSGP=<contextID>,<context_type>,[<APN>[,<username>,<password>)[,<authentication>]]]
             //AT+QICSGP=1,1,"CMNET","","",1
             strcpy(at_array, "AT+QICSGP=");
@@ -144,7 +146,40 @@ void WireLess_Send_AT_Command(u8 cmd)
             sprintf(&at_array[index], "%d,", WIRELESS_CONTEXT_ID);
             strcat(at_array, "1,");
             index = strlen(at_array);
-            sprintf(&at_array[index], "\"%s\",", WIRELESS_APN);
+            switch(temp_mnc)
+            {
+                //如果是中国移动的
+                case 0x00:
+                case 0x02:
+                case 0x04:
+                case 0x07:
+                {
+                    sprintf(&at_array[index], "\"%s\",", WIRELESS_APN_CMNET);
+                }
+                break;
+                //如果是中国电信的
+                case 0x03:
+                case 0x05:
+                case 0x11:
+                {
+                    sprintf(&at_array[index], "\"%s\",", WIRELESS_APN_CTNET);
+                }
+                break;
+                //如果是中国联通的
+                case 0x01:
+                case 0x06:
+                case 0x09:
+                {
+                    sprintf(&at_array[index], "\"%s\",", WIRELESS_APN_3GNET);
+                }
+                break;
+                
+                default:
+                {
+                    sprintf(&at_array[index], "\"%s\",", WIRELESS_APN_CMNET);
+                }
+                break;
+            }
             strcat(at_array, "\"\",");
             strcat(at_array, "\"\",");
             strcat(at_array, "1");
@@ -541,7 +576,7 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
         }
         break;
         
-        case AT_COMMAND_CIMI:  //获取SIM卡的ISMI号
+        case AT_COMMAND_CIMI:  //获取SIM卡的IMSI号
         {
             for(i = 0; i < len; i++)
             {
@@ -600,6 +635,8 @@ u8 WireLess_Rec_AT_Command_Monitor(u8 cmd)
     u8  temp_sta = FAILURE; //解析结果：包括成功、失败、只是接收到无线模块对请求指令的重复包（还没有结果的）
     u8  repeat_sta = TRUE;  //无线模块对请求指令的重复包标志
     
+    s_ServerCommRx.Status = FALSE;
+    s_ServerCommRx.Index = 0;
     s_ServerCommRx.Timeout_Count = 0;
     while(9)
     {
@@ -849,10 +886,10 @@ u8 WireLess_Initial(void)
     }
     
 #if (SERVER_AT_PRINTF_EN)
-    printf("获取SIM卡的ISMI号\r\n");
+    printf("获取SIM卡的IMSI号\r\n");
 #endif	
     
-    //获取SIM卡的ISMI号
+    //获取SIM卡的IMSI号
     if(WireLess_AT_Command_Ctr(AT_COMMAND_CIMI) == FAILURE)
     {
         return FAILURE;

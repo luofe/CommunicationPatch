@@ -39,7 +39,9 @@
 //连接ID（Socket编号）
 #define WIRELESS_CONNECT_ID         0       //0~11
 //接入点APN
-#define WIRELESS_APN                "CMNET" //中国移动、中国电信、中国联通等的英文缩写
+#define WIRELESS_APN_CMNET          "CMNET" //中国移动等的英文缩写
+#define WIRELESS_APN_CTNET          "CTNET" //中国电信
+#define WIRELESS_APN_3GNET          "3GNET" //中国联通
 //服务器类型
 #define WIRELESS_SOCKET_TYPE        "TCP"   //有TCP、UDP、TCP-Listener等
 //服务器IP地址

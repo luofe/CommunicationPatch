@@ -340,75 +340,65 @@ void Server_Comm_Package_Bale(u16 cmd)
         
         case SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE:   //握手
         {
-//            i = 0;
-//            //放入RTC时间
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 24);  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime;
-//            //协议类型
-//            s_ServerCommPackage.ADF.Data[i++] = s_SystemPara.proc_type;
-//            //协议厂商
-//            s_ServerCommPackage.ADF.Data[i++] = s_SystemPara.manu_type;
-//            //设备类型
-//            s_ServerCommPackage.ADF.Data[i++] = s_SystemPara.device_type;
-//            //设备编号
-//            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SystemPara.deviceID, 4);
-//            i += 4; 
-//            //CODE码
-//            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SystemPara.Code, 8);
-//            i += 8;  
-//            //软件版本
-//            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SystemPara.Ver, 5);
-//            i += 5;
-//            // SIM卡号
-//            s_ServerCommPackage.ADF.Data[i++] = s_SIMCardPara.num_len;
-//            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SIMCardPara.num, s_SIMCardPara.num_len);
-//            i += s_SIMCardPara.num_len;
-//            //SIM卡的IMSI码
-//            s_ServerCommPackage.ADF.Data[i++] = s_SIMCardPara.IMSI_len;
-//            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SIMCardPara.IMSI, s_SIMCardPara.IMSI_len);
-//            i += s_SIMCardPara.IMSI_len;
-//            //SIM卡的IMEI码
-//            s_ServerCommPackage.ADF.Data[i++] = s_SIMCardPara.IMEI_len;
-//            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SIMCardPara.IMEI, s_SIMCardPara.IMEI_len);
-//            i += s_SIMCardPara.IMEI_len;
-//            //SIM卡的CCID码
-//            s_ServerCommPackage.ADF.Data[i++] = s_SIMCardPara.CCID_len;
-//            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SIMCardPara.CCID, s_SIMCardPara.CCID_len);
-//            i += s_SIMCardPara.CCID_len;
-            
-            
-            
-            
-            
-            s_ServerCommPackage.ADF.CMD = 0x0D80;
-            u8 temp_array[] = {0x5B,0xEC,0xB7,0x00,
-0x10,0x01,0x00,
-0x80,0x00,0x31,0x65,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x30,0x31,0x2E,0x30,0x31,
-0x0D,0x38,0x36,0x31,0x35,0x38,0x31,0x30,0x35,0x31,0x30,0x34,0x34,0x39,
-0x0F,0x34,0x36,0x30,0x30,0x32,0x38,0x31,0x30,0x35,0x32,0x35,0x30,0x36,0x37,0x32,
-0x0F,0x38,0x36,0x38,0x37,0x30,0x34,0x30,0x34,0x37,0x35,0x34,0x32,0x35,0x30,0x39,
-0x14,0x38,0x39,0x38,0x36,0x30,0x30,0x31,0x31,0x30,0x31,0x31,0x35,0x46,0x30,0x30,0x32,0x33,0x31,0x34,0x32
-};
-            temp_array[0] = (u8)(s_GPSInfo.gmtTime >> 24);
-            temp_array[1] = (u8)(s_GPSInfo.gmtTime >> 16);
-            temp_array[2] = (u8)(s_GPSInfo.gmtTime >> 8);
-            temp_array[3] = (u8)(s_GPSInfo.gmtTime >> 0);
-            s_GPSInfo.gmtTime += 30;
-            for(i = 0; i < sizeof(temp_array); i++)
-            {
-                s_ServerCommPackage.ADF.Data[i] = temp_array[i];      
-            }
-            
-            
-            
-            
-            
-            
-            
+            i = 0;
+            //放入RTC时间
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 24);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime;
+            //协议类型
+            s_ServerCommPackage.ADF.Data[i++] = s_SystemPara.proc_type;
+            //协议厂商
+            s_ServerCommPackage.ADF.Data[i++] = s_SystemPara.manu_type;
+            //设备类型
+            s_ServerCommPackage.ADF.Data[i++] = s_SystemPara.device_type;
+            //设备编号
+            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SystemPara.deviceID, 4);
+            i += 4; 
+            //CODE码
+            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SystemPara.Code, 8);
+            i += 8;  
+            //软件版本
+            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SystemPara.Ver, 5);
+            i += 5;
+            // SIM卡号
+            s_ServerCommPackage.ADF.Data[i++] = s_SIMCardPara.num_len;
+            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SIMCardPara.num, s_SIMCardPara.num_len);
+            i += s_SIMCardPara.num_len;
+            //SIM卡的IMSI码
+            s_ServerCommPackage.ADF.Data[i++] = s_SIMCardPara.IMSI_len;
+            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SIMCardPara.IMSI, s_SIMCardPara.IMSI_len);
+            i += s_SIMCardPara.IMSI_len;
+            //SIM卡的IMEI码
+            s_ServerCommPackage.ADF.Data[i++] = s_SIMCardPara.IMEI_len;
+            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SIMCardPara.IMEI, s_SIMCardPara.IMEI_len);
+            i += s_SIMCardPara.IMEI_len;
+            //SIM卡的CCID码
+            s_ServerCommPackage.ADF.Data[i++] = s_SIMCardPara.CCID_len;
+            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SIMCardPara.CCID, s_SIMCardPara.CCID_len);
+            i += s_SIMCardPara.CCID_len;
+
+//            s_ServerCommPackage.ADF.CMD = 0x0D80;
+//            u8 temp_array[] = {0x5B,0xEC,0xB7,0x00,
+//0x10,0x01,0x00,
+//0x80,0x00,0x31,0x65,
+//0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+//0x30,0x31,0x2E,0x30,0x31,
+//0x0D,0x38,0x36,0x31,0x35,0x38,0x31,0x30,0x35,0x31,0x30,0x34,0x34,0x39,
+//0x0F,0x34,0x36,0x30,0x30,0x32,0x38,0x31,0x30,0x35,0x32,0x35,0x30,0x36,0x37,0x32,
+//0x0F,0x38,0x36,0x38,0x37,0x30,0x34,0x30,0x34,0x37,0x35,0x34,0x32,0x35,0x30,0x39,
+//0x14,0x38,0x39,0x38,0x36,0x30,0x30,0x31,0x31,0x30,0x31,0x31,0x35,0x46,0x30,0x30,0x32,0x33,0x31,0x34,0x32
+//};
+//            temp_array[0] = (u8)(s_GPSInfo.gmtTime >> 24);
+//            temp_array[1] = (u8)(s_GPSInfo.gmtTime >> 16);
+//            temp_array[2] = (u8)(s_GPSInfo.gmtTime >> 8);
+//            temp_array[3] = (u8)(s_GPSInfo.gmtTime >> 0);
+//            s_GPSInfo.gmtTime += 30;
+//            for(i = 0; i < sizeof(temp_array); i++)
+//            {
+//                s_ServerCommPackage.ADF.Data[i] = temp_array[i];      
+//            }
+
             s_ServerCommPackage.Length = i + 6;
             Server_Comm_Package_Send();
         }
@@ -430,241 +420,251 @@ void Server_Comm_Package_Bale(u16 cmd)
         
         case SERVER_COMM_PACKAGE_CMD_REPORT_DATA:   //上报传感器数据
         {
-//            i = 0;
-//            //放入RTC时间
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 24);  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime;
-//            //设备状态字
-//            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SensorData.device_sta, 4);
-//            i += 4;
-//            //电池电压
-//            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SensorData.bat_vol, 2);
-//            i += 2;
-//            //传感器个数
+            u8  sen_num_index;
+            i = 0;
+            //放入RTC时间
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 24);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime;
+            //设备状态字
+            memcpy(&s_ServerCommPackage.ADF.Data[i], s_SensorData.device_sta, 4);
+            i += 4;
+            //电池电压
+            memcpy(&s_ServerCommPackage.ADF.Data[i], s_DevicePower.vol, 2);
+            i += 2;
+            //传感器个数
+            sen_num_index = i;
+            s_SensorData.sensor_num = 0;
 //            s_ServerCommPackage.ADF.Data[i++] = s_SensorData.sensor_num;
-//            //以下都是传感器数据
-//            //PM2.5
-//            s_ServerCommPackage.ADF.Data[i++] = 0x00;  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.real_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.real_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.real_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM2_5.real_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.label_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.label_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.label_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM2_5.label_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.app_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.app_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.app_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM2_5.app_val;
-//            //PM10
-//            s_ServerCommPackage.ADF.Data[i++] = 0x02;  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.real_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.real_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.real_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM10.real_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.label_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.label_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.label_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM10.label_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.app_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.app_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.app_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM10.app_val;
-//            //CO
-//            s_ServerCommPackage.ADF.Data[i++] = 0x03;  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.real_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.real_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.real_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.CO.real_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.label_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.label_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.label_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.CO.label_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.app_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.app_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.app_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.CO.app_val;
-//            //NO2
-//            s_ServerCommPackage.ADF.Data[i++] = 0x04;  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.real_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.real_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.real_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO2.real_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.label_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.label_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.label_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO2.label_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.app_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.app_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.app_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO2.app_val;
-//            //O3
-//            s_ServerCommPackage.ADF.Data[i++] = 0x05;  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.real_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.real_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.real_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.O3.real_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.label_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.label_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.label_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.O3.label_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.app_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.app_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.app_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.O3.app_val;
-//            //SO2
-//            s_ServerCommPackage.ADF.Data[i++] = 0x06;  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.real_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.real_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.real_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.SO2.real_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.label_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.label_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.label_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.SO2.label_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.app_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.app_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.app_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.SO2.app_val;
-//            //NO
-//            s_ServerCommPackage.ADF.Data[i++] = 0x07;  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.real_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.real_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.real_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO.real_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.label_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.label_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.label_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO.label_val;
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.app_val >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.app_val >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.app_val >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO.app_val;
-//            // 新版本的设备没有TVOC。。。2018-11-10
-////            //TVOC
-////            s_ServerCommPackage.ADF.Data[i++] = 0x09;  
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.real_val >> 24);
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.real_val >> 16);
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.real_val >> 8);
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.TVOC.real_val;
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.label_val >> 24);
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.label_val >> 16);
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.label_val >> 8);
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.TVOC.label_val;
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.app_val >> 24);
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.app_val >> 16);
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.app_val >> 8);
-////            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.TVOC.app_val;
-//            //温湿度（内）
-//            s_ServerCommPackage.ADF.Data[i++] = 0x60;  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.temp >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.temp >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.temp >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.TRH.temp;
-//            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
-//            {
-//                s_ServerCommPackage.ADF.Data[i++] = 0;
-//            }
-//            s_ServerCommPackage.ADF.Data[i++] = 0x61; 
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.humi >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.humi >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.humi >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.TRH.humi;
-//            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
-//            {
-//                s_ServerCommPackage.ADF.Data[i++] = 0;
-//            }
-//            //外部传感器
-//            s_ServerCommPackage.ADF.Data[i++] = 0x62;  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.wd >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.wd >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.wd >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.ExtSensor.wd;
-//            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
-//            {
-//                s_ServerCommPackage.ADF.Data[i++] = 0;
-//            }
-//            s_ServerCommPackage.ADF.Data[i++] = 0x63; 
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.ws >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.ws >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.ws >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.ExtSensor.ws;
-//            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
-//            {
-//                s_ServerCommPackage.ADF.Data[i++] = 0;
-//            }
-//            s_ServerCommPackage.ADF.Data[i++] = 0x64;  
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.temp >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.temp >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.temp >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.ExtSensor.temp;
-//            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
-//            {
-//                s_ServerCommPackage.ADF.Data[i++] = 0;
-//            }
-//            s_ServerCommPackage.ADF.Data[i++] = 0x65; 
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.humi >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.humi >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.humi >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.ExtSensor.humi;
-//            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
-//            {
-//                s_ServerCommPackage.ADF.Data[i++] = 0;
-//            }
-//            s_ServerCommPackage.ADF.Data[i++] = 0x66; 
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.pa >> 24);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.pa >> 16);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.pa >> 8);
-//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.ExtSensor.pa;
-//            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
-//            {
-//                s_ServerCommPackage.ADF.Data[i++] = 0;
-//            }
+            i++;
+            //以下都是传感器数据
+            //PM2.5
+            s_ServerCommPackage.ADF.Data[i++] = 0x00;  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.real_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.real_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.real_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM2_5.real_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.label_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.label_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.label_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM2_5.label_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.app_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.app_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM2_5.app_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM2_5.app_val;
+            s_SensorData.sensor_num++;
+            //PM10
+            s_ServerCommPackage.ADF.Data[i++] = 0x02;  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.real_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.real_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.real_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM10.real_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.label_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.label_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.label_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM10.label_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.app_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.app_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.PM10.app_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.PM10.app_val;
+            s_SensorData.sensor_num++;
+            //CO
+            s_ServerCommPackage.ADF.Data[i++] = 0x03;  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.real_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.real_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.real_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.CO.real_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.label_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.label_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.label_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.CO.label_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.app_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.app_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.CO.app_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.CO.app_val;
+            s_SensorData.sensor_num++;
+            //NO2
+            s_ServerCommPackage.ADF.Data[i++] = 0x04;  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.real_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.real_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.real_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO2.real_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.label_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.label_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.label_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO2.label_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.app_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.app_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO2.app_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO2.app_val;
+            s_SensorData.sensor_num++;
+            //O3
+            s_ServerCommPackage.ADF.Data[i++] = 0x05;  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.real_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.real_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.real_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.O3.real_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.label_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.label_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.label_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.O3.label_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.app_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.app_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.O3.app_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.O3.app_val;
+            s_SensorData.sensor_num++;
+            //SO2
+            s_ServerCommPackage.ADF.Data[i++] = 0x06;  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.real_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.real_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.real_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.SO2.real_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.label_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.label_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.label_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.SO2.label_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.app_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.app_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.SO2.app_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.SO2.app_val;
+            s_SensorData.sensor_num++;
+            //NO
+            s_ServerCommPackage.ADF.Data[i++] = 0x07;  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.real_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.real_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.real_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO.real_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.label_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.label_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.label_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO.label_val;
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.app_val >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.app_val >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.NO.app_val >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.NO.app_val;
+            s_SensorData.sensor_num++;
             
-            
-            
-            
-            
-            
-            
-            
-            s_ServerCommPackage.ADF.CMD = 0x0D83;
-            u8 temp_array[] = {0x5B,0xEC,0xB7,0x00,
-0xFF,0xFF,0xFF,0xFF,
-0x04,0xE8,
-0x0E,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x03,0x00,0x02,0xA0,0x98,0x00,0x91,0xF6,0xE9,0x00,0x31,0x66,0x67,
-0x04,0xFF,0xFF,0xA1,0x6D,0xFF,0xFF,0x11,0xFA,0xFF,0xFF,0xB8,0x1F,
-0x05,0xFF,0xFF,0xD9,0x8F,0xFF,0xFF,0xD9,0xBF,0x00,0x07,0xF2,0x34,
-0x06,0x00,0x07,0x2E,0xD0,0x00,0x0A,0x67,0xFC,0x00,0x00,0x6D,0x71,
-0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x60,0x00,0x00,0x08,0x8C,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x61,0x00,0x00,0x20,0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x62,0x00,0x00,0x51,0x40,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x63,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x64,0x00,0x00,0x08,0xC0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x65,0x00,0x00,0x1E,0x46,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x66,0x00,0x01,0x8E,0x48,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-};
-            temp_array[0] = (u8)(s_GPSInfo.gmtTime >> 24);
-            temp_array[1] = (u8)(s_GPSInfo.gmtTime >> 16);
-            temp_array[2] = (u8)(s_GPSInfo.gmtTime >> 8);
-            temp_array[3] = (u8)(s_GPSInfo.gmtTime >> 0);
-            s_GPSInfo.gmtTime += 30;
-            for(i = 0; i < sizeof(temp_array); i++)
+            // 新版本的设备没有TVOC。。。2018-11-10
+//            //TVOC
+//            s_ServerCommPackage.ADF.Data[i++] = 0x09;  
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.real_val >> 24);
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.real_val >> 16);
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.real_val >> 8);
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.TVOC.real_val;
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.label_val >> 24);
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.label_val >> 16);
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.label_val >> 8);
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.TVOC.label_val;
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.app_val >> 24);
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.app_val >> 16);
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TVOC.app_val >> 8);
+//            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.TVOC.app_val;
+//            s_SensorData.sensor_num++;
+            //温湿度（内）
+            s_ServerCommPackage.ADF.Data[i++] = 0x60;  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.temp >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.temp >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.temp >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.TRH.temp;
+            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
             {
-                s_ServerCommPackage.ADF.Data[i] = temp_array[i];      
+                s_ServerCommPackage.ADF.Data[i++] = 0;
             }
+            s_SensorData.sensor_num++;
+            s_ServerCommPackage.ADF.Data[i++] = 0x61; 
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.humi >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.humi >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.TRH.humi >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.TRH.humi;
+            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
+            {
+                s_ServerCommPackage.ADF.Data[i++] = 0;
+            }
+            s_SensorData.sensor_num++;
+            //外部传感器
+            s_ServerCommPackage.ADF.Data[i++] = 0x62;  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.wd >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.wd >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.wd >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.ExtSensor.wd;
+            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
+            {
+                s_ServerCommPackage.ADF.Data[i++] = 0;
+            }
+            s_SensorData.sensor_num++;
+            s_ServerCommPackage.ADF.Data[i++] = 0x63; 
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.ws >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.ws >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.ws >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.ExtSensor.ws;
+            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
+            {
+                s_ServerCommPackage.ADF.Data[i++] = 0;
+            }
+            s_SensorData.sensor_num++;
+            s_ServerCommPackage.ADF.Data[i++] = 0x64;  
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.temp >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.temp >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.temp >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.ExtSensor.temp;
+            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
+            {
+                s_ServerCommPackage.ADF.Data[i++] = 0;
+            }
+            s_SensorData.sensor_num++;
+            s_ServerCommPackage.ADF.Data[i++] = 0x65; 
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.humi >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.humi >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.humi >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.ExtSensor.humi;
+            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
+            {
+                s_ServerCommPackage.ADF.Data[i++] = 0;
+            }
+            s_SensorData.sensor_num++;
+            s_ServerCommPackage.ADF.Data[i++] = 0x66; 
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.pa >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.pa >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)((u32)s_SensorData.ExtSensor.pa >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_SensorData.ExtSensor.pa;
+            for(u8 j = 0; j < 8; j++)   //实验室校准值和应用校准值填充0
+            {
+                s_ServerCommPackage.ADF.Data[i++] = 0;
+            }
+            s_SensorData.sensor_num++;
+            //最后放入传感器个数
+            s_ServerCommPackage.ADF.Data[sen_num_index] = s_SensorData.sensor_num;
             
-            
-            
-            
-            
+//            s_ServerCommPackage.ADF.CMD = 0x0D83;
+//            u8 temp_array[] = {0x5B,0xEC,0xB7,0x00,
+//0xFF,0xFF,0xFF,0xFF,
+//0x04,0xE8,
+//0x0E,
+//0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+//0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+//0x03,0x00,0x02,0xA0,0x98,0x00,0x91,0xF6,0xE9,0x00,0x31,0x66,0x67,
+//0x04,0xFF,0xFF,0xA1,0x6D,0xFF,0xFF,0x11,0xFA,0xFF,0xFF,0xB8,0x1F,
+//0x05,0xFF,0xFF,0xD9,0x8F,0xFF,0xFF,0xD9,0xBF,0x00,0x07,0xF2,0x34,
+//0x06,0x00,0x07,0x2E,0xD0,0x00,0x0A,0x67,0xFC,0x00,0x00,0x6D,0x71,
+//0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+//0x60,0x00,0x00,0x08,0x8C,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+//0x61,0x00,0x00,0x20,0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+//0x62,0x00,0x00,0x51,0x40,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+//0x63,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+//0x64,0x00,0x00,0x08,0xC0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+//0x65,0x00,0x00,0x1E,0x46,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+//0x66,0x00,0x01,0x8E,0x48,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+//};
+//            temp_array[0] = (u8)(s_GPSInfo.gmtTime >> 24);
+//            temp_array[1] = (u8)(s_GPSInfo.gmtTime >> 16);
+//            temp_array[2] = (u8)(s_GPSInfo.gmtTime >> 8);
+//            temp_array[3] = (u8)(s_GPSInfo.gmtTime >> 0);
+//            s_GPSInfo.gmtTime += 30;
+//            for(i = 0; i < sizeof(temp_array); i++)
+//            {
+//                s_ServerCommPackage.ADF.Data[i] = temp_array[i];      
+//            }
             
             s_ServerCommPackage.Length = i + 6;
             Server_Comm_Package_Send();
@@ -1099,7 +1099,8 @@ u8 Server_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
 #if (SERVER_PRINTF_EN)
         printf("内存空间不足，无法解析！！！\r\n");
 #endif	
-    
+        
+        return PACKAGE_ANALYSIS_UNKNOWN_ERROR;
     }
          
 #if (SERVER_PRINTF_EN)

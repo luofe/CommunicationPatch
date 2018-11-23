@@ -53,6 +53,9 @@ GPSInfoStruct s_GPSInfo;
 // 设备初始化完毕标志
 u8  g_DeviceInitialFlag = FALSE;
 
+// 电源电压信息
+DevicePowerStruct s_DevicePower;
+
 
 
 
@@ -526,6 +529,22 @@ void Device_Comm_Package_Bale(u8 cmd)
         }
         break;
         
+        case DEVICE_CTR_BATTERY_PRINTF_CMD:   //如果控制打印电源电压信息
+        {
+            index = 1;
+            strcat(data_str, "SHOW_ADC");
+            index += strlen("SHOW_ADC");
+        }
+        break;
+        
+        case DEVICE_CTR_BATTERY_HIDE_CMD:   //如果控制隐藏电源电压信息
+        {
+            index = 1;
+            strcat(data_str, "HIDE_ADC");
+            index += strlen("HIDE_ADC");
+        }
+        break;
+        
         default :
         
         break;
@@ -661,12 +680,13 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
         break;
         
         case DEVICE_READ_DEVICE_ID:   //如果是读取设备ID
-        {
-            for(i = 0; i < len; (i += 2))
+        {  
+            u8 j;
+            for(i = 0, j = 0; i < len; (i += 2), j++)
             {
-                s_SystemPara.deviceID[i] = (resp_str[i] - 0x30) * 16;
-                s_SystemPara.deviceID[i] += (resp_str[i + 1] - 0x30);
-            }
+                s_SystemPara.deviceID[j] = (resp_str[i] - 0x30) * 16;
+                s_SystemPara.deviceID[j] += (resp_str[i + 1] - 0x30);
+            } 
         }
         break;
         
@@ -957,6 +977,32 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
         break;
         
         case DEVICE_CTR_GPS_HIDE_CMD:   //如果控制隐藏GPS信息
+        {
+            for(i = 0; i < 3; i++)
+            {
+                temp_str[i] = resp_str[strlen((const char*)resp_str) - (4 - i)];
+            }
+            if(strcmp("OK!", temp_str) != SUCCEED)  //如果设置不成功
+            {
+                return FAILURE;
+            }
+        }
+        break;
+        
+        case DEVICE_CTR_BATTERY_PRINTF_CMD:   //如果控制电源电压信息打印
+        {
+            for(i = 0; i < 3; i++)
+            {
+                temp_str[i] = resp_str[strlen((const char*)resp_str) - (4 - i)];
+            }
+            if(strcmp("OK!", temp_str) != SUCCEED)  //如果设置不成功
+            {
+                return FAILURE;
+            }
+        }
+        break;
+        
+        case DEVICE_CTR_BATTERY_HIDE_CMD:   //如果隐藏电源电压信息打印
         {
             for(i = 0; i < 3; i++)
             {
@@ -1528,6 +1574,9 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
 
             // 控制隐藏传感器数据的打印
             Device_Printf_Ctr(DEVICE_CTR_SENSOR_HIDE_CMD);
+            
+            // 控制显示电源电压数据的打印
+            Device_Printf_Ctr(DEVICE_CTR_BATTERY_PRINTF_CMD);
         }
         break;
         
@@ -2006,6 +2055,46 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
         }
         break;
         
+        case DEVICE_GET_BATTERY_VOL_CMD:       //如果是电源电压上报
+        {
+            u16 temp_data;
+            //[ADC]: VBat=2759/1522V
+            //获取AD值
+            index = 12;
+            i = 0;
+            while((resp_str[index] != '/'))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            temp_data = atoi(temp_str);
+
+            s_DevicePower.adc[0] = (u8)(temp_data >> 8);
+            s_DevicePower.adc[1] = (u8)temp_data;
+            index += 1;
+            //获取电压值
+            i = 0;
+            while((resp_str[index] != 'V'))
+            {
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }
+            temp_data = atoi(temp_str);
+            s_DevicePower.vol[0] = (u8)(temp_data >> 8);
+            s_DevicePower.vol[1] = (u8)temp_data;
+            index += 1;
+
+            // 控制隐藏电源电压的打印
+            Device_Printf_Ctr(DEVICE_CTR_BATTERY_HIDE_CMD);
+        }
+        break;
+        
         default :
         
         break;
@@ -2025,15 +2114,17 @@ u8 Device_Comm_Package_Analysis(u8 *data, u16 data_l)
 {
     u16  index;
     char com_str[100];  //公共字符串
-    char const sam_start_str[] = "[EVENT]: Sampling start!";
-    char const sensor_data_str[] = "[SS-Temp";
-    char const gps_data_str[] = "$GPGGA,";
+    char const sam_start_str[]      = "[EVENT]: Sampling start!";
+    char const sensor_data_str[]    = "[SS-Temp";
+    char const gps_data_str[]       = "$GPGGA,";
+    char const power_data_str[]     = "[ADC]: VBat=";
     
     memset(com_str, '\0', sizeof(com_str));
     
     for(index = 0; index < (data_l / 2); index++)
     {
-        //\r\n[SS-Temp......传感器数据memcpy(com_str, &data[index], strlen(sensor_data_str));
+        //\r\n[SS-Temp......传感器数据
+        memcpy(com_str, &data[index], strlen(sensor_data_str));
         com_str[strlen(sensor_data_str)] = '\0';  //放入结束符
         if(strcmp(com_str, sensor_data_str) == SUCCEED)
         {
@@ -2049,11 +2140,22 @@ u8 Device_Comm_Package_Analysis(u8 *data, u16 data_l)
             }
         }
         
-        //$GPGGA......GPS数据memcpy(com_str, &data[index], strlen(gps_data_str));
+        //$GPGGA......GPS数据
+        memcpy(com_str, &data[index], strlen(gps_data_str));
         com_str[strlen(gps_data_str)] = '\0';  //放入结束符
         if(strcmp(com_str, gps_data_str) == SUCCEED)
         {
             Device_Comm_Package_Process(DEVICE_GET_GPS_DATA_CMD, &data[index], (data_l - index));
+            
+            break;
+        }
+        
+        //[ADC]: VBat=2759/1522V
+        memcpy(com_str, &data[index], strlen(power_data_str));
+        com_str[strlen(power_data_str)] = '\0';  //放入结束符
+        if(strcmp(com_str, power_data_str) == SUCCEED)
+        {
+            Device_Comm_Package_Process(DEVICE_GET_BATTERY_VOL_CMD, &data[index], (data_l - index));
             
             break;
         }
@@ -2351,6 +2453,34 @@ u8 Device_Rec_Command_Analysis(u8 cmd, u8* buf, u16 len)
         }
         break;
         
+        case DEVICE_CTR_BATTERY_PRINTF_CMD:
+        {
+            //如果是“SHOW_ADC”
+            char cmp_str[] = "SHOW_ADC";
+            memcpy(temp_str, &buf[index], strlen(cmp_str));
+            temp_str[index + strlen(cmp_str)] = '\0';
+            if(strcmp(temp_str, cmp_str) == SUCCEED)
+            {
+                index += strlen(cmp_str);
+                ana_sta = SUCCEED;
+            }
+        }
+        break;
+        
+        case DEVICE_CTR_BATTERY_HIDE_CMD:
+        {
+            //如果是“HIDE_ADC”
+            char cmp_str[] = "HIDE_ADC";
+            memcpy(temp_str, &buf[index], strlen(cmp_str));
+            temp_str[index + strlen(cmp_str)] = '\0';
+            if(strcmp(temp_str, cmp_str) == SUCCEED)
+            {
+                index += strlen(cmp_str);
+                ana_sta = SUCCEED;
+            }
+        }
+        break;
+        
         default:
         break;
     }  
@@ -2395,7 +2525,9 @@ u8 Device_Rec_Response_Cmd_Monitor(u8 cmd)
     u8  temp_sta = FAILURE; //解析结果：成功、失败、非命令数据包（正常打印的其它数据）
     u8  times_cnt = 0;  //次数
     
-    s_ServerCommRx.Timeout_Count = 0;
+    s_DeviceCommRx.Status = FALSE;
+    s_DeviceCommRx.Index = 0;
+    s_DeviceCommRx.Timeout_Count = 0;
     while(9)
     {
         if(s_DeviceCommRx.Status == TRUE)   //有接收
@@ -2451,7 +2583,7 @@ u8 Device_Rec_Response_Cmd_Monitor(u8 cmd)
         else 
         {
             if(s_DeviceCommRx.Timeout_Count >= DEVICE_COMM_WAIT_RESPONSE_TIMEOUT)
-            {
+            {    
                 s_DeviceCommRx.Timeout_Count = 0;
                 
                 return FAILURE;
@@ -2513,6 +2645,10 @@ u8 Device_Initial(void)
     s_DeviceCommRx.Status = FALSE;
     s_DeviceCommRx.Index = 0;
     s_DeviceCommRx.Timeout_Count = 0;
+        
+#if (SERVER_AT_PRINTF_EN)
+    printf("复位设备端\r\n");
+#endif	
     
     // 先复位设备
     Device_Printf_Ctr(DEVICE_CTR_RESET_CMD);
@@ -2527,6 +2663,10 @@ u8 Device_Initial(void)
             return FAILURE;
         }
     }
+            
+#if (SERVER_AT_PRINTF_EN)
+    printf("获取设备端GPS\r\n");
+#endif	
     
     // 获取GPS信息
     Device_Printf_Ctr(DEVICE_CTR_GPS_PRINTF_CMD);
@@ -2541,18 +2681,45 @@ u8 Device_Initial(void)
             return FAILURE;
         }
     }
+            
+#if (SERVER_AT_PRINTF_EN)
+    printf("获取设备端设备编号\r\n");
+#endif	
     
     //获取设备编号
     Device_Printf_Ctr(DEVICE_READ_DEVICE_ID); 
+            
+#if (SERVER_AT_PRINTF_EN)
+    printf("获取传感器数据上传间隔\r\n");
+#endif	
     
     //查询通用数据上传间隔
     Device_Printf_Ctr(DEVICE_READ_UPLOAD_INTERVAL_CMD);
+                
+#if (SERVER_AT_PRINTF_EN)
+    printf("获取心跳上传间隔\r\n");
+#endif	
     
     //查询心跳包上传间隔
     Device_Printf_Ctr(DEVICE_READ_HEARTBEAT_INTERVAL_CMD);
+                
+#if (SERVER_AT_PRINTF_EN)
+    printf("获取设备端电池电压\r\n");
+#endif	
     
     //获取电池电压
-    Device_Printf_Ctr(DEVICE_GET_BATTERY_VOL_CMD); 
+    Device_Printf_Ctr(DEVICE_CTR_BATTERY_PRINTF_CMD); 
+    // 如果电源电压不为0，说明获取到了电源电压
+    temp_timing_count = g_ms_Timing_Count;
+    while((s_DevicePower.vol[0] == 0) && (s_DevicePower.vol[1] == 0))
+    {
+        Device_Comm_Rec_Monitor();
+        
+        if(abs(g_ms_Timing_Count - temp_timing_count) > DEVICE_GET_POWER_DATA_TIMEOUT)
+        {
+            return FAILURE;
+        }
+    }
     
     return SUCCEED;
 }

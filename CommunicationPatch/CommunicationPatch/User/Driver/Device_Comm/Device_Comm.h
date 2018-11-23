@@ -57,7 +57,9 @@
 #define DEVICE_GET_SENSOR_DATA_CMD              18  //获取传感器数据
 #define DEVICE_GET_GPS_DATA_CMD                 19  //获取GPS数据
 
-#define DEVICE_GET_BATTERY_VOL_CMD              20  //获取电池电压
+#define DEVICE_CTR_BATTERY_PRINTF_CMD           20  //控制设备打印电源电压信息
+#define DEVICE_CTR_BATTERY_HIDE_CMD             21  //控制设备隐藏电源电压信息
+#define DEVICE_GET_BATTERY_VOL_CMD              22  //获取电源电压
 
 
 
@@ -74,7 +76,7 @@
 
 
 // 读取设备端传感器数据的时间间隔
-#define DEVICE_COMM_GET_SENSOR_DATA_INTERVAL    (1000 * 30) 
+#define DEVICE_COMM_GET_SENSOR_DATA_INTERVAL    (1000 * 10) 
 
 // 设备启动完毕所需最大时间
 #define DEVICE_INITIAL_OVER_TIMEOUT             (1000 * 20)
@@ -84,6 +86,9 @@
 
 // 设备启动后读取设备编号的最大时间
 #define DEVICE_GET_DEVICE_ID_TIMEOUT            (1000 * 2)
+
+// 设备启动后读取电源电压的最大时间
+#define DEVICE_GET_POWER_DATA_TIMEOUT           (1000 * 2)
 
 
 
@@ -165,7 +170,6 @@ typedef struct
 {
     u8  got_status;     //获取状态，TRUE—获得了
     u8  device_sta[4];  //设备状态字
-    u8  bat_vol[2];     //电池电压
     u8  sensor_num;     //传感器个数
     
     struct
@@ -251,6 +255,13 @@ typedef struct
     u32 gmtTime;        // 从1970年的秒数
 }GPSInfoStruct;
 
+// 电源电压信息
+typedef struct
+{
+    u8  adc[2];
+    u8  vol[2];     //电池电压
+}DevicePowerStruct;
+
 
 
 /******************************************************************************
@@ -282,6 +293,9 @@ extern GPSInfoStruct s_GPSInfo;
 
 // 设备初始化完毕标志
 extern u8  g_DeviceInitialFlag;
+
+// 电源电压信息
+extern DevicePowerStruct s_DevicePower;
 
 
 

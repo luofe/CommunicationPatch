@@ -178,10 +178,6 @@ void SysTick_Handler(void)
     
     s_DebugComm.RxTimeout_Count++;      //与调试口通信的数据接收等待超时计数
     
-//    g_SysPollTimeCnt++;                 //发送Poll的时间计数
-//    
-//    g_GetPulloutStatusTimeCnt++;        //查询设备端工作状态的时间计数
-    
     s_ServerCommTx.WaitResponseTimeout++;   //与服务器通信时等待服务器应答数据包的计数
 
     s_DeviceCommTx.WaitResponseTimeout++;   //与设备端通信时等待服务器应答数据包的计数

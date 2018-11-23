@@ -55,12 +55,12 @@ int main(void)
     {
         Server_Comm_Rec_Monitor();      //与服务器的通信监测
 
-//        Device_Comm_Rec_Monitor();      //与设备端的通信监测
+        Device_Comm_Rec_Monitor();      //与设备端的通信监测
 
         System_Function_Control();      //功能控制
 
-//        //正式发布版本将删除
-//        Debug_Comm_Rec_Monitor();       //与调试口通信的监测
+        //正式发布版本将删除
+        Debug_Comm_Rec_Monitor();       //与调试口通信的监测
     }
 }
 
