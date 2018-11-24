@@ -20,6 +20,7 @@
 #define SERVER_PRINTF_EN		            1	//定义是否打印输出 TRUE/FALSE
 #define DEVICE_PRINTF_EN                    1	//定义是否打印输出 TRUE/FALSE
 #define SERVER_AT_PRINTF_EN                 1	//定义是否打印输出 TRUE/FALSE
+#define FLASH_PRINTF_EN                     1	//定义是否打印输出 TRUE/FALSE
 
 //#define DEBUG_USART_BAUDRATE            115200                       //定义DEBUG_USART通信波特率
 //#define DEBUG_USART                     USART3                       //定义DEBUG_USART使用的串口号

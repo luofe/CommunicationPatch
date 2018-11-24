@@ -417,6 +417,8 @@ void SysPeripheralInit(void)
     //设备端初始化
     Device_Initial();
 
+    Ext_Flash_Detect();     //检测片外flash是否存在
+    
 	USART_ITConfig(DEBUG_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
 }
 

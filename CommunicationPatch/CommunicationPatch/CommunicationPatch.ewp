@@ -2157,6 +2157,9 @@
         <name>$PROJ_DIR$\User\Driver\Device_Comm\Device_Comm.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\User\Driver\ExtFlash\ExtFlash.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\User\Driver\Internal_Flash\Internal_Flash.c</name>
       </file>
       <file>

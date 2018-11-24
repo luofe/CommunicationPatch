@@ -76,7 +76,7 @@ void  MCU_Init(void)
     
     Device_Comm_Init();                 //与设备端通信相关的初始化
 
-//    SDcard_Comm_Init();                 //SD卡通信相关的初始化
+    SPI_FLASH_Init();                   //片外FLASH的初始化
     
     SysTick_Init_Delay(DELAY_MS);       //初始化SysTick中断间隔为1ms
     
