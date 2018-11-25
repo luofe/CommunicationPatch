@@ -77,6 +77,7 @@
 #define SERVER_COMM_PACKAGE_CMD_REPORT_DATA         0x0D83    //报告传感器数据
 #define SERVER_COMM_PACKAGE_CMD_REPORT_PARA         0x0D87    //报告参数数据
 #define SERVER_COMM_PACKAGE_CMD_REPORT_GPS          0x0D8B    //报告GPS信息
+#define SERVER_COMM_PACKAGE_CMD_REPORT_FLASH        0x0E01    //上报片外Flash的数据包
 
 // 参数类型定义
 #define SYSTEM_PARA_TYPE_IP_ADDR_PORT               0x01        //IP地址、端口号

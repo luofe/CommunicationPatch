@@ -9,7 +9,11 @@
 // Author : 刘锋
 // Functiom:项目工程使用外部Flash存储传感器数据的源程序。
 //备注: 
-
+The W25Q128FV array is organized into 65,536 programmable pages of 256-bytes each. Up to 256
+bytes can be programmed at a time. Pages can be erased in groups of 16 (4KB sector erase), groups of
+128 (32KB block erase), groups of 256 (64KB block erase) or the entire chip (chip erase). The
+W25Q128FV has 4,096 erasable sectors and 256 erasable blocks respectively. The small 4KB sectors
+allow for greater flexibility in applications that require data and parameter storage. (See Figure 2.)
 *******************************************************************************/
 
 /******************************************************************************
@@ -25,6 +29,8 @@
 *******************************************************************************/
 static __IO uint32_t  SPITimeout = SPIT_LONG_TIMEOUT; 
 
+// 存储数据的页码
+u16 g_DataPageNum = SENSOR_DATA_MIN_PAGE_NUM - 1;
 
 
 
@@ -46,7 +52,8 @@ static __IO uint32_t  SPITimeout = SPIT_LONG_TIMEOUT;
 *******************************************************************************/
 static uint16_t SPI_TIMEOUT_UserCallback(uint8_t errorCode);
 
-
+//函数功能: 数据存储处理函数
+void Data_Storge_Process(u8* data, u16 len);
 
 
 
@@ -654,43 +661,102 @@ u8  Ext_Flash_Detect(void)
     }
 }
 
+//********************************************************
+//函数名称: Data_Storge_Process
+//函数功能: 数据存储处理函数
+//输    入: u8* data——数据内容, u16 len——数据长度
+//输    出: 无
+//备    注: 无
+//********************************************************
+void Data_Storge_Process(u8* data, u16 len)
+{
+    u8 page_num[2];
+    
+    SPI_FLASH_BufferRead(page_num, FLASH_PACKAGE_NUM_ADDRESS, sizeof(page_num));   
+    g_DataPageNum = page_num[0] * 256 + page_num[1];
+    
+#if (FLASH_PRINTF_EN)
+    printf("\r\n之前g_DataPageNum=%d", g_DataPageNum);
+#endif 
+    
+    if(g_DataPageNum == 0xFFFF)
+    {
+        SPI_FLASH_BulkErase();  //擦除整片
+    }
+    //存放页码
+    g_DataPageNum++;
+    if(g_DataPageNum > SENSOR_DATA_MAX_PAGE_NUM)
+    {
+        SPI_FLASH_BulkErase();  //擦除整片
+        g_DataPageNum = SENSOR_DATA_MIN_PAGE_NUM;
+    }
+    page_num[0] = (u8)(g_DataPageNum >> 8);
+    page_num[1] = (u8)(g_DataPageNum >> 0);
+    SPI_FLASH_SectorErase(FLASH_PACKAGE_NUM_ADDRESS);
+    SPI_FLASH_BufferWrite(page_num, FLASH_PACKAGE_NUM_ADDRESS, sizeof(page_num));
+
+    /* 将发送缓冲区的数据写到flash中 */
+    SPI_FLASH_BufferWrite(data, (g_DataPageNum * 256), len);
+}
+
 //测试函数
 void Ext_Flash_Test(void)
 {
-    u16 i = 0;
-    /* 发送缓冲区初始化 */
-    uint8_t Tx_Buffer[] = "感谢您选用秉火stm32开发板\r\nhttps://fire-stm32.taobao.com+1";
-    uint8_t Rx_Buffer[countof(Tx_Buffer)];
+    u8  Tx_Buffer[] = {
+0x5B, 0xF8, 0x1F, 0x19, 
+0xFF, 0xFF, 0xFF, 0xFF, 
+0x05, 0xF1,
+0x0E,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x03, 0x00, 0x00, 0x59, 0x0B, 0x00, 0x13, 0x53, 0x63, 0x00, 0x0B, 0x68, 0x8B,
+0x04, 0xFF, 0xFF, 0xD4, 0x9E, 0xFF, 0xFF, 0x92, 0xED, 0x00, 0x00, 0x79, 0x8B,
+0x05, 0xFF, 0xFF, 0xE7, 0x5D, 0xFF, 0xFF, 0x15, 0xFA, 0x00, 0x01, 0x10, 0x48,
+0x06, 0x00, 0x02, 0x63, 0x99, 0x00, 0x03, 0x9B, 0x13, 0x00, 0x00, 0x0B, 0xF3,
+0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x60, 0x00, 0x00, 0x08, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x61, 0x00, 0x00, 0x1A, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x62, 0x00, 0x00, 0x4E, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x63, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x64, 0x00, 0x00, 0x08, 0x8E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x65, 0x00, 0x00, 0x18, 0x1A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x66, 0x00, 0x01, 0x8D, 0xB2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
     
+    u8  Rx_Buffer[256];
+    
+    s_GPSInfo.gmtTime = 0x5BF81F17;
+    Ext_Flash_Detect();     //检测片外flash是否存在
     while(9)
     {
-        /* 擦除将要写入的 SPI FLASH 扇区，FLASH写入前要先擦除 */
-        SPI_FLASH_SectorErase(FLASH_SectorToErase);	 	 
-        
-        /* 将发送缓冲区的数据写到flash中 */
-        SPI_FLASH_BufferWrite(Tx_Buffer, FLASH_WriteAddress, strlen((const char*)Tx_Buffer));
+        s_GPSInfo.gmtTime += 2;
+        Tx_Buffer[0] = (u8)(s_GPSInfo.gmtTime >> 24);
+        Tx_Buffer[1] = (u8)(s_GPSInfo.gmtTime >> 16);
+        Tx_Buffer[2] = (u8)(s_GPSInfo.gmtTime >> 8);
+        Tx_Buffer[3] = (u8)(s_GPSInfo.gmtTime >> 0);
         
 #if (FLASH_PRINTF_EN)
         printf("\r\n写入的数据为：\r\n");
-        for(i = 0; i < strlen((const char*)Tx_Buffer); i++)
+        for(u16 i = 0; i < sizeof(Tx_Buffer); i++)
         {
-            printf("%c", Tx_Buffer[i]);
+            printf("%02X ", Tx_Buffer[i]);
         }
 #endif   
         
+        Data_Storge_Process(Tx_Buffer, sizeof(Tx_Buffer));
+        
         /* 将刚刚写入的数据读出来放到接收缓冲区中 */
-        SPI_FLASH_BufferRead(Rx_Buffer, FLASH_ReadAddress, strlen((const char*)Tx_Buffer));
+        SPI_FLASH_BufferRead(Rx_Buffer, (g_DataPageNum * 256), sizeof(Tx_Buffer));
         
 #if (FLASH_PRINTF_EN)
         printf("\r\n读出的数据为：\r\n");
-        for(i = 0; i < strlen((const char*)Tx_Buffer); i++)
+        for(u16 i = 0; i < sizeof(Tx_Buffer); i++)
         {
-            printf("%c", Rx_Buffer[i]);
+            printf("%02X ", Rx_Buffer[i]);
         }
-#endif   
+#endif
         
-        Delay_ms(1000);
-        Tx_Buffer[strlen((const char*)Tx_Buffer) - 1]++;
+        Delay_ms(2000);
     }
 }
 

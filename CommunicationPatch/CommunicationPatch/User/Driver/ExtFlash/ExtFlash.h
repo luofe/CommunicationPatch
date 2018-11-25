@@ -68,9 +68,7 @@
 #define SPI_FLASH_PerWritePageSize  256
 
 
-#define  FLASH_WriteAddress         0x00000
-#define  FLASH_ReadAddress          FLASH_WriteAddress
-#define  FLASH_SectorToErase        FLASH_WriteAddress
+#define  FLASH_PACKAGE_NUM_ADDRESS  0x00000
 
 /* Private define ------------------------------------------------------------*/
 /*命令定义-开头*******************************/
@@ -100,7 +98,11 @@
 #define SPIT_LONG_TIMEOUT           ((uint32_t)(10 * SPIT_FLAG_TIMEOUT))
 
 
-#define countof(a)      (sizeof(a) / sizeof(*(a)))
+#define countof(a)                  (sizeof(a) / sizeof(*(a)))
+
+// 存储传感器数据包最小页和最大页
+#define SENSOR_DATA_MIN_PAGE_NUM    16
+#define SENSOR_DATA_MAX_PAGE_NUM    ((2*60*24*20) + SENSOR_DATA_MIN_PAGE_NUM)		//发送的数据量
 
 
 
@@ -127,6 +129,8 @@
 /******************************************************************************
 //变量定义/声明
 *******************************************************************************/
+// 存储数据的页码
+extern u16 g_DataPageNum;
 	
 
 
@@ -167,8 +171,14 @@ u16 SPI_FLASH_SendHalfWord(u16 HalfWord);
 void SPI_FLASH_WriteEnable(void);
 void SPI_FLASH_WaitForWriteEnd(void);
 
+//读取FLASH数据
+void SPI_FLASH_BufferRead(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead);
+
 //片外Flash检测函数
 u8  Ext_Flash_Detect(void);
+
+//函数功能: 数据存储处理函数
+void Data_Storge_Process(u8* data, u16 len);
 
 //测试函数
 void Ext_Flash_Test(void);

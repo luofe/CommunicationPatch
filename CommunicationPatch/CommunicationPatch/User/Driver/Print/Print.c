@@ -264,26 +264,49 @@ void Debug_Comm_Rec_Monitor(void)
     {
         if(s_DebugComm.RxTimeout_Count >= DEBUG_COMM_RX_DATA_TIMEOUT)    //是否超时了
         {
-            u16 temp_len = s_DebugComm.RxIndex;
             if(s_ServerCommRx.Status == FALSE)
             {
             
-#if (SERVER_PRINTF_EN)
-            printf("转发Debug口数据包\r\n");
-#endif	
+//#if (SERVER_PRINTF_EN)
+//                printf("转发Debug口数据包\r\n");
+//#endif	
             
 //                // 转发给无线模块端
-//                for(u16 i = 0; i < temp_len; i++)
+//                for(u16 i = 0; i < s_DebugComm.RxIndex; i++)
 //                {
 //                    USART_SendData(SERVER_COMM_USART, s_DebugComm.RxBuffer[i]); 
 //                    while(USART_GetFlagStatus(SERVER_COMM_USART, USART_FLAG_TXE) == RESET);//等待发送完成
 //                }
             
-                // 转发给设备端
-                for(u16 i = 0; i < temp_len; i++)
+//                // 转发给设备端
+//                for(u16 i = 0; i < s_DebugComm.RxIndex; i++)
+//                {
+//                    USART_SendData(DEVICE_COMM_USART, s_DebugComm.RxBuffer[i]); 
+//                    while(USART_GetFlagStatus(DEVICE_COMM_USART, USART_FLAG_TXE) == RESET);//等待发送完成
+//                }
+                
+                
+                char com_str[50];  //公共字符串
+                char const temp_str[]      = "/*擦除整片W25Q128*/";
+                for(u16 index = 0; index < (s_DebugComm.RxIndex / 2); index++)
                 {
-                    USART_SendData(DEVICE_COMM_USART, s_DebugComm.RxBuffer[i]); 
-                    while(USART_GetFlagStatus(DEVICE_COMM_USART, USART_FLAG_TXE) == RESET);//等待发送完成
+                    memcpy(com_str, &s_DebugComm.RxBuffer[index], strlen(temp_str));
+                    com_str[strlen(temp_str)] = '\0';  //放入结束符
+                    if(strcmp(com_str, temp_str) == SUCCEED)
+                    {
+                        
+#if (SERVER_PRINTF_EN)
+                        printf("擦除整片W25Q128中......\r\n");
+#endif	
+            
+                        SPI_FLASH_BulkErase();  //擦除整片
+                        g_DataPageNum = SENSOR_DATA_MIN_PAGE_NUM;
+                        
+#if (SERVER_PRINTF_EN)
+                        printf("擦除完毕！\r\n");
+#endif	
+            
+                    }
                 }
                 
                 s_DebugComm.RxStatus = FALSE;

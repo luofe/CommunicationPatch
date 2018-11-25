@@ -503,20 +503,6 @@ void System_Function_Control(void)
             
             Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_HEARTBEAT);
         }
-        //如果到发送传感器数据的时间了
-        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))//30
-        {
-            //只有等获得了设备端的传感器数据才上报
-            if(s_SensorData.got_status == TRUE)
-            {
-                g_SendSensorDataTimeCnt = g_ms_Timing_Count;
-                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);
-            }
-            else    //否则得上报心跳包，防止网络断联
-            {
-                g_SendSensorDataTimeCnt = g_ms_Timing_Count - (s_UploadInterval.heartbeat * 60 * 1000);
-            }
-        }
     }
     else 
     {
@@ -534,6 +520,20 @@ void System_Function_Control(void)
         {
             //无线模块的初始化
             WireLess_Initial();
+        }
+    }
+    //如果到发送传感器数据的时间了
+    if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))//30
+    {
+        //只有等获得了设备端的传感器数据才上报
+        if(s_SensorData.got_status == TRUE)
+        {
+            g_SendSensorDataTimeCnt = g_ms_Timing_Count;
+            Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);
+        }
+        else    //否则得上报心跳包，防止网络断联
+        {
+            g_SendSensorDataTimeCnt = g_ms_Timing_Count - (s_UploadInterval.heartbeat * 60 * 1000);
         }
     }
     

@@ -59,7 +59,6 @@ int main(void)
 
         System_Function_Control();      //功能控制
 
-        //正式发布版本将删除
         Debug_Comm_Rec_Monitor();       //与调试口通信的监测
     }
 }

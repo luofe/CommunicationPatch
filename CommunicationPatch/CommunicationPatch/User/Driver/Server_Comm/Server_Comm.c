@@ -377,28 +377,7 @@ void Server_Comm_Package_Bale(u16 cmd)
             s_ServerCommPackage.ADF.Data[i++] = s_SIMCardPara.CCID_len;
             memcpy(&s_ServerCommPackage.ADF.Data[i], s_SIMCardPara.CCID, s_SIMCardPara.CCID_len);
             i += s_SIMCardPara.CCID_len;
-
-//            s_ServerCommPackage.ADF.CMD = 0x0D80;
-//            u8 temp_array[] = {0x5B,0xEC,0xB7,0x00,
-//0x10,0x01,0x00,
-//0x80,0x00,0x31,0x65,
-//0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-//0x30,0x31,0x2E,0x30,0x31,
-//0x0D,0x38,0x36,0x31,0x35,0x38,0x31,0x30,0x35,0x31,0x30,0x34,0x34,0x39,
-//0x0F,0x34,0x36,0x30,0x30,0x32,0x38,0x31,0x30,0x35,0x32,0x35,0x30,0x36,0x37,0x32,
-//0x0F,0x38,0x36,0x38,0x37,0x30,0x34,0x30,0x34,0x37,0x35,0x34,0x32,0x35,0x30,0x39,
-//0x14,0x38,0x39,0x38,0x36,0x30,0x30,0x31,0x31,0x30,0x31,0x31,0x35,0x46,0x30,0x30,0x32,0x33,0x31,0x34,0x32
-//};
-//            temp_array[0] = (u8)(s_GPSInfo.gmtTime >> 24);
-//            temp_array[1] = (u8)(s_GPSInfo.gmtTime >> 16);
-//            temp_array[2] = (u8)(s_GPSInfo.gmtTime >> 8);
-//            temp_array[3] = (u8)(s_GPSInfo.gmtTime >> 0);
-//            s_GPSInfo.gmtTime += 30;
-//            for(i = 0; i < sizeof(temp_array); i++)
-//            {
-//                s_ServerCommPackage.ADF.Data[i] = temp_array[i];      
-//            }
-
+            
             s_ServerCommPackage.Length = i + 6;
             Server_Comm_Package_Send();
         }
@@ -436,7 +415,6 @@ void Server_Comm_Package_Bale(u16 cmd)
             //传感器个数
             sen_num_index = i;
             s_SensorData.sensor_num = 0;
-//            s_ServerCommPackage.ADF.Data[i++] = s_SensorData.sensor_num;
             i++;
             //以下都是传感器数据
             //PM2.5
@@ -635,39 +613,22 @@ void Server_Comm_Package_Bale(u16 cmd)
             s_SensorData.sensor_num++;
             //最后放入传感器个数
             s_ServerCommPackage.ADF.Data[sen_num_index] = s_SensorData.sensor_num;
-            
-//            s_ServerCommPackage.ADF.CMD = 0x0D83;
-//            u8 temp_array[] = {0x5B,0xEC,0xB7,0x00,
-//0xFF,0xFF,0xFF,0xFF,
-//0x04,0xE8,
-//0x0E,
-//0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-//0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-//0x03,0x00,0x02,0xA0,0x98,0x00,0x91,0xF6,0xE9,0x00,0x31,0x66,0x67,
-//0x04,0xFF,0xFF,0xA1,0x6D,0xFF,0xFF,0x11,0xFA,0xFF,0xFF,0xB8,0x1F,
-//0x05,0xFF,0xFF,0xD9,0x8F,0xFF,0xFF,0xD9,0xBF,0x00,0x07,0xF2,0x34,
-//0x06,0x00,0x07,0x2E,0xD0,0x00,0x0A,0x67,0xFC,0x00,0x00,0x6D,0x71,
-//0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-//0x60,0x00,0x00,0x08,0x8C,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-//0x61,0x00,0x00,0x20,0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-//0x62,0x00,0x00,0x51,0x40,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-//0x63,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-//0x64,0x00,0x00,0x08,0xC0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-//0x65,0x00,0x00,0x1E,0x46,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-//0x66,0x00,0x01,0x8E,0x48,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-//};
-//            temp_array[0] = (u8)(s_GPSInfo.gmtTime >> 24);
-//            temp_array[1] = (u8)(s_GPSInfo.gmtTime >> 16);
-//            temp_array[2] = (u8)(s_GPSInfo.gmtTime >> 8);
-//            temp_array[3] = (u8)(s_GPSInfo.gmtTime >> 0);
-//            s_GPSInfo.gmtTime += 30;
-//            for(i = 0; i < sizeof(temp_array); i++)
-//            {
-//                s_ServerCommPackage.ADF.Data[i] = temp_array[i];      
-//            }
-            
+            //数据长度
             s_ServerCommPackage.Length = i + 6;
-            Server_Comm_Package_Send();
+            
+            if((g_SysInitStatusFlag == TRUE) && (g_WireLessModuleInitFlag == TRUE))   //初始化完毕,无线模块也初始化完成了
+            {
+                Server_Comm_Package_Send();
+            }
+            else
+            {
+                u8  temp_array[256];
+                temp_array[1] = 0x02;                       //数据包类型
+                temp_array[1] = s_ServerCommPackage.Length; //数据包长度
+                memcpy(&temp_array[2], s_ServerCommPackage.ADF.Data, s_ServerCommPackage.Length);
+                
+                Data_Storge_Process(s_ServerCommPackage.ADF.Data, (i + 2));
+            }
         }
         break;
         
@@ -814,6 +775,38 @@ void Server_Comm_Package_Bale(u16 cmd)
         }
         break;
         
+        case SERVER_COMM_PACKAGE_CMD_REPORT_FLASH:   //上报片外Flash的数据包
+        {
+            u8  Rx_Buffer[256];
+            i = 0;
+            //时间
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime;
+            //放入帧数 
+            s_ServerCommPackage.ADF.Data[i++] = (g_DataPageNum - SENSOR_DATA_MIN_PAGE_NUM) + 1;
+            for(u16 index = SENSOR_DATA_MIN_PAGE_NUM; index < g_DataPageNum; index++)
+            {
+                //读取数据包
+                SPI_FLASH_BufferRead(Rx_Buffer, (index * 256), sizeof(Rx_Buffer));
+                //放入数据包类型 
+                s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[0];
+                //放入数据包长度
+                s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[1];
+                //放入数据内容
+                for(u8 j = 0; j < Rx_Buffer[1]; j++)
+                {
+                    s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[j + 2];
+                }
+            }
+            s_ServerCommPackage.Length = i + 6;
+            Server_Comm_Package_Send();
+            
+            
+        }
+        break;
+        
         default :
         
         break;
@@ -851,6 +844,11 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
 #endif   
                     
                     g_SysInitStatusFlag = TRUE;
+                    //如果有数据包存储到片外Flash
+                    if((g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM) && (g_DataPageNum < 0xFFFF))
+                    {
+                        Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_FLASH);
+                    }
                 }
                 s_ServerCommTx.WaitResponse = DONT_RESPONSE;    //等待应答标志复位
                 s_ServerCommTx.RepeatNum = 0;   //重发次数复位
@@ -1240,21 +1238,20 @@ u8 Server_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
     //如果解析失败
     if(packet_analysis_error_status != PACKAGE_ANALYSIS_SUCCEED)
     {
+        char com_str[50];  //公共字符串
+        char const temp_str[] = "NO CARRIE";
+        
         for(temp_index = 0; temp_index < rec_length; temp_index++)
         {
             //"NO CARRIER"
-            if((rec_array[temp_index] == 'N') && (rec_array[temp_index + 1] == 'O') && (rec_array[temp_index + 2] == ' ')
-                && (rec_array[temp_index + 3] == 'C') && (rec_array[temp_index + 4] == 'A') && (rec_array[temp_index + 5] == 'R')
-                     && (rec_array[temp_index + 6] == 'R') && (rec_array[temp_index + 7] == 'I') && (rec_array[temp_index + 8] == 'E')
-                          && (rec_array[temp_index + 9] == 'R'))
+            memcpy(com_str, &rec_array[temp_index], strlen(temp_str));
+            com_str[strlen(temp_str)] = '\0';  //放入结束符
+            if(strcmp(com_str, temp_str) == SUCCEED)
             {
                 //无线模块复位为未初始化
                 g_WireLessModuleInitFlag = FALSE;
                 //系统初始化状态复位为未初始化
                 g_SysInitStatusFlag = FALSE;
-                
-                //无线模块的初始化
-                WireLess_Initial();
             }
         }
     }
