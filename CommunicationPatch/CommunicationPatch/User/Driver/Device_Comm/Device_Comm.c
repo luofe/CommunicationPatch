@@ -56,6 +56,9 @@ u8  g_DeviceInitialFlag = FALSE;
 // 电源电压信息
 DevicePowerStruct s_DevicePower;
 
+// 设备初始化状态
+u8  g_DeviceInitFlag = FALSE;
+
 
 
 
@@ -2720,6 +2723,12 @@ u8 Device_Initial(void)
             return FAILURE;
         }
     }
+    
+    g_DeviceInitFlag = TRUE;
+    
+#if (DEVICE_PRINTF_EN)
+    printf("设备初始化成功！\r\n");
+#endif	
     
     return SUCCEED;
 }

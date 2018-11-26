@@ -87,6 +87,12 @@
 #define SYSTEM_PARA_TYPE_LAB_ADJUST                 0x07        //实验室校准
 #define SYSTEM_PARA_TYPE_APP_ADJUST                 0x08        //应用校准
 
+// 外部存储的数据包类型定义
+#define EXTFLASH_PACKAGE_TYPE_DEVICE_RESET          0x01        //设备复位
+#define EXTFLASH_PACKAGE_TYPE_REPORT_DATA           0x02        //传感器数据包
+#define EXTFLASH_PACKAGE_TYPE_HEARTBEAT             0x03        //心跳数据包
+
+
 
 
 // 通信数据包解析状态

@@ -297,6 +297,9 @@ extern u8  g_DeviceInitialFlag;
 // 电源电压信息
 extern DevicePowerStruct s_DevicePower;
 
+// 设备初始化状态
+extern u8  g_DeviceInitFlag;
+
 
 
 

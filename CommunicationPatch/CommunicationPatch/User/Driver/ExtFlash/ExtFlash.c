@@ -682,6 +682,7 @@ void Data_Storge_Process(u8* data, u16 len)
     if(g_DataPageNum == 0xFFFF)
     {
         SPI_FLASH_BulkErase();  //²Á³ýÕûÆ¬
+        g_DataPageNum = SENSOR_DATA_MIN_PAGE_NUM - 1;
     }
     //´æ·ÅÒ³Âë
     g_DataPageNum++;

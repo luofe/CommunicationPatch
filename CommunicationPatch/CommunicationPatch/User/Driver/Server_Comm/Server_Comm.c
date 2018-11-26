@@ -613,19 +613,24 @@ void Server_Comm_Package_Bale(u16 cmd)
             s_SensorData.sensor_num++;
             //最后放入传感器个数
             s_ServerCommPackage.ADF.Data[sen_num_index] = s_SensorData.sensor_num;
-            //数据长度
-            s_ServerCommPackage.Length = i + 6;
             
             if((g_SysInitStatusFlag == TRUE) && (g_WireLessModuleInitFlag == TRUE))   //初始化完毕,无线模块也初始化完成了
             {
+                //数据长度
+                s_ServerCommPackage.Length = i + 6;
                 Server_Comm_Package_Send();
             }
             else
             {
+                                        
+#if (SERVER_PRINTF_EN)
+        printf("将传感器上传数据包存储到Flash中\r\n");
+#endif
+        
                 u8  temp_array[256];
-                temp_array[1] = 0x02;                       //数据包类型
-                temp_array[1] = s_ServerCommPackage.Length; //数据包长度
-                memcpy(&temp_array[2], s_ServerCommPackage.ADF.Data, s_ServerCommPackage.Length);
+                temp_array[0] = 0x02;                       //数据包类型
+                temp_array[1] = (u8)s_ServerCommPackage.Length; //数据包长度
+                memcpy(&temp_array[2], s_ServerCommPackage.ADF.Data, i);
                 
                 Data_Storge_Process(s_ServerCommPackage.ADF.Data, (i + 2));
             }
@@ -778,24 +783,50 @@ void Server_Comm_Package_Bale(u16 cmd)
         case SERVER_COMM_PACKAGE_CMD_REPORT_FLASH:   //上报片外Flash的数据包
         {
             u8  Rx_Buffer[256];
+            
+            if(g_DataPageNum > 4)   //太多了会超过可发送缓存
+            {
+                                        
+#if (SERVER_PRINTF_EN)
+        printf("Flash中存储的帧数=%d\r\n", g_DataPageNum);
+#endif
+        
+                return;
+            }
+            
             i = 0;
             //时间
             s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 24);
             s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 16);
             s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);
             s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime;
-            //放入帧数 
+            //放入帧数     
             s_ServerCommPackage.ADF.Data[i++] = (g_DataPageNum - SENSOR_DATA_MIN_PAGE_NUM) + 1;
             for(u16 index = SENSOR_DATA_MIN_PAGE_NUM; index < g_DataPageNum; index++)
             {
                 //读取数据包
                 SPI_FLASH_BufferRead(Rx_Buffer, (index * 256), sizeof(Rx_Buffer));
+
                 //放入数据包类型 
                 s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[0];
                 //放入数据包长度
                 s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[1];
+                //放入流水号
+                s_ServerCommPackage.ADF.Data[i++] = (u8)(s_ServerCommPackage.ADF.SN >> 8);
+                s_ServerCommPackage.ADF.Data[i++] = (u8)(s_ServerCommPackage.ADF.SN >> 0);
+                //放入命令码
+                switch(Rx_Buffer[0])
+                {
+                    case EXTFLASH_PACKAGE_TYPE_REPORT_DATA: //如果存储的数据包是传感器数据上传
+                    {
+                        s_ServerCommPackage.ADF.CMD = SERVER_COMM_PACKAGE_CMD_REPORT_DATA;
+                    }
+                    break;
+                }
+                s_ServerCommPackage.ADF.Data[i++] = (u8)(s_ServerCommPackage.ADF.CMD >> 8);
+                s_ServerCommPackage.ADF.Data[i++] = (u8)(s_ServerCommPackage.ADF.CMD >> 0);
                 //放入数据内容
-                for(u8 j = 0; j < Rx_Buffer[1]; j++)
+                for(u16 j = 0; j < Rx_Buffer[1]; j++)
                 {
                     s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[j + 2];
                 }
@@ -845,8 +876,14 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                     
                     g_SysInitStatusFlag = TRUE;
                     //如果有数据包存储到片外Flash
+                    
                     if((g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM) && (g_DataPageNum < 0xFFFF))
                     {
+                        
+#if (SERVER_PRINTF_EN)
+                        printf("g_DataPageNum=%d\r\n", g_DataPageNum);
+#endif   
+                        
                         Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_FLASH);
                     }
                 }

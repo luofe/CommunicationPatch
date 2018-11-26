@@ -79,7 +79,7 @@
 // 等待关闭TCP连接的最大等待时间
 #define WIRELESS_WAIT_QICLOSE_TIMEOUT   (1000 * 5)    //10s 
 // 等待切换到命令模式的最大等待时间
-#define WIRELESS_WAIT_SWITCH_CMD_TIMEOUT (1000 * 5)    //10s 
+#define WIRELESS_WAIT_SWITCH_CMD_TIMEOUT (1000 * 10)    //10s 
 // 等待切换回透传模式的最大等待时间
 #define WIRELESS_WAIT_ATO_TIMEOUT       (1000 * 5)    //10s 
 // 等待获取SIM卡的CCID号的最大等待时间
@@ -88,6 +88,8 @@
 #define WIRELESS_WAIT_CIMI_TIMEOUT      (1000 * 5)    //10s 
 // 等待获取SIM卡的IMEI号的最大等待时间
 #define WIRELESS_WAIT_CGSN_TIMEOUT      (1000 * 5)    //10s
+// 等待进入命令模式的最大等待时间
+#define WIRELESS_SWITCH_TO_CMD_TIMEOUT  (1000 * 5)    //10s
 
 
 

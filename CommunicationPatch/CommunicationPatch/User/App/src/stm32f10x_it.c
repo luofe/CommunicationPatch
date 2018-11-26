@@ -172,6 +172,8 @@ void SysTick_Handler(void)
 {
 	g_ms_Timing_Count++;	            //ms计时
     
+    s_Timing_Count++;                   //s计时
+    
     s_ServerCommRx.Timeout_Count++;     //接收服务器数据超时等待计数
     
     s_DeviceCommRx.Timeout_Count++;     //接收设备端的数据超时等待计数

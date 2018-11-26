@@ -538,18 +538,26 @@ void System_Function_Control(void)
     }
     
     // 到读取设备端传感器数据的时候了
-    if(abs(g_ms_Timing_Count - g_GetDeviceSensorDataTimeCnt) >= DEVICE_COMM_GET_SENSOR_DATA_INTERVAL)
+    if(g_DeviceInitFlag == TRUE)
     {
-        g_GetDeviceSensorDataTimeCnt = g_ms_Timing_Count;
-        // 控制显示传感器数据的打印
-        Device_Printf_Ctr(DEVICE_CTR_SENSOR_PRINTF_CMD);
+        if(abs(g_ms_Timing_Count - g_GetDeviceSensorDataTimeCnt) >= DEVICE_COMM_GET_SENSOR_DATA_INTERVAL)
+        {
+            g_GetDeviceSensorDataTimeCnt = g_ms_Timing_Count;
+            // 控制显示传感器数据的打印
+            Device_Printf_Ctr(DEVICE_CTR_SENSOR_PRINTF_CMD);
+        }
+    }
+    else
+    {
+        //设备端初始化
+        Device_Initial();
     }
     
     // RTC秒计时
-    if(abs(g_ms_Timing_Count - s_Timing_Count) >= 1000)
+    if((u16)(s_Timing_Count / 1000))
     {
-        s_Timing_Count = g_ms_Timing_Count;
-        s_GPSInfo.gmtTime++;
+        s_Timing_Count = 0;
+        s_GPSInfo.gmtTime += (u16)(s_Timing_Count / 1000);
     }
 }
 

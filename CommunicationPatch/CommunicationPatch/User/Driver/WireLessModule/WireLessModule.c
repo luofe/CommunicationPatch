@@ -327,7 +327,6 @@ void WireLess_Send_AT_Command(u8 cmd)
 u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
 {
     u16 i = 0;
-    u16 str_len = 0;
     
     switch(cmd)
     {
@@ -336,6 +335,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
             for(i = 0; i < len; i++)
             {
                 if((buf[i] == 'R') && (buf[i + 1] == 'D') && (buf[i + 2] == 'Y'))
+                {
+                    return SUCCEED;
+                }
+                else if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
                     return SUCCEED;
                 }
@@ -528,10 +531,13 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
         
         case AT_COMMAND_SWITCH_CMD:  //切换到命令模式
         {
-            str_len = strlen("\r\nOK\r\n");
-            for(i = 0; i < len - (str_len - 1); i++)
+            for(i = 0; i < len; i++)
             {
                 if((buf[i] == 'O') && (buf[i + 1] == 'K'))
+                {
+                    return SUCCEED;
+                }
+                else if((buf[i] == 'R') && (buf[i + 1] == 'D') && (buf[i + 2] == 'Y'))
                 {
                     return SUCCEED;
                 }
@@ -856,13 +862,23 @@ u8 WireLess_Initial(void)
     u8  temp_sta = FALSE;
     
 #if (SERVER_AT_PRINTF_EN)
-    printf("等待无线模块启动后的\"RDY\"\r\n");
+    printf("等待无线模块退出透传模式\r\n");
 #endif	
     
-    //先等待接收无线模块启动后的“RDY”
-    if(WireLess_AT_Command_Ctr(AT_COMMAND_QPWOD) == FAILURE)
+    //先进入命令模式
+    Delay_ms(1500);
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_SWITCH_CMD) == FAILURE)
     {
-        return FAILURE;
+        
+#if (SERVER_AT_PRINTF_EN)
+        printf("等待无线模块启动后的\"RDY\"\r\n");
+#endif	
+        
+        //先等待接收无线模块启动后的“RDY”
+        if(WireLess_AT_Command_Ctr(AT_COMMAND_QPWOD) == FAILURE)
+        {
+            return FAILURE;
+        }
     }
     
 #if (SERVER_AT_PRINTF_EN)
@@ -1025,7 +1041,7 @@ u8 WireLess_Initial(void)
     g_WireLessModuleInitFlag = TRUE;    //无线模块初始化完成
     
 #if (SERVER_AT_PRINTF_EN)
-    printf("初始化成功！\r\n");
+    printf("无线模块初始化成功！\r\n");
 #endif	
     
     return SUCCEED;
