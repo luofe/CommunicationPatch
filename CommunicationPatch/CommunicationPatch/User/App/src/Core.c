@@ -410,13 +410,13 @@ u16 U16_Change_Order(u16 data)
 void SysPeripheralInit(void)
 {
 	USART_ITConfig(SERVER_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
-    //无线模块的初始化
-    WireLess_Initial();
-    
 	USART_ITConfig(DEVICE_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
     //设备端初始化
     Device_Initial();
-
+    
+    //无线模块的初始化
+    WireLess_Initial();
+    
     Ext_Flash_Detect();     //检测片外flash是否存在
     
 	USART_ITConfig(DEBUG_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
@@ -468,7 +468,7 @@ void SysGlobalVariableInit(void)
     s_IPAddrPort.ip_port[i++] = '"';
     s_IPAddrPort.ip_port[i++] = ',';
     memcpy(&s_IPAddrPort.ip_port[i], WIRELESS_SERVER_REMOTE_PORT, strlen(WIRELESS_SERVER_REMOTE_PORT));
-    
+    s_IPAddrPort.got_status   = FALSE;
     
     // 设备端相关参数
     s_UploadInterval.time1      = SEND_SENSOR_DATA_TIME_INTERVAL;
@@ -556,8 +556,8 @@ void System_Function_Control(void)
     // RTC秒计时
     if((u16)(s_Timing_Count / 1000))
     {
-        s_Timing_Count = 0;
         s_GPSInfo.gmtTime += (u16)(s_Timing_Count / 1000);
+        s_Timing_Count = 0;
     }
 }
 

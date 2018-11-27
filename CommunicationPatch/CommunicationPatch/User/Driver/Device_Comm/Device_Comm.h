@@ -34,7 +34,7 @@
 
 
 //数据包命令码列表
-#define DEVICE_SET_SENSOR_ADJUST_CMD            0   //校准传感器
+#define DEVICE_SET_SENSOR_LAB_ADJUST_CMD        0   //校准传感器实验室参数
 #define DEVICE_READ_SENSOR_ADJUST_CMD           1   //读取传感器校准传数据
 #define DEVICE_READ_DEVICE_ID                   2   //读取设备ID号
 #define DEVICE_SET_RTC_CMD                      3   //设置RTC时间
@@ -60,6 +60,8 @@
 #define DEVICE_CTR_BATTERY_PRINTF_CMD           20  //控制设备打印电源电压信息
 #define DEVICE_CTR_BATTERY_HIDE_CMD             21  //控制设备隐藏电源电压信息
 #define DEVICE_GET_BATTERY_VOL_CMD              22  //获取电源电压
+
+#define DEVICE_SET_SENSOR_APP_ADJUST_CMD        23  //校准传感器应用参数
 
 
 
@@ -89,6 +91,9 @@
 
 // 设备启动后读取电源电压的最大时间
 #define DEVICE_GET_POWER_DATA_TIMEOUT           (1000 * 2)
+
+// 设备启动后读取IP地址和端口的最大时间
+#define DEVICE_GET_DEVICE_IP_TIMEOUT            (1000 * 2)
 
 
 
@@ -149,6 +154,7 @@ typedef struct
 // IP地址和端口号结构体
 typedef struct
 {
+    u8  got_status; //获取状态
 //    u8  ip1;
 //    u8  ip2;
 //    u8  ip3;
@@ -292,7 +298,7 @@ extern SensorDataStruct s_SensorData;
 extern GPSInfoStruct s_GPSInfo;
 
 // 设备初始化完毕标志
-extern u8  g_DeviceInitialFlag;
+extern u8  g_DeviceStartFlag;
 
 // 电源电压信息
 extern DevicePowerStruct s_DevicePower;

@@ -784,15 +784,15 @@ void Server_Comm_Package_Bale(u16 cmd)
         {
             u8  Rx_Buffer[256];
             
-            if(g_DataPageNum > 4)   //太多了会超过可发送缓存
-            {
-                                        
-#if (SERVER_PRINTF_EN)
-        printf("Flash中存储的帧数=%d\r\n", g_DataPageNum);
-#endif
-        
-                return;
-            }
+//            if(g_DataPageNum > 4)   //太多了会超过可发送缓存
+//            {
+//                                        
+//#if (SERVER_PRINTF_EN)
+//        printf("Flash中存储的帧数=%d\r\n", g_DataPageNum);
+//#endif
+//        
+//                return;
+//            }
             
             i = 0;
             //时间
@@ -801,40 +801,52 @@ void Server_Comm_Package_Bale(u16 cmd)
             s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);
             s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime;
             //放入帧数     
-            s_ServerCommPackage.ADF.Data[i++] = (g_DataPageNum - SENSOR_DATA_MIN_PAGE_NUM) + 1;
-            for(u16 index = SENSOR_DATA_MIN_PAGE_NUM; index < g_DataPageNum; index++)
+            s_ServerCommPackage.ADF.Data[i++] = 1;
+            //读取数据包
+            SPI_FLASH_BufferRead(Rx_Buffer, (g_DataPageNum * 256), sizeof(Rx_Buffer));
+            
+            //放入数据包类型 
+            s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[0];
+            //放入数据包长度
+            s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[1];
+            //放入流水号
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_ServerCommPackage.ADF.SN >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_ServerCommPackage.ADF.SN >> 0);
+            //放入命令码
+            switch(Rx_Buffer[0])
             {
-                //读取数据包
-                SPI_FLASH_BufferRead(Rx_Buffer, (index * 256), sizeof(Rx_Buffer));
-
-                //放入数据包类型 
-                s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[0];
-                //放入数据包长度
-                s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[1];
-                //放入流水号
-                s_ServerCommPackage.ADF.Data[i++] = (u8)(s_ServerCommPackage.ADF.SN >> 8);
-                s_ServerCommPackage.ADF.Data[i++] = (u8)(s_ServerCommPackage.ADF.SN >> 0);
-                //放入命令码
-                switch(Rx_Buffer[0])
+                case EXTFLASH_PACKAGE_TYPE_REPORT_DATA: //如果存储的数据包是传感器数据上传
                 {
-                    case EXTFLASH_PACKAGE_TYPE_REPORT_DATA: //如果存储的数据包是传感器数据上传
-                    {
-                        s_ServerCommPackage.ADF.CMD = SERVER_COMM_PACKAGE_CMD_REPORT_DATA;
-                    }
-                    break;
+                    s_ServerCommPackage.ADF.Data[i++] = (u8)(SERVER_COMM_PACKAGE_CMD_REPORT_DATA >> 8);
+                    s_ServerCommPackage.ADF.Data[i++] = (u8)(SERVER_COMM_PACKAGE_CMD_REPORT_DATA >> 0);
                 }
-                s_ServerCommPackage.ADF.Data[i++] = (u8)(s_ServerCommPackage.ADF.CMD >> 8);
-                s_ServerCommPackage.ADF.Data[i++] = (u8)(s_ServerCommPackage.ADF.CMD >> 0);
-                //放入数据内容
-                for(u16 j = 0; j < Rx_Buffer[1]; j++)
-                {
-                    s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[j + 2];
-                }
+                break;
+            }
+            //放入数据内容
+            for(u16 j = 0; j < Rx_Buffer[1]; j++)
+            {
+                s_ServerCommPackage.ADF.Data[i++] = Rx_Buffer[j + 2];
             }
             s_ServerCommPackage.Length = i + 6;
             Server_Comm_Package_Send();
             
+            s_ServerCommTx.WaitResponse = NEED_RESPONSE;    //等待应答
+        }
+        break;
+        
+        case SERVER_COMM_PACKAGE_CMD_RPT_RESET:   //上报复位
+        {
+            i = 0;
+            //时间
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 24);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 16);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)(s_GPSInfo.gmtTime >> 8);
+            s_ServerCommPackage.ADF.Data[i++] = (u8)s_GPSInfo.gmtTime;
+            //复位原因
+            s_ServerCommPackage.ADF.Data[i++] = 0x04;
             
+            s_ServerCommPackage.Length = i + 6;
+            Server_Comm_Package_Send();
         }
         break;
         
@@ -875,20 +887,28 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
 #endif   
                     
                     g_SysInitStatusFlag = TRUE;
-                    //如果有数据包存储到片外Flash
-                    
-                    if((g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM) && (g_DataPageNum < 0xFFFF))
+                }
+                if(g_SysInitStatusFlag == TRUE)    //如果已经握手完毕
+                {      
+                    if(s_ServerCommPackage.ADF.CMD == SERVER_COMM_PACKAGE_CMD_REPORT_FLASH)
                     {
-                        
-#if (SERVER_PRINTF_EN)
-                        printf("g_DataPageNum=%d\r\n", g_DataPageNum);
-#endif   
-                        
-                        Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_FLASH);
+                        s_ServerCommTx.WaitResponse = DONT_RESPONSE;    //等待应答标志复位
+                        s_ServerCommTx.RepeatNum = 0;   //重发次数复位
+                        g_DataPageNum--;
                     }
                 }
-                s_ServerCommTx.WaitResponse = DONT_RESPONSE;    //等待应答标志复位
-                s_ServerCommTx.RepeatNum = 0;   //重发次数复位
+                
+                
+                //如果有数据包存储到片外Flash
+                if((g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM) && (g_DataPageNum < 0xFFFF))
+                {
+                    
+#if (SERVER_PRINTF_EN)
+                    printf("g_DataPageNum=%d,共%d帧\r\n", g_DataPageNum, ((g_DataPageNum - SENSOR_DATA_MIN_PAGE_NUM) + 1));
+#endif   
+                    
+                    Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_FLASH);
+                }
             }
             else
             {
@@ -907,28 +927,46 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
             {
                 case SYSTEM_PARA_TYPE_IP_ADDR_PORT: //IP地址设置
                 {
+                    memset(s_IPAddrPort.ip_port, 0, sizeof(s_IPAddrPort.ip_port));
                     memcpy(s_IPAddrPort.ip_port, &data[i], temp_len); //获取IP地址
-                    s_IPAddrPort.ip_port[i + temp_len] = '\0';    //添加结束符
                     
-                    //设置IP和端口到无线模块里
-                    //先退出透传模式进入命令模式
-                    if(WireLess_AT_Command_Ctr(AT_COMMAND_SWITCH_CMD) == FAILURE)
-                    {
-                        g_RecServerPackageResult = RES_FAILURE;
-                        break;
-                    }
-                    //关闭连接
-                    if(WireLess_AT_Command_Ctr(AT_COMMAND_QICLOSE) == FAILURE)
-                    {
-                        g_RecServerPackageResult = RES_FAILURE;
-                        break;
-                    }
-                    //建立连接
-                    if(WireLess_AT_Command_Ctr(AT_COMMAND_QIOPEN) == FAILURE)
-                    {
-                        g_RecServerPackageResult = RES_FAILURE;
-                        break;
-                    }
+                    
+#if (SERVER_PRINTF_EN)
+                    printf("设置的IP地址=%s\r\n", s_IPAddrPort.ip_port);
+#endif   
+                    
+                    //给设备下发IP地址
+                    Device_Printf_Ctr(DEVICE_SET_IP_ADDR_CMD);
+                    Delay_ms(500);
+                    // 获取IP端口
+                    Device_Printf_Ctr(DEVICE_READ_IP_ADDR_CMD);
+                    
+                    //复位无线模块初始化状态和整机初始化状态，以让无线模块重新初始化
+                    g_WireLessModuleInitFlag = FALSE;
+                    g_SysInitStatusFlag = FALSE;
+                    
+                    //无线模块重新初始化
+//                    WireLess_Initial();
+                    
+//                    //设置IP和端口到无线模块里
+//                    //先退出透传模式进入命令模式
+//                    if(WireLess_AT_Command_Ctr(AT_COMMAND_SWITCH_CMD) == FAILURE)
+//                    {
+//                        g_RecServerPackageResult = RES_FAILURE;
+//                        break;
+//                    }
+//                    //关闭连接
+//                    if(WireLess_AT_Command_Ctr(AT_COMMAND_QICLOSE) == FAILURE)
+//                    {
+//                        g_RecServerPackageResult = RES_FAILURE;
+//                        break;
+//                    }
+//                    //建立连接
+//                    if(WireLess_AT_Command_Ctr(AT_COMMAND_QIOPEN) == FAILURE)
+//                    {
+//                        g_RecServerPackageResult = RES_FAILURE;
+//                        break;
+//                    }
                     g_RecServerPackageResult = RES_SUCCEED;
                 }
                 break;
@@ -947,7 +985,6 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                 
                 case SYSTEM_PARA_TYPE_UPLOAD_INTERVAL:  //通用数据上传间隔
                 {
-                    i = 0;
                     s_UploadInterval.time1 = data[i++];
                     s_UploadInterval.time1 <<= 8;
                     s_UploadInterval.time1 += data[i++];
@@ -955,6 +992,10 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                     s_UploadInterval.time1 += data[i++];
                     s_UploadInterval.time1 <<= 8;
                     s_UploadInterval.time1 += data[i++];
+                    
+#if (SERVER_PRINTF_EN)
+                    printf("s_UploadInterval.time1=%d\r\n", s_UploadInterval.time1);
+#endif   
                     
                     if(Device_Printf_Ctr(DEVICE_SET_UPLOAD_INTERVAL_CMD) == SUCCEED)
                     {
@@ -969,7 +1010,6 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                 
                 case SYSTEM_PARA_TYPE_HEARTBEAT_INTERVAL:   //心跳间隔
                 {
-                    i = 0;
                     s_UploadInterval.heartbeat = data[i++];
                     s_UploadInterval.heartbeat <<= 8;
                     s_UploadInterval.heartbeat += data[i++];
@@ -988,7 +1028,7 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                 case SYSTEM_PARA_TYPE_LAB_ADJUST:   //实验室校准
                 {
                     u16 temp_data = 0;
-                    i = 0;
+                    
                     s_SensorAdj.type = data[i++];
                     
                     s_SensorAdj.multiple = data[i++]; 
@@ -1015,7 +1055,7 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                     temp_data += data[i++];
                     s_SensorAdj.B2 = (s16)temp_data;
                     
-                    if(Device_Printf_Ctr(DEVICE_SET_SENSOR_ADJUST_CMD) == SUCCEED)
+                    if(Device_Printf_Ctr(DEVICE_SET_SENSOR_LAB_ADJUST_CMD) == SUCCEED)
                     {
                         g_RecServerPackageResult = RES_SUCCEED;
                     }
@@ -1029,7 +1069,7 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                 case SYSTEM_PARA_TYPE_APP_ADJUST:   //应用校准
                 {
                     u16 temp_data = 0;
-                    i = 0;
+                    
                     s_SensorAdj.type = data[i++];
                     
                     s_SensorAdj.multiple = data[i++]; 
@@ -1056,7 +1096,89 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                     temp_data += data[i++];
                     s_SensorAdj.B4 = (s16)temp_data;
                     
-                    if(Device_Printf_Ctr(DEVICE_SET_SENSOR_ADJUST_CMD) == SUCCEED)
+                    if(Device_Printf_Ctr(DEVICE_SET_SENSOR_APP_ADJUST_CMD) == SUCCEED)
+                    {
+                        g_RecServerPackageResult = RES_SUCCEED;
+                    }
+                    else
+                    {
+                        g_RecServerPackageResult = RES_FAILURE;
+                    }
+                }
+                break;
+                
+                case SYSTEM_PARA_TYPE_BATCH_APP_ADJUST:   //批量应用校准
+                {
+                    u16 temp_data = 0;
+                    
+                    s_SensorAdj.type = data[i++];
+                    
+                    s_SensorAdj.multiple = data[i++]; 
+                    s_SensorAdj.multiple <<= 8;
+                    s_SensorAdj.multiple += data[i++];
+                    
+                    temp_data = data[i++];
+                    temp_data <<= 8;
+                    temp_data += data[i++];
+                    s_SensorAdj.K3 = (s16)temp_data;
+                    
+                    temp_data = data[i++];
+                    temp_data <<= 8;
+                    temp_data += data[i++];
+                    s_SensorAdj.B3 = (s16)temp_data;
+                    
+                    temp_data = data[i++];
+                    temp_data <<= 8;
+                    temp_data += data[i++];
+                    s_SensorAdj.K4 = (s16)temp_data;
+                    
+                    temp_data = data[i++];
+                    temp_data <<= 8;
+                    temp_data += data[i++];
+                    s_SensorAdj.B4 = (s16)temp_data;
+                    
+                    if(Device_Printf_Ctr(DEVICE_SET_SENSOR_APP_ADJUST_CMD) == SUCCEED)
+                    {
+                        g_RecServerPackageResult = RES_SUCCEED;
+                    }
+                    else
+                    {
+                        g_RecServerPackageResult = RES_FAILURE;
+                    }
+                }
+                break;
+                
+                case SYSTEM_PARA_TYPE_BATCH_LAB_ADJUST:   //批量实验室校准
+                {
+                    u16 temp_data = 0;
+                    
+                    s_SensorAdj.type = data[i++];
+                    
+                    s_SensorAdj.multiple = data[i++]; 
+                    s_SensorAdj.multiple <<= 8;
+                    s_SensorAdj.multiple += data[i++];
+                    
+                    temp_data = data[i++];
+                    temp_data <<= 8;
+                    temp_data += data[i++];
+                    s_SensorAdj.K1 = (s16)temp_data;
+                    
+                    temp_data = data[i++];
+                    temp_data <<= 8;
+                    temp_data += data[i++];
+                    s_SensorAdj.B1 = (s16)temp_data;
+                    
+                    temp_data = data[i++];
+                    temp_data <<= 8;
+                    temp_data += data[i++];
+                    s_SensorAdj.K2 = (s16)temp_data;
+                    
+                    temp_data = data[i++];
+                    temp_data <<= 8;
+                    temp_data += data[i++];
+                    s_SensorAdj.B2 = (s16)temp_data;
+                    
+                    if(Device_Printf_Ctr(DEVICE_SET_SENSOR_LAB_ADJUST_CMD) == SUCCEED)
                     {
                         g_RecServerPackageResult = RES_SUCCEED;
                     }
@@ -1072,6 +1194,7 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
             }
             //通用应答
             Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_RESPONSE);
+            Delay_ms(500);  //延时一段时间，避免重新配置无线模块导致发送失败
         }
         break;
         
@@ -1091,12 +1214,14 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
             if(Device_Printf_Ctr(DEVICE_CTR_RESET_CMD) == SUCCEED)
             {
                 g_RecServerPackageResult = RES_SUCCEED;
+                //通用应答
                 Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_RESPONSE);
-                
-                Delay_ms(100);
+                Delay_ms(500);  //防止连包
+                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_RPT_RESET);
+                Delay_ms(500);  //延时一段时间，避免重新配置无线模块导致发送失败
                 
                 __set_FAULTMASK(1);      // 关闭所有中断
-                NVIC_SystemReset();// 复位
+                NVIC_SystemReset();     // 复位
             }
             else
             {
@@ -1211,7 +1336,15 @@ u8 Server_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
                 i++;
                 if(i == 2)
                 {     
-                    data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_DATA; //接收状态转为接收数据体数据内容
+                    if(p_Package->Length == 6)      //没有数据内容的数据包
+                    {
+                        data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_CRC; //接收状态转为校验码
+                        p_Package->ADF.Crc = 0;
+                    }
+                    else
+                    {
+                        data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_DATA; //接收状态转为接收数据体数据内容
+                    }
                     i = 0;
                 }
             }
@@ -1223,8 +1356,8 @@ u8 Server_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
                 if(i == (p_Package->Length - 6)) //接收长度够了
                 {   
                     data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_CRC; //接收状态转为校验码
-                    i = 0;
                     p_Package->ADF.Crc = 0;
+                    i = 0;
                 }
             }
             break;

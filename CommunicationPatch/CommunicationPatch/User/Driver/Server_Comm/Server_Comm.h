@@ -70,7 +70,7 @@
 //查询类
 #define SERVER_COMM_PACKAGE_CMD_READ_PARA           0x0B01    //读取信息
 //控制类
-#define SERVER_COMM_PACKAGE_CMD_CTR_RESET           0x0D82    //控制复位
+#define SERVER_COMM_PACKAGE_CMD_CTR_RESET           0x0C00    //控制复位
 //上报类
 #define SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE    0x0D80    //报告握手
 #define SERVER_COMM_PACKAGE_CMD_REPORT_HEARTBEAT    0x0D81    //报告心跳
@@ -78,6 +78,7 @@
 #define SERVER_COMM_PACKAGE_CMD_REPORT_PARA         0x0D87    //报告参数数据
 #define SERVER_COMM_PACKAGE_CMD_REPORT_GPS          0x0D8B    //报告GPS信息
 #define SERVER_COMM_PACKAGE_CMD_REPORT_FLASH        0x0E01    //上报片外Flash的数据包
+#define SERVER_COMM_PACKAGE_CMD_RPT_RESET           0x0D82    //上报复位
 
 // 参数类型定义
 #define SYSTEM_PARA_TYPE_IP_ADDR_PORT               0x01        //IP地址、端口号
@@ -86,6 +87,8 @@
 #define SYSTEM_PARA_TYPE_HEARTBEAT_INTERVAL         0x06        //心跳间隔
 #define SYSTEM_PARA_TYPE_LAB_ADJUST                 0x07        //实验室校准
 #define SYSTEM_PARA_TYPE_APP_ADJUST                 0x08        //应用校准
+#define SYSTEM_PARA_TYPE_BATCH_APP_ADJUST           0xA0        //批量应用校准
+#define SYSTEM_PARA_TYPE_BATCH_LAB_ADJUST           0xB0        //批量实验室校准
 
 // 外部存储的数据包类型定义
 #define EXTFLASH_PACKAGE_TYPE_DEVICE_RESET          0x01        //设备复位

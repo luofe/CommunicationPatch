@@ -51,7 +51,7 @@ SensorDataStruct s_SensorData;
 GPSInfoStruct s_GPSInfo;
 
 // 设备初始化完毕标志
-u8  g_DeviceInitialFlag = FALSE;
+u8  g_DeviceStartFlag = FALSE;
 
 // 电源电压信息
 DevicePowerStruct s_DevicePower;
@@ -266,11 +266,53 @@ void Device_Comm_Package_Bale(u8 cmd)
     data_str[0] = '$';
     switch(cmd)
     {
-        case DEVICE_SET_SENSOR_ADJUST_CMD:   //如果是校准传感器
+        case DEVICE_SET_SENSOR_LAB_ADJUST_CMD:   //如果是校准传感器实验室参数
         {
             index = 1;
             strcat(data_str, "S_SSL:");
             index += strlen("S_SSL:");
+            //放入type
+            memset(temp_str, 0, sizeof(temp_str));  //先清空
+            SysInt2Str(s_SensorAdj.type, temp_str, 10);
+            strcat(data_str, temp_str);
+            index += strlen(temp_str);
+            data_str[index++] = ',';
+            //放入multiple
+            memset(temp_str, 0, sizeof(temp_str));  //先清空
+            SysInt2Str(s_SensorAdj.multiple, temp_str, 10);
+            strcat(data_str, temp_str);
+            index += strlen(temp_str);
+            data_str[index++] = ',';
+            //放入K1
+            memset(temp_str, 0, sizeof(temp_str));  //先清空
+            SysInt2Str(s_SensorAdj.K1, temp_str, 10);
+            strcat(data_str, temp_str);
+            index += strlen(temp_str);
+            data_str[index++] = ',';
+            //放入B1
+            memset(temp_str, 0, sizeof(temp_str));  //先清空
+            SysInt2Str(s_SensorAdj.B1, temp_str, 10);
+            strcat(data_str, temp_str);
+            index += strlen(temp_str);
+            data_str[index++] = ',';
+            //放入K2
+            memset(temp_str, 0, sizeof(temp_str));  //先清空
+            SysInt2Str(s_SensorAdj.K2, temp_str, 10);
+            strcat(data_str, temp_str);
+            index += strlen(temp_str);
+            data_str[index++] = ',';
+            //放入B2
+            memset(temp_str, 0, sizeof(temp_str));  //先清空
+            SysInt2Str(s_SensorAdj.B2, temp_str, 10);
+            strcat(data_str, temp_str);
+            index += strlen(temp_str);
+        }
+        break;
+        case DEVICE_SET_SENSOR_APP_ADJUST_CMD:   //如果是校准传感器应用参数
+        {
+            index = 1;
+            strcat(data_str, "S_SSA:");
+            index += strlen("S_SSA:");
             //放入type
             memset(temp_str, 0, sizeof(temp_str));  //先清空
             SysInt2Str(s_SensorAdj.type, temp_str, 10);
@@ -387,36 +429,7 @@ void Device_Comm_Package_Bale(u8 cmd)
             strcat(data_str, "S_IP:");
             index += strlen("S_IP:");
             strcat(data_str, (char const*)s_IPAddrPort.ip_port);
-            index += strlen(temp_str);
-//            //放入ip1
-//            memset(temp_str, 0, sizeof(temp_str));  //先清空
-//            SysInt2Str(s_IPAddrPort.ip1, temp_str, 10);
-//            strcat(data_str, temp_str);
-//            index += strlen(temp_str);
-//            data_str[index++] = '.';
-//            //放入ip2
-//            memset(temp_str, 0, sizeof(temp_str));  //先清空
-//            SysInt2Str(s_IPAddrPort.ip2, temp_str, 10);
-//            strcat(data_str, temp_str);
-//            index += strlen(temp_str);
-//            data_str[index++] = '.';
-//            //放入ip3
-//            memset(temp_str, 0, sizeof(temp_str));  //先清空
-//            SysInt2Str(s_IPAddrPort.ip3, temp_str, 10);
-//            strcat(data_str, temp_str);
-//            index += strlen(temp_str);
-//            data_str[index++] = '.';
-//            //放入ip4
-//            memset(temp_str, 0, sizeof(temp_str));  //先清空
-//            SysInt2Str(s_IPAddrPort.ip4, temp_str, 10);
-//            strcat(data_str, temp_str);
-//            index += strlen(temp_str);
-//            data_str[index++] = ',';
-//            //放入端口号
-//            memset(temp_str, 0, sizeof(temp_str));  //先清空
-//            SysInt2Str(s_IPAddrPort.port, temp_str, 10);
-//            strcat(data_str, temp_str);
-//            index += strlen(temp_str);
+            index += strlen(data_str);
         }
         break;
         
@@ -576,7 +589,20 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
 
     switch(cmd)
     {
-        case DEVICE_SET_SENSOR_ADJUST_CMD:   //如果是校准传感器
+        case DEVICE_SET_SENSOR_LAB_ADJUST_CMD:   //如果是校准传感器实验室参数
+        {
+            for(i = 0; i < 3; i++)
+            {
+                temp_str[i] = resp_str[strlen((const char*)resp_str) - (4 - i)];
+            }
+            if(strcmp("OK!", temp_str) != SUCCEED)  //如果没设置成功
+            {
+                return FAILURE;
+            }
+        }
+        break;
+        
+        case DEVICE_SET_SENSOR_APP_ADJUST_CMD:   //如果是校准传感器应用参数
         {
             for(i = 0; i < 3; i++)
             {
@@ -767,7 +793,6 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
                 temp_str[i++] = '\0';   //加结束符
                 s_RTC.sec = atoi(temp_str);
-                index += 2;
             }
             else
             {
@@ -791,18 +816,29 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
         
         case DEVICE_READ_IP_ADDR_CMD:   //如果是读取IP地址和端口号
         {
-            for(i = 0; i < 3; i++)
+            u8  temp_addr;
+            //艹你妈的，这个命令的应答没有“\r\n”，干！！！
+            //获取IP
+            i = 0;
+            temp_str[i++] = '"';   //加"
+            do
             {
-                temp_str[i] = resp_str[strlen((const char*)resp_str) - (4 - i)];
-            }
-            if(strcmp("OK!", temp_str) == SUCCEED)  //如果读取成功
-            {
-                memcpy(s_IPAddrPort.ip_port, resp_str, strlen((char const*)resp_str));
-            }
-            else    //如果失败
-            {
-                return FAILURE;
-            }
+                temp_str[i++] = resp_str[index++];
+                if(index >= len)
+                {
+                    return FAILURE;
+                }
+            }while(resp_str[index] != ',');
+            temp_str[i++] = '"';   //加"
+            temp_str[i] = '\0';   //加结束符
+            memcpy(s_IPAddrPort.ip_port, temp_str, i);
+            s_IPAddrPort.ip_port[i++] = ',';
+            temp_addr = i;
+            index += 1;
+            //获取端口
+            memcpy(&s_IPAddrPort.ip_port[temp_addr], &resp_str[index], (len - index));
+            
+            s_IPAddrPort.got_status = TRUE;
         }
         break;
         
@@ -2168,7 +2204,7 @@ u8 Device_Comm_Package_Analysis(u8 *data, u16 data_l)
         com_str[strlen(sam_start_str)] = '\0';  //放入结束符
         if(strcmp(com_str, sam_start_str) == SUCCEED)
         {
-            g_DeviceInitialFlag = TRUE;
+            g_DeviceStartFlag = TRUE;
             
             break;
         }
@@ -2206,10 +2242,24 @@ u8 Device_Rec_Command_Analysis(u8 cmd, u8* buf, u16 len)
     //等待的是什么命令
     switch(cmd)
     {
-        case DEVICE_SET_SENSOR_ADJUST_CMD:
+        case DEVICE_SET_SENSOR_LAB_ADJUST_CMD:
         {
             //如果是“S_SSL=”
             char cmp_str[] = "S_SSL=";
+            memcpy(temp_str, &buf[index], strlen(cmp_str));
+            temp_str[index + strlen(cmp_str)] = '\0';
+            if(strcmp(temp_str, cmp_str) == SUCCEED)
+            {
+                index += strlen(cmp_str);
+                ana_sta = SUCCEED;
+            }
+        }
+        break;
+        
+        case DEVICE_SET_SENSOR_APP_ADJUST_CMD:
+        {
+            //如果是“S_SSL=”
+            char cmp_str[] = "S_SSA=";
             memcpy(temp_str, &buf[index], strlen(cmp_str));
             temp_str[index + strlen(cmp_str)] = '\0';
             if(strcmp(temp_str, cmp_str) == SUCCEED)
@@ -2654,10 +2704,11 @@ u8 Device_Initial(void)
 #endif	
     
     // 先复位设备
+    Delay_ms(3000);
     Device_Printf_Ctr(DEVICE_CTR_RESET_CMD);
     // 判断设备启动状态，检测“[EVENT]: Sampling start!”
     temp_timing_count = g_ms_Timing_Count;
-    while(g_DeviceInitialFlag == FALSE)
+    while(g_DeviceStartFlag == FALSE)
     {
         Device_Comm_Rec_Monitor();
         
@@ -2666,14 +2717,13 @@ u8 Device_Initial(void)
             return FAILURE;
         }
     }
-            
+    
 #if (SERVER_AT_PRINTF_EN)
     printf("获取设备端GPS\r\n");
 #endif	
     
     // 获取GPS信息
     Device_Printf_Ctr(DEVICE_CTR_GPS_PRINTF_CMD);
-    // 如果GPS的gmt时间有了，说明获取到了GPS数据
     temp_timing_count = g_ms_Timing_Count;
     while(s_GPSInfo.got_status == FALSE)
     {
@@ -2705,6 +2755,13 @@ u8 Device_Initial(void)
     
     //查询心跳包上传间隔
     Device_Printf_Ctr(DEVICE_READ_HEARTBEAT_INTERVAL_CMD);
+            
+#if (SERVER_AT_PRINTF_EN)
+    printf("获取设备端IP和端口\r\n");
+#endif	
+    
+    // 获取IP端口
+    Device_Printf_Ctr(DEVICE_READ_IP_ADDR_CMD);
                 
 #if (SERVER_AT_PRINTF_EN)
     printf("获取设备端电池电压\r\n");
@@ -2723,7 +2780,7 @@ u8 Device_Initial(void)
             return FAILURE;
         }
     }
-    
+      
     g_DeviceInitFlag = TRUE;
     
 #if (DEVICE_PRINTF_EN)

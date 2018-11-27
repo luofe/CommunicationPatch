@@ -866,7 +866,7 @@ u8 WireLess_Initial(void)
 #endif	
     
     //先进入命令模式
-    Delay_ms(1500);
+//    Delay_ms(1500);
     if(WireLess_AT_Command_Ctr(AT_COMMAND_SWITCH_CMD) == FAILURE)
     {
         
@@ -874,11 +874,11 @@ u8 WireLess_Initial(void)
         printf("等待无线模块启动后的\"RDY\"\r\n");
 #endif	
         
-        //先等待接收无线模块启动后的“RDY”
-        if(WireLess_AT_Command_Ctr(AT_COMMAND_QPWOD) == FAILURE)
-        {
-            return FAILURE;
-        }
+//        //先等待接收无线模块启动后的“RDY”
+//        if(WireLess_AT_Command_Ctr(AT_COMMAND_QPWOD) == FAILURE)
+//        {
+//            return FAILURE;
+//        }
     }
     
 #if (SERVER_AT_PRINTF_EN)
