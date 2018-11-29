@@ -50,7 +50,59 @@ u16 g_DataPageNum = SENSOR_DATA_MIN_PAGE_NUM - 1;
 /******************************************************************************
 //函数声明
 *******************************************************************************/
-static uint16_t SPI_TIMEOUT_UserCallback(uint8_t errorCode);
+//函数功能: SPI初始化函数
+void SPI_FLASH_Init(void);
+
+//函数功能: 擦除FLASH扇区函数
+void SPI_FLASH_SectorErase(u32 SectorAddr);
+
+//函数功能: 擦除FLASH扇区，整片擦除函数
+void SPI_FLASH_BulkErase(void);
+
+//函数功能: 对FLASH按页写入数据，调用本函数写入数据前需要先擦除扇区
+void SPI_FLASH_PageWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite);
+
+//函数功能: 对FLASH写入数据，调用本函数写入数据前需要先擦除扇区
+void SPI_FLASH_BufferWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite);
+
+//函数功能: 读取FLASH数据
+void SPI_FLASH_BufferRead(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead);
+
+//函数功能: 读取FLASH ID
+u32 SPI_FLASH_ReadID(void);
+
+//函数功能: 读取FLASH Device ID
+u32 SPI_FLASH_ReadDeviceID(void);
+
+//函数功能: Flash开始读取的顺序
+void SPI_FLASH_StartReadSequence(u32 ReadAddr);
+
+//函数功能: 使用SPI读取一个字节的数据
+u8 SPI_FLASH_ReadByte(void);
+
+//函数功能: 使用SPI发送一个字节的数据
+u8 SPI_FLASH_SendByte(u8 byte);
+
+//函数功能: 发送半个字的函数
+u16 SPI_FLASH_SendHalfWord(u16 HalfWord);
+
+//函数功能: 向FLASH发送 写使能 命令
+void SPI_FLASH_WriteEnable(void);
+
+//函数功能: 等待到FLASH内部数据写入完毕
+void SPI_FLASH_WaitForWriteEnd(void);
+
+//函数功能: 进入掉电模式
+void SPI_Flash_PowerDown(void);
+
+//函数功能: 唤醒Flash
+void SPI_Flash_WAKEUP(void);
+
+//函数功能: 等待超时回调函数
+static  uint16_t SPI_TIMEOUT_UserCallback(uint8_t errorCode);
+
+//函数功能: 片外Flash检测函数
+u8  Ext_Flash_Detect(void);
 
 //函数功能: 数据存储处理函数
 void Data_Storge_Process(u8* data, u16 len);
@@ -64,17 +116,19 @@ void Data_Storge_Process(u8* data, u16 len);
 
 
 
-
-
+//函数功能: 片外Flash测试函数
+void Ext_Flash_Test(void);
 
 /******************************************************************************
 //函数定义
 *******************************************************************************/
-/**
-* @brief  SPI_FLASH初始化
-* @param  无
-* @retval 无
-*/
+//********************************************************
+//函数名称: SPI_FLASH_Init
+//函数功能: SPI初始化函数
+//输    入: 无
+//输    出: 无
+//备    注: 无
+//********************************************************
 void SPI_FLASH_Init(void)
 {
     SPI_InitTypeDef  SPI_InitStructure;
@@ -136,11 +190,14 @@ void SPI_FLASH_Init(void)
     
     SPI_Cmd(FLASH_SPI,ENABLE);                               //使能SPI1 
 }
-/**
-* @brief  擦除FLASH扇区
-* @param  SectorAddr：要擦除的扇区地址
-* @retval 无
-*/
+
+//********************************************************
+//函数名称: SPI_FLASH_SectorErase
+//函数功能: 擦除FLASH扇区函数
+//输    入: SectorAddr：要擦除的扇区地址
+//输    出: 无
+//备    注: 无
+//********************************************************
 void SPI_FLASH_SectorErase(u32 SectorAddr)
 {
     /* 发送FLASH写使能命令 */
@@ -163,12 +220,13 @@ void SPI_FLASH_SectorErase(u32 SectorAddr)
     SPI_FLASH_WaitForWriteEnd();
 }
 
-
-/**
-* @brief  擦除FLASH扇区，整片擦除
-* @param  无
-* @retval 无
-*/
+//********************************************************
+//函数名称: SPI_FLASH_BulkErase
+//函数功能: 擦除FLASH扇区，整片擦除函数
+//输    入: 无
+//输    出: 无
+//备    注: 无
+//********************************************************
 void SPI_FLASH_BulkErase(void)
 {
     /* 发送FLASH写使能命令 */
@@ -186,15 +244,13 @@ void SPI_FLASH_BulkErase(void)
     SPI_FLASH_WaitForWriteEnd();
 }
 
-
-
-/**
-* @brief  对FLASH按页写入数据，调用本函数写入数据前需要先擦除扇区
-* @param	pBuffer，要写入数据的指针
-* @param WriteAddr，写入地址
-* @param  NumByteToWrite，写入数据长度，必须小于等于SPI_FLASH_PerWritePageSize
-* @retval 无
-*/
+//********************************************************
+//函数名称: SPI_FLASH_PageWrite
+//函数功能: 对FLASH按页写入数据，调用本函数写入数据前需要先擦除扇区
+//输    入: pBuffer，要写入数据的指针，WriteAddr，写入地址，NumByteToWrite，写入数据长度，必须小于等于SPI_FLASH_PerWritePageSize
+//输    出: 无
+//备    注: 无
+//********************************************************
 void SPI_FLASH_PageWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite)
 {
     /* 发送FLASH写使能命令 */
@@ -237,14 +293,13 @@ void SPI_FLASH_PageWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite)
     SPI_FLASH_WaitForWriteEnd();
 }
 
-
-/**
-* @brief  对FLASH写入数据，调用本函数写入数据前需要先擦除扇区
-* @param	pBuffer，要写入数据的指针
-* @param  WriteAddr，写入地址
-* @param  NumByteToWrite，写入数据长度
-* @retval 无
-*/
+//********************************************************
+//函数名称: SPI_FLASH_BufferWrite
+//函数功能: 对FLASH写入数据，调用本函数写入数据前需要先擦除扇区
+//输    入: pBuffer，要写入数据的指针，WriteAddr，写入地址，NumByteToWrite，写入数据长度
+//输    出: 无
+//备    注: 无
+//********************************************************
 void SPI_FLASH_BufferWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite)
 {
     u8 NumOfPage = 0, NumOfSingle = 0, Addr = 0, count = 0, temp = 0;
@@ -332,13 +387,13 @@ void SPI_FLASH_BufferWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite)
     }
 }
 
-/**
-* @brief  读取FLASH数据
-* @param 	pBuffer，存储读出数据的指针
-* @param   ReadAddr，读取地址
-* @param   NumByteToRead，读取数据长度
-* @retval 无
-*/
+//********************************************************
+//函数名称: SPI_FLASH_BufferRead
+//函数功能: 读取FLASH数据
+//输    入: pBuffer，要写入数据的指针，ReadAddr，读取地址，NumByteToRead，读取数据长度
+//输    出: 无
+//备    注: 无
+//********************************************************
 void SPI_FLASH_BufferRead(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead)
 {
     /* 选择FLASH: CS低电平 */
@@ -367,12 +422,13 @@ void SPI_FLASH_BufferRead(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead)
     SPI_FLASH_CS_HIGH();
 }
 
-
-/**
-* @brief  读取FLASH ID
-* @param 	无
-* @retval FLASH ID
-*/
+//********************************************************
+//函数名称: SPI_FLASH_ReadID
+//函数功能: 读取FLASH ID
+//输    入: 无
+//输    出: FLASH ID
+//备    注: 无
+//********************************************************
 u32 SPI_FLASH_ReadID(void)
 {
     u32 Temp = 0, Temp0 = 0, Temp1 = 0, Temp2 = 0;
@@ -401,11 +457,13 @@ u32 SPI_FLASH_ReadID(void)
     return Temp;
 }
 
-/**
-* @brief  读取FLASH Device ID
-* @param 	无
-* @retval FLASH Device ID
-*/
+//********************************************************
+//函数名称: SPI_FLASH_ReadDeviceID
+//函数功能: 读取FLASH Device ID
+//输    入: 无
+//输    出: FLASH Device ID
+//备    注: 无
+//********************************************************
 u32 SPI_FLASH_ReadDeviceID(void)
 {
     u32 Temp = 0;
@@ -427,18 +485,14 @@ u32 SPI_FLASH_ReadDeviceID(void)
     
     return Temp;
 }
-/*******************************************************************************
-* Function Name  : SPI_FLASH_StartReadSequence
-* Description    : Initiates a read data byte (READ) sequence from the Flash.
-*                  This is done by driving the /CS line low to select the device,
-*                  then the READ instruction is transmitted followed by 3 bytes
-*                  address. This function exit and keep the /CS line low, so the
-*                  Flash still being selected. With this technique the whole
-*                  content of the Flash is read with a single READ instruction.
-* Input          : - ReadAddr : FLASH's internal address to read from.
-* Output         : None
-* Return         : None
-*******************************************************************************/
+
+//********************************************************
+//函数名称: SPI_FLASH_StartReadSequence
+//函数功能: Flash开始读取的顺序
+//输    入: ReadAddr——读取地址
+//输    出: 无
+//备    注: 无
+//********************************************************
 void SPI_FLASH_StartReadSequence(u32 ReadAddr)
 {
     /* Select the FLASH: Chip Select low */
@@ -456,23 +510,25 @@ void SPI_FLASH_StartReadSequence(u32 ReadAddr)
     SPI_FLASH_SendByte(ReadAddr & 0xFF);
 }
 
-
-/**
-* @brief  使用SPI读取一个字节的数据
-* @param  无
-* @retval 返回接收到的数据
-*/
+//********************************************************
+//函数名称: SPI_FLASH_ReadByte
+//函数功能: 使用SPI读取一个字节的数据
+//输    入: 无
+//输    出: 返回接收到的数据
+//备    注: 无
+//********************************************************
 u8 SPI_FLASH_ReadByte(void)
 {
     return (SPI_FLASH_SendByte(Dummy_Byte));
 }
 
-
-/**
-* @brief  使用SPI发送一个字节的数据
-* @param  byte：要发送的数据
-* @retval 返回接收到的数据
-*/
+//********************************************************
+//函数名称: SPI_FLASH_SendByte
+//函数功能: 使用SPI发送一个字节的数据
+//输    入: byte：要发送的数据
+//输    出: 返回接收到的数据
+//备    注: 无
+//********************************************************
 u8 SPI_FLASH_SendByte(u8 byte)
 {
     SPITimeout = SPIT_FLAG_TIMEOUT;
@@ -498,14 +554,13 @@ u8 SPI_FLASH_SendByte(u8 byte)
     return SPI_I2S_ReceiveData(FLASH_SPI);
 }
 
-/*******************************************************************************
-* Function Name  : SPI_FLASH_SendHalfWord
-* Description    : Sends a Half Word through the SPI interface and return the
-*                  Half Word received from the SPI bus.
-* Input          : Half Word : Half Word to send.
-* Output         : None
-* Return         : The value of the received Half Word.
-*******************************************************************************/
+//********************************************************
+//函数名称: SPI_FLASH_SendHalfWord
+//函数功能: 发送半个字的函数
+//输    入: HalfWord——半字数据
+//输    出: 返回接收到的数据
+//备    注: 无
+//********************************************************
 u16 SPI_FLASH_SendHalfWord(u16 HalfWord)
 {
     
@@ -531,12 +586,13 @@ u16 SPI_FLASH_SendHalfWord(u16 HalfWord)
     return SPI_I2S_ReceiveData(FLASH_SPI);
 }
 
-
-/**
-* @brief  向FLASH发送 写使能 命令
-* @param  none
-* @retval none
-*/
+//********************************************************
+//函数名称: SPI_FLASH_WriteEnable
+//函数功能: 向FLASH发送 写使能 命令
+//输    入: 无
+//输    出: 无
+//备    注: 无
+//********************************************************
 void SPI_FLASH_WriteEnable(void)
 {
     /* 通讯开始：CS低 */
@@ -549,11 +605,13 @@ void SPI_FLASH_WriteEnable(void)
     SPI_FLASH_CS_HIGH();
 }
 
-/**
-* @brief  等待WIP(BUSY)标志被置0，即等待到FLASH内部数据写入完毕
-* @param  none
-* @retval none
-*/
+//********************************************************
+//函数名称: SPI_FLASH_WaitForWriteEnd
+//函数功能: 等待到FLASH内部数据写入完毕
+//输    入: 无
+//输    出: 无
+//备    注: 无
+//********************************************************
 void SPI_FLASH_WaitForWriteEnd(void)
 {
     u8 FLASH_Status = 0;
@@ -585,8 +643,13 @@ void SPI_FLASH_WaitForWriteEnd(void)
     SPI_FLASH_CS_HIGH();
 }
 
-
-//进入掉电模式
+//********************************************************
+//函数名称: SPI_Flash_PowerDown
+//函数功能: 进入掉电模式
+//输    入: 无
+//输    出: 无
+//备    注: 无
+//********************************************************
 void SPI_Flash_PowerDown(void)   
 { 
     /* 选择 FLASH: CS 低 */
@@ -599,7 +662,13 @@ void SPI_Flash_PowerDown(void)
     SPI_FLASH_CS_HIGH();
 }   
 
-//唤醒
+//********************************************************
+//函数名称: SPI_Flash_WAKEUP
+//函数功能: 唤醒Flash
+//输    入: 无
+//输    出: 无
+//备    注: 无
+//********************************************************
 void SPI_Flash_WAKEUP(void)   
 {
     /*选择 FLASH: CS 低 */
@@ -612,12 +681,13 @@ void SPI_Flash_WAKEUP(void)
     SPI_FLASH_CS_HIGH();                   //等待TRES1
 }   
 
-
-/**
-* @brief  等待超时回调函数
-* @param  None.
-* @retval None.
-*/
+//********************************************************
+//函数名称: SPI_TIMEOUT_UserCallback
+//函数功能: 等待超时回调函数
+//输    入: errorCode——错误码
+//输    出: 无
+//备    注: 无
+//********************************************************
 static  uint16_t SPI_TIMEOUT_UserCallback(uint8_t errorCode)
 {
     /* 等待超时后的处理,输出错误信息 */
@@ -628,11 +698,13 @@ static  uint16_t SPI_TIMEOUT_UserCallback(uint8_t errorCode)
     return 0;
 }
 
-/**
-* @brief  片外Flash检测函数
-* @param  None.
-* @retval None.
-*/
+//********************************************************
+//函数名称: Ext_Flash_Detect
+//函数功能: 片外Flash检测函数
+//输    入: 无
+//输    出: 返回检测结果，成功或者失败
+//备    注: 无
+//********************************************************
 u8  Ext_Flash_Detect(void)
 {
     //读取的ID存储位置
@@ -666,41 +738,62 @@ u8  Ext_Flash_Detect(void)
 //函数功能: 数据存储处理函数
 //输    入: u8* data——数据内容, u16 len——数据长度
 //输    出: 无
-//备    注: 无
+//备    注: 
+//1、第一个扇区前2个字节用于存放本次存储数据的页码；
+//2、第二个扇区开始，每页存放一组未发送的数据包；
+//3、每个扇区有16页，总共有4096个字节，每次存储一页；
+//4、先把整个扇区读取出来，然后把对应要写入的页的数据更新到扇区数组内，整个扇区再写入；
+//5、如果按照每分钟一个数据包的存储算，可以支持最大45天的数据存储，如果按照每分钟两个数据包的存储算，则最大只能支持22天；
+//6、如果存储到了45天，则重新从最早存储地址开始覆盖。
 //********************************************************
 void Data_Storge_Process(u8* data, u16 len)
 {
-    u8 page_num[2];
+    u8  page_num[2];
+    u8  temp_array[SPI_FLASH_PageSize * SPI_FLASH_PerSectorPage] = {0}; //开辟一个扇区的存储空间
     
     SPI_FLASH_BufferRead(page_num, FLASH_PACKAGE_NUM_ADDRESS, sizeof(page_num));   
     g_DataPageNum = page_num[0] * 256 + page_num[1];
-    
-#if (FLASH_PRINTF_EN)
-    printf("\r\n之前g_DataPageNum=%d", g_DataPageNum);
-#endif 
-    
-    if(g_DataPageNum == 0xFFFF)
+    if((g_DataPageNum == 0xFFFF) || (g_DataPageNum == 0x0000)) //说明还没有存储过
     {
-        SPI_FLASH_BulkErase();  //擦除整片
-        g_DataPageNum = SENSOR_DATA_MIN_PAGE_NUM - 1;
-    }
-    //存放页码
-    g_DataPageNum++;
-    if(g_DataPageNum > SENSOR_DATA_MAX_PAGE_NUM)
-    {
-        SPI_FLASH_BulkErase();  //擦除整片
         g_DataPageNum = SENSOR_DATA_MIN_PAGE_NUM;
     }
+    else                        //否则是之前已经存储过了
+    {
+        g_DataPageNum++;
+        if(g_DataPageNum >= SENSOR_DATA_MAX_PAGE_NUM)       //注意：此处必须是">="
+        {
+            g_DataPageNum = SENSOR_DATA_MIN_PAGE_NUM;
+        }
+    }
+        
+#if (FLASH_PRINTF_EN)
+    printf("\r\n本次写入的页码是%d\r\n", g_DataPageNum);
+#endif 
+    
+    //保存本次写入数据的页码
     page_num[0] = (u8)(g_DataPageNum >> 8);
     page_num[1] = (u8)(g_DataPageNum >> 0);
     SPI_FLASH_SectorErase(FLASH_PACKAGE_NUM_ADDRESS);
     SPI_FLASH_BufferWrite(page_num, FLASH_PACKAGE_NUM_ADDRESS, sizeof(page_num));
-
-    /* 将发送缓冲区的数据写到flash中 */
-    SPI_FLASH_BufferWrite(data, (g_DataPageNum * 256), len);
+    
+    //读出当前扇区的所有数据
+    SPI_FLASH_BufferRead(temp_array, ((g_DataPageNum / SPI_FLASH_PerSectorPage) * SPI_FLASH_PerSectorSize), sizeof(temp_array));
+    //将要存储的数据拷贝到扇区数组对应的位置
+    memcpy(&temp_array[(g_DataPageNum % SPI_FLASH_PerSectorPage) * SPI_FLASH_PageSize], data, len);
+    //擦除当前要写入页对应的扇区
+    SPI_FLASH_SectorErase(g_DataPageNum * SPI_FLASH_PageSize);
+    
+    //将当前扇区的数据写入
+    SPI_FLASH_BufferWrite(temp_array, ((g_DataPageNum / SPI_FLASH_PerSectorPage) * SPI_FLASH_PerSectorSize), sizeof(temp_array));
 }
 
-//测试函数
+//********************************************************
+//函数名称: Ext_Flash_Test
+//函数功能: 片外Flash测试函数
+//输    入: 无
+//输    出: 无
+//备    注: 无
+//********************************************************
 void Ext_Flash_Test(void)
 {
     u8  Tx_Buffer[] = {

@@ -296,11 +296,11 @@ void Debug_Comm_Rec_Monitor(void)
                     {
                         
 #if (SERVER_PRINTF_EN)
-                        printf("擦除整片W25Q128中......\r\n");
+                        printf("擦除整片W25Q128中......稍等一会儿......\r\n");
 #endif	
             
                         SPI_FLASH_BulkErase();  //擦除整片
-                        g_DataPageNum = SENSOR_DATA_MIN_PAGE_NUM;
+                        g_DataPageNum = SENSOR_DATA_MIN_PAGE_NUM - 1;
                         
 #if (SERVER_PRINTF_EN)
                         printf("擦除完毕！\r\n");

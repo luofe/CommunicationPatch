@@ -63,9 +63,10 @@
 #define  sFLASH_ID                  0XEF4018     //W25Q128
 
 
-//#define SPI_FLASH_PageSize        4096
-#define SPI_FLASH_PageSize          256
-#define SPI_FLASH_PerWritePageSize  256
+#define SPI_FLASH_PerSectorPage     16      //每个扇区的页数
+#define SPI_FLASH_PageSize          256     //每个页的大小(Byte)
+#define SPI_FLASH_PerWritePageSize  256     //每个页写入大小(Byte)
+#define SPI_FLASH_PerSectorSize     4096    //每个扇区大小(Byte)
 
 
 #define  FLASH_PACKAGE_NUM_ADDRESS  0x00000
@@ -102,7 +103,7 @@
 
 // 存储传感器数据包最小页和最大页
 #define SENSOR_DATA_MIN_PAGE_NUM    16
-#define SENSOR_DATA_MAX_PAGE_NUM    ((2*60*24*20) + SENSOR_DATA_MIN_PAGE_NUM)		//发送的数据量
+#define SENSOR_DATA_MAX_PAGE_NUM    ((60*24*45) + SENSOR_DATA_MIN_PAGE_NUM)		//按照每分钟1个数据包、45天的存储量，即 60分钟 X 24小时 X 45天 = 64800
 
 
 
@@ -150,37 +151,31 @@ extern u16 g_DataPageNum;
 /******************************************************************************
 //函数声明
 *******************************************************************************/
+//函数功能: SPI初始化函数
 void SPI_FLASH_Init(void);
-void SPI_FLASH_SectorErase(u32 SectorAddr);
+
+//函数功能: 擦除FLASH扇区，整片擦除函数
 void SPI_FLASH_BulkErase(void);
-void SPI_FLASH_PageWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite);
-void DMA_FLASH_Write(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite);
-void DMA_FLASH_BufferWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite);																					
-void SPI_FLASH_BufferWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite);
-void DMA_FLASH_BufferRead(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead);
-u32 SPI_FLASH_ReadID(void);
-u32 SPI_FLASH_ReadDeviceID(void);
-void SPI_FLASH_StartReadSequence(u32 ReadAddr);
-void SPI_Flash_PowerDown(void);
-void SPI_Flash_WAKEUP(void);
 
-
-u8 SPI_FLASH_ReadByte(void);
-u8 SPI_FLASH_SendByte(u8 byte);
-u16 SPI_FLASH_SendHalfWord(u16 HalfWord);
-void SPI_FLASH_WriteEnable(void);
-void SPI_FLASH_WaitForWriteEnd(void);
-
-//读取FLASH数据
+//函数功能: 读取FLASH数据
 void SPI_FLASH_BufferRead(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead);
 
-//片外Flash检测函数
+//函数功能: 片外Flash检测函数
 u8  Ext_Flash_Detect(void);
 
 //函数功能: 数据存储处理函数
 void Data_Storge_Process(u8* data, u16 len);
 
-//测试函数
+
+
+
+
+
+
+
+
+
+//函数功能: 片外Flash测试函数
 void Ext_Flash_Test(void);
 
 

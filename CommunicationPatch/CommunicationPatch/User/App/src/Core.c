@@ -477,9 +477,20 @@ void SysGlobalVariableInit(void)
     memset(&s_SensorData, 0, sizeof(s_SensorData));
     memset(s_SensorData.device_sta, 0xFF, sizeof(s_SensorData.device_sta));
     s_SensorData.got_status     = FALSE;
+    s_SensorData.sensor_num     = 0;
+    s_SensorData.PM2_5.status   = FALSE;
+    s_SensorData.PM10.status    = FALSE;
+    s_SensorData.CO.status      = FALSE;
+    s_SensorData.NO2.status     = FALSE;
+    s_SensorData.O3.status      = FALSE;
+    s_SensorData.SO2.status     = FALSE;
+    s_SensorData.NO.status      = FALSE;
+    s_SensorData.TVOC.status    = FALSE;
+    s_SensorData.TRH.status     = FALSE;
+    s_SensorData.Fan.status     = FALSE;
+    s_SensorData.ExtSensor.status= FALSE;
     s_DevicePower.vol[0]        = 0;
     s_DevicePower.vol[1]        = 0;
-    s_SensorData.sensor_num     = 0;
     
     s_GPSInfo.got_status = FALSE;
     memset(&s_GPSInfo, 0, sizeof(s_GPSInfo));

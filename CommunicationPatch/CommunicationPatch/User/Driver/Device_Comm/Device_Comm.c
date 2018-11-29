@@ -1086,6 +1086,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
             s_SensorData.TRH.humi = atoi(temp_str);
+            s_SensorData.TRH.status = TRUE;
             index += 2;
             
             //获取SS-PM2.5
@@ -1127,7 +1128,8 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 }
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
-            s_SensorData.PM2_5.app_val = atoi(temp_str);    
+            s_SensorData.PM2_5.app_val = atoi(temp_str);
+            s_SensorData.PM2_5.status = TRUE;    
             index += 2;
             
             //获取SS-PM10
@@ -1170,6 +1172,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
             s_SensorData.PM10.app_val = atoi(temp_str);
+            s_SensorData.PM10.status = TRUE;
             index += 2;
             
             //获取SS-CO(3)
@@ -1212,6 +1215,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
             s_SensorData.CO.app_val = atoi(temp_str);
+            s_SensorData.CO.status = TRUE;
             index += 2;
             
             //获取SS-NO2(4)
@@ -1254,6 +1258,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
             s_SensorData.NO2.app_val = atoi(temp_str);
+            s_SensorData.NO2.status = TRUE;
             index += 2;
             
             //获取SS-O3(5) 
@@ -1296,6 +1301,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
             s_SensorData.O3.app_val = atoi(temp_str);
+            s_SensorData.O3.status = TRUE;
             index += 2;
             
             //获取SS-SO2(6) 
@@ -1338,6 +1344,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
             s_SensorData.SO2.app_val = atoi(temp_str);
+            s_SensorData.SO2.status = TRUE;
             index += 2;
             
             //获取SS-NO(7)
@@ -1380,50 +1387,62 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
             s_SensorData.NO.app_val = atoi(temp_str);
+            s_SensorData.NO.status = TRUE;
             index += 2;
             
-            //新版的设备没有TVOC打印！！！！！！！！！！！！2018-11-10
-//            //获取SS-TVOC(9
-//            //real_val
-//            index += 9 + 3;
-//            i = 0;
-//            do
-//            {
-//                temp_str[i++] = resp_str[index++];
-//                if(index >= len)
-//                {
-//                    return FAILURE;
-//                }
-//            }while(resp_str[index] != ',');
-//            temp_str[i++] = '\0';   //加结束符
-//            s_SensorData.TVOC.real_val = atoi(temp_str);
-//            index += 1;
-//            //label_val
-//            i = 0;
-//            do
-//            {
-//                temp_str[i++] = resp_str[index++];
-//                if(index >= len)
-//                {
-//                    return FAILURE;
-//                }
-//            }while(resp_str[index] != ',');
-//            temp_str[i++] = '\0';   //加结束符
-//            s_SensorData.TVOC.label_val = atoi(temp_str);
-//            index += 1;
-//            //app_val
-//            i = 0;
-//            do
-//            {
-//                temp_str[i++] = resp_str[index++];
-//                if(index >= len)
-//                {
-//                    return FAILURE;
-//                }
-//            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-//            temp_str[i++] = '\0';   //加结束符
-//            s_SensorData.TVOC.app_val = atoi(temp_str);
-//            index += 2;
+            //获取SS-TVOC(9
+            if((resp_str[index + 1] == 'S') && (resp_str[index + 2] == 'S') && (resp_str[index + 3] == '-')
+                && (resp_str[index + 4] == 'T')  && (resp_str[index + 5] == 'V')  && (resp_str[index + 6] == 'O')  
+                    && (resp_str[index + 7] == 'C'))
+            {
+                //新版的设备没有TVOC打印！！！！！！！！！！！！2018-11-10
+                //获取SS-TVOC(9
+                //real_val
+                index += 9 + 3;
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.TVOC.real_val = atoi(temp_str);
+                index += 1;
+                //label_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.TVOC.label_val = atoi(temp_str);
+                index += 1;
+                //app_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.TVOC.app_val = atoi(temp_str);
+                s_SensorData.TVOC.status = TRUE;
+                index += 2;
+            }
+            else
+            {
+                s_SensorData.TVOC.status = FALSE;
+            }
             
             //获取SS-Temp-W
             index += 9 + 3;
@@ -1497,7 +1516,8 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 }
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
-            s_SensorData.ExtSensor.pa = atoi(temp_str);  
+            s_SensorData.ExtSensor.pa = atoi(temp_str);
+            s_SensorData.ExtSensor.status = TRUE;  
             index += 2;
             
             //获取FUN-main
@@ -1528,6 +1548,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }while((resp_str[index] != '/') && (resp_str[index + 1] != 'm'));
             temp_str[i++] = '\0';   //加结束符
             s_SensorData.Fan.pm10_freq = atoi(temp_str);
+            s_SensorData.Fan.status = TRUE;
             index += 6;     //[FUN-pm10 ]=0/min\r\n
             
             s_SensorData.got_status = TRUE; //获得了传感器数据

@@ -180,59 +180,69 @@ typedef struct
     
     struct
     {
+        u8     status;   //状态，是否有数据 
         float temp;     //温度
         float humi;     //湿度
     }TRH;
     struct
     {
+        u8  status;     //状态，是否有数据
         s32 real_val;   //真实值
         s32 label_val;  //实验室修正值
         s32 app_val;    //应用值
     }PM2_5;
     struct
     {
+        u8  status;     //状态，是否有数据
         s32 real_val;   //真实值
         s32 label_val;  //实验室修正值
         s32 app_val;    //应用值
     }PM10;
     struct
     {
+        u8  status;     //状态，是否有数据
         s32 real_val;   //真实值
         s32 label_val;  //实验室修正值
         s32 app_val;    //应用值
     }CO;
     struct
     {
+        u8  status;     //状态，是否有数据
         s32 real_val;   //真实值
         s32 label_val;  //实验室修正值
         s32 app_val;    //应用值
     }NO2;
     struct
     {
+        u8  status;     //状态，是否有数据
         s32 real_val;   //真实值
         s32 label_val;  //实验室修正值
         s32 app_val;    //应用值
     }O3;
     struct
     {
+        u8  status;     //状态，是否有数据
         s32 real_val;   //真实值
         s32 label_val;  //实验室修正值
         s32 app_val;    //应用值
     }SO2;
     struct
     {
+        u8  status;     //状态，是否有数据
         s32 real_val;   //真实值
         s32 label_val;  //实验室修正值
         s32 app_val;    //应用值
     }NO;
     struct
     {
+        u8  status;     //状态，是否有数据
         s32 real_val;   //真实值
         s32 label_val;  //实验室修正值
         s32 app_val;    //应用值
     }TVOC;
     struct
     {
+        u8     status;   //状态，是否有数据
         float temp;     //温度
         float humi;     //湿度
         float wd;       //风向
@@ -241,6 +251,7 @@ typedef struct
     }ExtSensor;
     struct
     {
+        u8  status;     //状态，是否有数据
         u16 m_freq;     //主风扇频率
         u16 pm10_freq;  //PM10风扇频率
     }Fan;
