@@ -55,8 +55,6 @@ void Debug_Comm_Rec_Monitor(void);
 void Debug_Init(void)
 {
     Debug_Usart_Init();
-    
-    //    Debug_GPIO_Init();
 }
 
 /**********************************
@@ -126,32 +124,12 @@ void Debug_Usart_Init(void)
 	USART_ITConfig(DEBUG_USART, USART_IT_RXNE, DISABLE);	//先禁止USART接收中断
 }
 
-////********************************************************
-////函数名称: Debug_GPIO_Init
-////函数功能: 调试用的GPIO口初始化函数
-////输    入: 无
-////输    出: 无
-////备    注: 无
-////********************************************************
-//void Debug_GPIO_Init(void)
-//{
-//    GPIO_InitTypeDef  GPIO_InitStructure;
-//
-//    // 使能485传输方向控制引脚的时钟
-//    RCC_APB2PeriphClockCmd(DEBUG_DIRECTION_CTR_GPIO_CLK, ENABLE);
-//
-//    // 配置485方向控制引脚
-//    GPIO_InitStructure.GPIO_Pin         = DEBUG_DIRECTION_CTR_GPIO_PIN;  //
-//    GPIO_InitStructure.GPIO_Mode        = GPIO_Mode_Out_OD;	//开漏输出模式
-//    GPIO_InitStructure.GPIO_Speed       = GPIO_Speed_50MHz;	//选择50MHz
-//    GPIO_Init(DEBUG_DIRECTION_CTR_GPIO_PORT, &GPIO_InitStructure);  
-//}
-
 /**********************************
 //名称:	putchar
 //功能:	重写putchar函数，供系统库函数调用
 //入口参数:	ch——int，要打印数据
 //出口参数:	int,返回值
+//备    注: 如果要使用仿真模式下的TerminalI/O显示打印，则需要把此映射函数去掉！！！
 **********************************/
 //PUTCHAR_PROTOTYPE
 //{
@@ -177,11 +155,8 @@ int putchar(int ch)
 //********************************************************
 u8 Debug_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
 {
-    //	u16     i = 0;
     u8      temp_data = 0;
-    //	u16     check = 0;	    //定义校验
     u16     temp_index = 0;        //数据索引
-    //	u8      data_analysis_status = DEBUG_COMM_PACKAGE_ANALYSIS_HEAD;	    //数据分析状态
     u8      packet_analysis_error_status = PACKAGE_ANALYSIS_SUCCEED;    //数据包解析错误状态
     
 #if (SERVER_PRINTF_EN)
@@ -196,56 +171,6 @@ u8 Debug_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
         printf("%02X ",temp_data);  // 
 #endif
         
-        //		switch(data_analysis_status)    //根据查找状态处理
-        //		{
-        //			case DEBUG_COMM_PACKAGE_ANALYSIS_HEAD:	    //如果是包头
-        //            {
-        //                
-        //            }
-        //            break;
-        //                
-        //			case DEBUG_COMM_PACKAGE_ANALYSIS_LENGTH:	        //如果是数据包数据长度
-        //            {
-        //                
-        //            }
-        //            break;
-        //                
-        //			case DEBUG_COMM_PACKAGE_ANALYSIS_FUNCTION:    //如果是功能码
-        //            {
-        //                
-        //            }
-        //            break;
-        //                
-        //			case DEBUG_COMM_PACKAGE_ANALYSIS_CMD:          //如果是命令码
-        //            {
-        //                
-        //            }
-        //            break;
-        //            
-        //			case DEBUG_COMM_PACKAGE_ANALYSIS_SERIAL:          //如果序列号
-        //            {
-        //                
-        //            }
-        //            break;
-        //                
-        //			case DEBUG_COMM_PACKAGE_ANALYSIS_DATA:          //如果是数据内容
-        //            {
-        //                
-        //            }
-        //            break;
-        //                
-        //			case DEBUG_COMM_PACKAGE_ANALYSIS_CHECK:          //如果是校验码
-        //            {
-        //                
-        //            }
-        //            break;
-        //            
-        //			default:
-        //            {
-        //                
-        //            }
-        //            break;
-        //		}
 	}
     
     return packet_analysis_error_status;
@@ -310,12 +235,12 @@ void Debug_Comm_Rec_Monitor(void)
                     printf("\r\n转发Debug口数据\r\n");
 #endif	
                     
-                    //                    // 转发给无线模块端
-                    //                    for(u16 i = 0; i < s_DebugComm.RxIndex; i++)
-                    //                    {
-                    //                        USART_SendData(SERVER_COMM_USART, s_DebugComm.RxBuffer[i]); 
-                    //                        while(USART_GetFlagStatus(SERVER_COMM_USART, USART_FLAG_TXE) == RESET);//等待发送完成
-                    //                    }
+//                    // 转发给无线模块端
+//                    for(u16 i = 0; i < s_DebugComm.RxIndex; i++)
+//                    {
+//                        USART_SendData(SERVER_COMM_USART, s_DebugComm.RxBuffer[i]); 
+//                        while(USART_GetFlagStatus(SERVER_COMM_USART, USART_FLAG_TXE) == RESET);//等待发送完成
+//                    }
                     
                     // 转发给设备端
                     for(u16 i = 0; i < s_DebugComm.RxIndex; i++)
@@ -334,7 +259,7 @@ void Debug_Comm_Rec_Monitor(void)
         }
     }
     //假如很长时间没有接收到Debug口数据，则说明透传结束了
-    else if(s_DeviceCommRx.Timeout_Count >= DEVICE_COMM_NO_DATA_REC_TIMEOUT)
+    else if(s_DeviceCommRx.Timeout_Count >= (1000UL * 60 * 3))
     {
         s_DebugComm.RxTimeout_Count = 0;
         g_DebugInterfaceTransmitFlag = FALSE;   //透传结束
