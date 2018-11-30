@@ -43,7 +43,7 @@
             <Factory>Workspace</Factory>
             <Session>
               
-            <NodeDict><ExpandedNode>&lt;ws&gt;</ExpandedNode><ExpandedNode>CommunicationPatch</ExpandedNode><ExpandedNode>CommunicationPatch/FWLib</ExpandedNode><ExpandedNode>CommunicationPatch/User</ExpandedNode><ExpandedNode>CommunicationPatch/User/App</ExpandedNode><ExpandedNode>CommunicationPatch/User/Driver</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/FWLib</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/FWLib/CMSIS</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User/App</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User/Driver</ExpandedNode></NodeDict></Session>
+            <NodeDict><ExpandedNode>&lt;ws&gt;</ExpandedNode><ExpandedNode>CommunicationPatch</ExpandedNode><ExpandedNode>CommunicationPatch/Doc</ExpandedNode><ExpandedNode>CommunicationPatch/FWLib</ExpandedNode><ExpandedNode>CommunicationPatch/User</ExpandedNode><ExpandedNode>CommunicationPatch/User/App</ExpandedNode><ExpandedNode>CommunicationPatch/User/Driver</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/FWLib</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/FWLib/CMSIS</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User/App</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User/Driver</ExpandedNode></NodeDict></Session>
           </Tab>
         </Tabs>
         
@@ -75,14 +75,14 @@
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\App\src\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>23</YPos2><SelStart2>958</SelStart2><SelEnd2>958</SelEnd2></Tab><ActiveTab>0</ActiveTab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\App\src\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>44</YPos2><SelStart2>1581</SelStart2><SelEnd2>1581</SelEnd2></Tab><ActiveTab>0</ActiveTab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-001FD5D0><key>iaridepm.enu1</key></Toolbar-001FD5D0></Sizes></Row0><Row1><Sizes/></Row1></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>1142</Bottom><Right>31</Right><x>-2</x><y>-2</y><xscreen>700</xscreen><yscreen>24</yscreen><sizeHorzCX>777778</sizeHorzCX><sizeHorzCY>17167</sizeHorzCY><sizeVertCX>36667</sizeVertCX><sizeVertCY>818312</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>211</Bottom><Right>902</Right><x>-2</x><y>-2</y><xscreen>904</xscreen><yscreen>213</yscreen><sizeHorzCX>1004444</sizeHorzCX><sizeHorzCY>152361</sizeHorzCY><sizeVertCX>777778</sizeVertCX><sizeVertCY>17167</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-0268D5D0><key>iaridepm.enu1</key></Toolbar-0268D5D0></Sizes></Row0></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>534</Bottom><Right>31</Right><x>-2</x><y>-2</y><xscreen>1062</xscreen><yscreen>12</yscreen><sizeHorzCX>777452</sizeHorzCX><sizeHorzCY>17493</sizeHorzCY><sizeVertCX>24158</sizeVertCX><sizeVertCY>781341</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>107</Bottom><Right>1368</Right><x>-2</x><y>-2</y><xscreen>1370</xscreen><yscreen>109</yscreen><sizeHorzCX>1002928</sizeHorzCX><sizeHorzCY>158892</sizeHorzCY><sizeVertCX>777452</sizeVertCX><sizeVertCY>17493</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 

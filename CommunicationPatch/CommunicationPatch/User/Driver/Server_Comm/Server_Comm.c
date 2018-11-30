@@ -1459,17 +1459,8 @@ void Server_Comm_Rec_Monitor(void)
             s_ServerCommRx.Index = 0;
             s_ServerCommRx.Timeout_Count = 0;
             
-            //解析数据包如果不成功，则返回对方错误
-            if(Server_Comm_Package_Analysis(g_PublicDataBuffer, temp_l) != PACKAGE_ANALYSIS_SUCCEED)   //u8 i = 
-            {
-                //                  Server_Comm_Error_Process();
-            }
-            
-            //#if (SERVER_PRINTF_EN)
-            //printf("\r\n");
-            //printf("数据包解析 %d\r\n", i);
-            //#endif
-            
+            //解析数据包
+            Server_Comm_Package_Analysis(g_PublicDataBuffer, temp_l);
         }
     }
     //假如很长时间没有接收到服务器的数据，说明服务器要么掉电关机了，要么串口线出故障了，则重新进入初始化流程

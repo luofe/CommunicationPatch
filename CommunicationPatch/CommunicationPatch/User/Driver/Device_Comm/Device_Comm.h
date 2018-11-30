@@ -317,6 +317,9 @@ extern DevicePowerStruct s_DevicePower;
 // 设备初始化状态
 extern u8  g_DeviceInitFlag;
 
+// Debug口数据转发的标志
+extern u8  g_DebugInterfaceTransmitFlag;
+
 
 
 

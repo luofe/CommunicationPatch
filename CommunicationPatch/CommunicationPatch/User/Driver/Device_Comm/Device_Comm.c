@@ -59,6 +59,9 @@ DevicePowerStruct s_DevicePower;
 // 设备初始化状态
 u8  g_DeviceInitFlag = FALSE;
 
+// Debug口数据转发的标志
+u8  g_DebugInterfaceTransmitFlag = FALSE;
+
 
 
 
@@ -2940,7 +2943,7 @@ void Device_Comm_Rec_Monitor(void)
     if(s_DeviceCommRx.Status == TRUE)   //有接收
     {
         if(s_DeviceCommRx.Timeout_Count >= DEVICE_COMM_RX_DATA_TIMEOUT)    //是否超时了
-        {
+        { 
             u16 temp_l = s_DeviceCommRx.Index;    //拷贝出数据长度
             //将数据拷贝至公共缓冲区，防止被新的数据淹没
             memcpy(g_PublicDataBuffer, s_DeviceCommRx.Buffer, temp_l); 
@@ -2949,16 +2952,32 @@ void Device_Comm_Rec_Monitor(void)
             s_DeviceCommRx.Index = 0;
             s_DeviceCommRx.Timeout_Count = 0;
             
-#if (DEVICE_PRINTF_EN)
-            printf("接收到设备端%d个数据: ", temp_l);
-            for(u16 i = 0; i < temp_l; i++)
+            // 如果不是在透传过程中
+            if(g_DebugInterfaceTransmitFlag == FALSE)
             {
-                printf("%c", g_PublicDataBuffer[i]);
-            }
-            printf("\r\n");
+                
+#if (DEVICE_PRINTF_EN)
+                printf("接收到设备端%d个数据: ", temp_l);
+                for(u16 i = 0; i < temp_l; i++)
+                {
+                    printf("%c", g_PublicDataBuffer[i]);
+                }
+                printf("\r\n");
 #endif	
-            
-            Device_Comm_Package_Analysis(g_PublicDataBuffer, temp_l);
+                
+                Device_Comm_Package_Analysis(g_PublicDataBuffer, temp_l);
+            }
+            else
+            {
+                
+#if (DEVICE_PRINTF_EN)
+                for(u16 i = 0; i < temp_l; i++)
+                {
+                    printf("%c", g_PublicDataBuffer[i]);
+                }
+#endif	
+                
+            }
         }
     }
     //假如很长时间没有接收到设备端的数据，说明设备端要么掉电了，要么RS485线出故障了，则重启设备端
