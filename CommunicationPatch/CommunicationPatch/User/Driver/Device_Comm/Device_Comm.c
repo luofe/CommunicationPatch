@@ -1056,344 +1056,437 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
         
         case DEVICE_GET_SENSOR_DATA_CMD:   //如果是传感器数据上报
         {
+            char com_str[12];
+            char sensor_name[12];
+            
             //[SS-Temp  ]=
-            //获取SS-Temp
-            index = 9 + 3;
-            i = 0;
-            do
+            memset(sensor_name, '\0', sizeof(sensor_name));
+            strcpy(sensor_name, "[SS-Temp");
+            memset(com_str, '\0', sizeof(com_str));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            if(strcmp(com_str, sensor_name) == SUCCEED)
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
+                //获取SS-Temp
+                index = 9 + 3;
+                i = 0;
+                do
                 {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.TRH.temp = atoi(temp_str);
-            index += 2;
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.TRH.temp = atoi(temp_str);
+                index += 2;
 
-            //[SS-RH    ]=
-            //获取SS-RH
-            index += 9 + 3;
-            i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
+                //[SS-RH    ]=
+                //获取SS-RH
+                index += 9 + 3;
+                i = 0;
+                do
                 {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.TRH.humi = atoi(temp_str);
-            s_SensorData.TRH.status = TRUE;
-            index += 2;
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.TRH.humi = atoi(temp_str);
+                s_SensorData.TRH.status = TRUE;
+                index += 2;
+            }
+            else
+            {
+                s_SensorData.TRH.status = FALSE;
+            }
             
             //获取SS-PM2.5
-            //real_val
-            index += 9 + 3;
-            i = 0;
-            do
+            memset(sensor_name, '\0', sizeof(sensor_name));
+            strcpy(sensor_name, "[SS-PM2.5");
+            memset(com_str, '\0', sizeof(com_str));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            if(strcmp(com_str, sensor_name) == SUCCEED)
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
+                //real_val
+                index += 9 + 3;
+                i = 0;
+                do
                 {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.PM2_5.real_val = atoi(temp_str);    
-            index += 1;
-            //label_val
-            i = 0;
-            do
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.PM2_5.real_val = atoi(temp_str);    
+                index += 1;
+                //label_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.PM2_5.label_val = atoi(temp_str);   
+                index += 1;
+                //app_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.PM2_5.app_val = atoi(temp_str);
+                s_SensorData.PM2_5.status = TRUE;    
+                index += 2;
+            }
+            else
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.PM2_5.label_val = atoi(temp_str);   
-            index += 1;
-            //app_val
-            i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.PM2_5.app_val = atoi(temp_str);
-            s_SensorData.PM2_5.status = TRUE;    
-            index += 2;
+                s_SensorData.PM2_5.status = FALSE;
+            }
             
             //获取SS-PM10
-            //real_val
-            index += 9 + 3;
-            i = 0;
-            do
+            memset(sensor_name, '\0', sizeof(sensor_name));
+            strcpy(sensor_name, "[SS-PM10");
+            memset(com_str, '\0', sizeof(com_str));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            if(strcmp(com_str, sensor_name) == SUCCEED)
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
+                //real_val
+                index += 9 + 3;
+                i = 0;
+                do
                 {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.PM10.real_val = atoi(temp_str);
-            index += 1;
-            //label_val
-            i = 0;
-            do
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.PM10.real_val = atoi(temp_str);
+                index += 1;
+                //label_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.PM10.label_val = atoi(temp_str);
+                index += 1;
+                //app_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.PM10.app_val = atoi(temp_str);
+                s_SensorData.PM10.status = TRUE;
+                index += 2;
+            }
+            else
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.PM10.label_val = atoi(temp_str);
-            index += 1;
-            //app_val
-            i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.PM10.app_val = atoi(temp_str);
-            s_SensorData.PM10.status = TRUE;
-            index += 2;
+                s_SensorData.PM10.status = FALSE;
+            }
             
             //获取SS-CO(3)
-            //real_val
-            index += 9 + 3;
-            i = 0;
-            do
+            memset(sensor_name, '\0', sizeof(sensor_name));
+            strcpy(sensor_name, "[SS-CO");
+            memset(com_str, '\0', sizeof(com_str));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            if(strcmp(com_str, sensor_name) == SUCCEED)
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
+                //real_val
+                index += 9 + 3;
+                i = 0;
+                do
                 {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.CO.real_val = atoi(temp_str);
-            index += 1;
-            //label_val
-            i = 0;
-            do
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.CO.real_val = atoi(temp_str);
+                index += 1;
+                //label_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.CO.label_val = atoi(temp_str);
+                index += 1;
+                //app_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.CO.app_val = atoi(temp_str);
+                s_SensorData.CO.status = TRUE;
+                index += 2;
+            }
+            else
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.CO.label_val = atoi(temp_str);
-            index += 1;
-            //app_val
-            i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.CO.app_val = atoi(temp_str);
-            s_SensorData.CO.status = TRUE;
-            index += 2;
+                s_SensorData.CO.status = FALSE;
+            }
             
             //获取SS-NO2(4)
-            //real_val
-            index += 9 + 3;
-            i = 0;
-            do
+            memset(sensor_name, '\0', sizeof(sensor_name));
+            strcpy(sensor_name, "[SS-NO2");
+            memset(com_str, '\0', sizeof(com_str));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            if(strcmp(com_str, sensor_name) == SUCCEED)
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
+                //real_val
+                index += 9 + 3;
+                i = 0;
+                do
                 {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.NO2.real_val = atoi(temp_str);
-            index += 1;
-            //label_val
-            i = 0;
-            do
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.NO2.real_val = atoi(temp_str);
+                index += 1;
+                //label_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.NO2.label_val = atoi(temp_str);
+                index += 1;
+                //app_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.NO2.app_val = atoi(temp_str);
+                s_SensorData.NO2.status = TRUE;
+                index += 2;
+            }
+            else
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.NO2.label_val = atoi(temp_str);
-            index += 1;
-            //app_val
-            i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.NO2.app_val = atoi(temp_str);
-            s_SensorData.NO2.status = TRUE;
-            index += 2;
+                s_SensorData.NO2.status = FALSE;
+            }
             
             //获取SS-O3(5) 
-            //real_val
-            index += 9 + 3;
-            i = 0;
-            do
+            memset(sensor_name, '\0', sizeof(sensor_name));
+            strcpy(sensor_name, "[SS-O3");
+            memset(com_str, '\0', sizeof(com_str));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            if(strcmp(com_str, sensor_name) == SUCCEED)
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
+                //real_val
+                index += 9 + 3;
+                i = 0;
+                do
                 {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.O3.real_val = atoi(temp_str);
-            index += 1;
-            //label_val
-            i = 0;
-            do
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.O3.real_val = atoi(temp_str);
+                index += 1;
+                //label_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.O3.label_val = atoi(temp_str);
+                index += 1;
+                //app_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.O3.app_val = atoi(temp_str);
+                s_SensorData.O3.status = TRUE;
+                index += 2;
+            }
+            else
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.O3.label_val = atoi(temp_str);
-            index += 1;
-            //app_val
-            i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.O3.app_val = atoi(temp_str);
-            s_SensorData.O3.status = TRUE;
-            index += 2;
+                s_SensorData.O3.status = FALSE;
+            }
             
             //获取SS-SO2(6) 
-            //real_val
-            index += 9 + 3;
-            i = 0;
-            do
+            memset(sensor_name, '\0', sizeof(sensor_name));
+            strcpy(sensor_name, "[SS-SO2");
+            memset(com_str, '\0', sizeof(com_str));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            if(strcmp(com_str, sensor_name) == SUCCEED)
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
+                //real_val
+                index += 9 + 3;
+                i = 0;
+                do
                 {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.SO2.real_val = atoi(temp_str);
-            index += 1;
-            //label_val
-            i = 0;
-            do
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.SO2.real_val = atoi(temp_str);
+                index += 1;
+                //label_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.SO2.label_val = atoi(temp_str);
+                index += 1;
+                //app_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.SO2.app_val = atoi(temp_str);
+                s_SensorData.SO2.status = TRUE;
+                index += 2;
+            }
+            else
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.SO2.label_val = atoi(temp_str);
-            index += 1;
-            //app_val
-            i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.SO2.app_val = atoi(temp_str);
-            s_SensorData.SO2.status = TRUE;
-            index += 2;
+                s_SensorData.SO2.status = FALSE;
+            }
             
             //获取SS-NO(7)
-            //real_val
-            index += 9 + 3;
-            i = 0;
-            do
+            memset(sensor_name, '\0', sizeof(sensor_name));
+            strcpy(sensor_name, "[SS-NO");
+            memset(com_str, '\0', sizeof(com_str));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            if(strcmp(com_str, sensor_name) == SUCCEED)
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
+                //real_val
+                index += 9 + 3;
+                i = 0;
+                do
                 {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.NO.real_val = atoi(temp_str);
-            index += 1;
-            //label_val
-            i = 0;
-            do
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.NO.real_val = atoi(temp_str);
+                index += 1;
+                //label_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while(resp_str[index] != ',');
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.NO.label_val = atoi(temp_str);
+                index += 1;
+                //app_val
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.NO.app_val = atoi(temp_str);
+                s_SensorData.NO.status = TRUE;
+                index += 2;
+            }
+            else
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while(resp_str[index] != ',');
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.NO.label_val = atoi(temp_str);
-            index += 1;
-            //app_val
-            i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.NO.app_val = atoi(temp_str);
-            s_SensorData.NO.status = TRUE;
-            index += 2;
+                s_SensorData.NO.status = FALSE;
+            }
             
             //获取SS-TVOC(9
-            if((resp_str[index + 1] == 'S') && (resp_str[index + 2] == 'S') && (resp_str[index + 3] == '-')
-                && (resp_str[index + 4] == 'T')  && (resp_str[index + 5] == 'V')  && (resp_str[index + 6] == 'O')  
-                    && (resp_str[index + 7] == 'C'))
+            memset(sensor_name, '\0', sizeof(sensor_name));
+            strcpy(sensor_name, "[SS-TVOC");
+            memset(com_str, '\0', sizeof(com_str));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            if(strcmp(com_str, sensor_name) == SUCCEED)
             {
                 //新版的设备没有TVOC打印！！！！！！！！！！！！2018-11-10
                 //获取SS-TVOC(9
@@ -1445,111 +1538,135 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }
             
             //获取SS-Temp-W
-            index += 9 + 3;
-            i = 0;
-            do
+            memset(sensor_name, '\0', sizeof(sensor_name));
+            strcpy(sensor_name, "[SS-Temp-W");
+            memset(com_str, '\0', sizeof(com_str));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            if(strcmp(com_str, sensor_name) == SUCCEED)
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
+                //获取SS-Temp-W
+                index += 9 + 3;
+                i = 0;
+                do
                 {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.ExtSensor.temp = atoi(temp_str);
-            index += 2;
-            
-            //获取SS-RH-W
-            index += 9 + 3;
-            i = 0;
-            do
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.ExtSensor.temp = atoi(temp_str);
+                index += 2;
+                
+                //获取SS-RH-W
+                index += 9 + 3;
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.ExtSensor.humi = atoi(temp_str);
+                index += 2;
+                
+                //获取SS-WD
+                index += 9 + 3;
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.ExtSensor.wd = atoi(temp_str);
+                index += 2;
+                
+                //获取SS-WS
+                index += 9 + 3;
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.ExtSensor.ws = atoi(temp_str);
+                index += 2;
+                
+                //获取SS-PA
+                index += 9 + 3;
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.ExtSensor.pa = atoi(temp_str);
+                s_SensorData.ExtSensor.status = TRUE;  
+                index += 2;
+            }
+            else
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.ExtSensor.humi = atoi(temp_str);
-            index += 2;
-            
-            //获取SS-WD
-            index += 9 + 3;
-            i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.ExtSensor.wd = atoi(temp_str);
-            index += 2;
-            
-            //获取SS-WS
-            index += 9 + 3;
-            i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.ExtSensor.ws = atoi(temp_str);
-            index += 2;
-            
-            //获取SS-PA
-            index += 9 + 3;
-            i = 0;
-            do
-            {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.ExtSensor.pa = atoi(temp_str);
-            s_SensorData.ExtSensor.status = TRUE;  
-            index += 2;
+                s_SensorData.ExtSensor.status = FALSE;
+            }
             
             //获取FUN-main
-            index += 9 + 3;
-            i = 0;
-            do
+            memset(sensor_name, '\0', sizeof(sensor_name));
+            strcpy(sensor_name, "[FUN-main");
+            memset(com_str, '\0', sizeof(com_str));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            if(strcmp(com_str, sensor_name) == SUCCEED)
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
+                //获取FUN-main
+                index += 9 + 3;
+                i = 0;
+                do
                 {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '/') && (resp_str[index + 1] != 'm'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.Fan.m_freq = atoi(temp_str);
-            index += 6;     //[FUN-main ]=0/min\r\n
-            
-            //获取FUN-pm10
-            index += 9 + 3;
-            i = 0;
-            do
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '/') && (resp_str[index + 1] != 'm'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.Fan.m_freq = atoi(temp_str);
+                index += 6;     //[FUN-main ]=0/min\r\n
+                
+                //获取FUN-pm10
+                index += 9 + 3;
+                i = 0;
+                do
+                {
+                    temp_str[i++] = resp_str[index++];
+                    if(index >= len)
+                    {
+                        return FAILURE;
+                    }
+                }while((resp_str[index] != '/') && (resp_str[index + 1] != 'm'));
+                temp_str[i++] = '\0';   //加结束符
+                s_SensorData.Fan.pm10_freq = atoi(temp_str);
+                s_SensorData.Fan.status = TRUE;
+                index += 6;     
+            }
+            else
             {
-                temp_str[i++] = resp_str[index++];
-                if(index >= len)
-                {
-                    return FAILURE;
-                }
-            }while((resp_str[index] != '/') && (resp_str[index + 1] != 'm'));
-            temp_str[i++] = '\0';   //加结束符
-            s_SensorData.Fan.pm10_freq = atoi(temp_str);
-            s_SensorData.Fan.status = TRUE;
-            index += 6;     //[FUN-pm10 ]=0/min\r\n
+                s_SensorData.Fan.status = FALSE;
+            }
             
             s_SensorData.got_status = TRUE; //获得了传感器数据
             //获取日期和时间

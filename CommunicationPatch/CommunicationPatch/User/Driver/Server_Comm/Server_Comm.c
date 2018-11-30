@@ -546,8 +546,8 @@ void Server_Comm_Package_Bale(u16 cmd)
                 s_SensorData.sensor_num++;
             }
             
-            // 新版本的设备没有TVOC。。。2018-11-10
             //TVOC
+            // 新版本的设备没有TVOC。。。2018-11-10
             if(s_SensorData.TVOC.status == TRUE)
             {
                 s_ServerCommPackage.ADF.Data[i++] = 0x09;  
