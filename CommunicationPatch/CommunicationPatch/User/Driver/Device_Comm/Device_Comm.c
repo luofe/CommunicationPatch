@@ -1064,9 +1064,9 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             
             //[SS-Temp  ]=
             memset(sensor_name, '\0', sizeof(sensor_name));
-            strcpy(sensor_name, "[SS-Temp");
+            strcpy(sensor_name, "[SS-Temp");  
             memset(com_str, '\0', sizeof(com_str));
-            memcpy(com_str, &resp_str[index], strlen(sensor_name));
+            memcpy(com_str, &resp_str[index], strlen(sensor_name)); 
             if(strcmp(com_str, sensor_name) == SUCCEED)
             {
                 //获取SS-Temp
@@ -2305,19 +2305,12 @@ u8 Device_Comm_Package_Analysis(u8 *data, u16 data_l)
     {
         //\r\n[SS-Temp......传感器数据
         memcpy(com_str, &data[index], strlen(sensor_data_str));
-        com_str[strlen(sensor_data_str)] = '\0';  //放入结束符
+        com_str[strlen(sensor_data_str)] = '\0';  //放入结束符   
         if(strcmp(com_str, sensor_data_str) == SUCCEED)
         {
-            if(data_l >= 350)   //1、设备端是带操作系统的  有的数据会被其他任务切断，导致分成若干包接收到；2、外部传感器启动慢
-            {
-                Device_Comm_Package_Process(DEVICE_GET_SENSOR_DATA_CMD, &data[index], (data_l - index));
-                
-                break;
-            }
-            else
-            {
-                break;
-            }
+            Device_Comm_Package_Process(DEVICE_GET_SENSOR_DATA_CMD, &data[index], (data_l - index));
+            
+            break;
         }
         
         //$GPGGA......GPS数据
@@ -2566,7 +2559,7 @@ u8 Device_Rec_Command_Analysis(u8 cmd, u8* buf, u16 len)
         case DEVICE_CTR_ALL_PRINTF_CMD:
         {
             //如果是“SHOW_ALL=”
-            char cmp_str[] = "SHOW_ALL=";
+            char cmp_str[] = "SHOW_ALL";
             memcpy(temp_str, &buf[index], strlen(cmp_str));
             temp_str[index + strlen(cmp_str)] = '\0';
             if(strcmp(temp_str, cmp_str) == SUCCEED)
@@ -2580,7 +2573,7 @@ u8 Device_Rec_Command_Analysis(u8 cmd, u8* buf, u16 len)
         case DEVICE_CTR_ALL_HIDE_CMD:
         {
             //如果是“HIDE_ALL=”
-            char cmp_str[] = "HIDE_ALL=";
+            char cmp_str[] = "HIDE_ALL";
             memcpy(temp_str, &buf[index], strlen(cmp_str));
             temp_str[index + strlen(cmp_str)] = '\0';
             if(strcmp(temp_str, cmp_str) == SUCCEED)

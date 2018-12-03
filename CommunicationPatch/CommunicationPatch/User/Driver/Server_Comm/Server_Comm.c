@@ -654,15 +654,15 @@ void Server_Comm_Package_Bale(u16 cmd)
             }
             else
             {
-                                        
+                
 #if (SERVER_PRINTF_EN)
-        printf("将传感器上传数据包存储到Flash中\r\n");
+                printf("将传感器上传数据包存储到Flash中\r\n");
 #endif
-        
+                
                 temp_array[0] = 0x02;       //数据内容类型
                 temp_array[1] = i;          //数据内容长度(从RTC时间开始到校验码前的数据内容)
                 memcpy(&temp_array[2], s_ServerCommPackage.ADF.Data, i);
-                
+
                 Data_Storge_Process(temp_array, (i + 2));
             }
         }

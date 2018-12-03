@@ -9,7 +9,7 @@ core.h	核心算法函数头文件
 //宏定义
 *******************************************************************************/
 // 公用数据缓冲区大小
-#define PUBLIC_DATA_BUFFER_MAX_LENGTH       1024        //默认为255
+#define PUBLIC_DATA_BUFFER_MAX_LENGTH       4096        //默认为255
 
 
 //求整形的高低字节
@@ -51,7 +51,7 @@ core.h	核心算法函数头文件
 #define SEND_STARTUP_RPT_TIME_INTERVAL      (1000 * 5)  //默认是5s
 
 //没有接收到服务器的数据最大超时时间
-#define SERVER_COMM_NO_DATA_REC_TIMEOUT     (1000UL * 60 * 3)   //没有接收到服务器的数据超时时间为3min
+#define SERVER_COMM_NO_DATA_REC_TIMEOUT     (1000UL * 60 * 2)   //没有接收到服务器的数据超时时间为2min
 
 //向设备端查询状态的时间间隔
 #define GET_PULLOUT_STATUS_TIME_INTERVAL    (1000 * 5)  //默认是5s

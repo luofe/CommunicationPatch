@@ -196,13 +196,18 @@ void Debug_Comm_Rec_Monitor(void)
                 char const temp_str[]      = "/*擦除整片W25Q128*/";
                 char const temp_str2[]     = "/*退出透传模式*/";
                 
+                u8  temp_sta = FAILURE;
+                u8  temp_sta2 = FAILURE;
+                
                 memcpy(com_str, s_DebugComm.RxBuffer, strlen(temp_str));
                 com_str[strlen(temp_str)] = '\0';  //放入结束符
-                
+                temp_sta = strcmp(com_str, temp_str);
+ 
                 memcpy(com_str2, s_DebugComm.RxBuffer, strlen(temp_str2));
                 com_str[strlen(temp_str2)] = '\0';  //放入结束符
-                
-                if(strcmp(com_str, temp_str) == SUCCEED)
+                temp_sta2 = strcmp(com_str2, temp_str2);
+
+                if(temp_sta == SUCCEED)
                 {
                     
 #if (SERVER_PRINTF_EN)
@@ -217,7 +222,7 @@ void Debug_Comm_Rec_Monitor(void)
 #endif	
                     
                 }
-                else if(strcmp(com_str2, temp_str2) == SUCCEED)
+                else if(temp_sta2 == SUCCEED)
                 {
                     g_DebugInterfaceTransmitFlag = FALSE;   //透传结束
                     //禁止所有信息的打印

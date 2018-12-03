@@ -25,7 +25,8 @@ allow for greater flexibility in applications that require data and parameter st
 //2、第二个扇区开始，每页存放一组未发送的数据包；
 //3、每个扇区有16页，总共有4096个字节，每次存储一页；
 //4、先把整个扇区读取出来，然后把对应要写入的页的数据更新到扇区数组内，整个扇区再写入；
-//5、如果存储到了45天，则重新从最早存储地址开始覆盖。
+//5、如果存储到了45天，则重新从最早存储地址开始覆盖；
+//6、扇区擦除的地址必须是4K的整数倍，即每个扇区的首地址。
 *******************************************************************************/
 
 /******************************************************************************
@@ -760,8 +761,8 @@ u8  Ext_Flash_Detect(void)
 void Data_Storge_Process(u8* data, u16 len)
 {
     u8  page_num[2];
-    u8  temp_array[SPI_FLASH_PageSize * SPI_FLASH_PerSectorPage] = {0}; //开辟一个扇区的存储空间
-    
+//    u8  temp_array[SPI_FLASH_PageSize * SPI_FLASH_PerSectorPage] = {0}; //开辟一个扇区的存储空间
+
     SPI_FLASH_BufferRead(page_num, FLASH_PACKAGE_NUM_ADDRESS, sizeof(page_num));   
     g_DataPageNum = page_num[0] * 256 + page_num[1];
     if((g_DataPageNum == 0xFFFF) || (g_DataPageNum == 0x0000)) //说明还没有存储过
@@ -788,14 +789,16 @@ void Data_Storge_Process(u8* data, u16 len)
     SPI_FLASH_BufferWrite(page_num, FLASH_PACKAGE_NUM_ADDRESS, sizeof(page_num));
     
     //读出当前扇区的所有数据
-    SPI_FLASH_BufferRead(temp_array, ((g_DataPageNum / SPI_FLASH_PerSectorPage) * SPI_FLASH_PerSectorSize), sizeof(temp_array));
+    SPI_FLASH_BufferRead(g_PublicDataBuffer, ((g_DataPageNum / SPI_FLASH_PerSectorPage) * SPI_FLASH_PerSectorSize), SPI_FLASH_PerSectorSize);
+
     //将要存储的数据拷贝到扇区数组对应的位置
-    memcpy(&temp_array[(g_DataPageNum % SPI_FLASH_PerSectorPage) * SPI_FLASH_PageSize], data, len);
+    memcpy(&g_PublicDataBuffer[(g_DataPageNum % SPI_FLASH_PerSectorPage) * SPI_FLASH_PageSize], data, len);
+
     //擦除当前要写入页对应的扇区
-    SPI_FLASH_SectorErase(g_DataPageNum * SPI_FLASH_PageSize);
+    SPI_FLASH_SectorErase((g_DataPageNum / SPI_FLASH_PerSectorPage) * SPI_FLASH_PerSectorSize); //地址必须是每个扇区的第一个地址
     
     //将当前扇区的数据写入
-    SPI_FLASH_BufferWrite(temp_array, ((g_DataPageNum / SPI_FLASH_PerSectorPage) * SPI_FLASH_PerSectorSize), sizeof(temp_array));
+    SPI_FLASH_BufferWrite(g_PublicDataBuffer, ((g_DataPageNum / SPI_FLASH_PerSectorPage) * SPI_FLASH_PerSectorSize), SPI_FLASH_PerSectorSize);
 }
 
 //********************************************************
