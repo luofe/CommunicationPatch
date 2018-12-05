@@ -1,13 +1,17 @@
 /*******************************************************************************
 //Copyright(C)2018 , 蛙鸣公司
 // All rights reserved.
-// Version: v1.0 
+// Version: v1.0
 // Device : STM32F103C8T6
 // Built  : IAR For ARM v7.70(Language: C)
 // Date   : 2018-10-27
 // Author : 刘锋
 // Functiom:APP应用程序的工程说明文档，记录程序进度
 *******************************************************************************/
+
+
+20181205:
+1、所有功能完成。
 
 
 20181202:
@@ -136,7 +140,7 @@ Q_HEALTHRPT=180(OK!)
 ******************************************************************************
 * Function Name  : SSInfoPrint()
 * Description    : 传感器信息输出格式
-* Input          : 
+* Input          :
 * Output         : None
 * Return         : None
 //左对齐输出
@@ -182,7 +186,7 @@ static	void	SSInfoPrint (void)
 ******************************************************************************
 * Function Name  : GPSInfoPrint()
 * Description    : GPS信息输出
-* Input          : 
+* Input          :
 * Output         : None
 * Return         : None
 //左对齐
@@ -195,7 +199,7 @@ $GPGLL,,,,,235947.020,V,N*76
 $GPGSA,A,1,,,,,,,,,,,,,,,*1E
 $GPGSV,1,1,00*79
 $GPRMC,235947.020,V,,,,,0.00,0.00,050180,,,N*4D
-$GPVTG,0.00,T,,M,0.00,N,0.00,K,N*32			
+$GPVTG,0.00,T,,M,0.00,N,0.00,K,N*32
 }
 
 
@@ -205,11 +209,11 @@ $GPVTG,0.00,T,,M,0.00,N,0.00,K,N*32
 // 系统应用参数区-默认参数定义
 #define	DEF_DFT_SYSCFG_SAVED_MARK			((u16)0x66AA)				// 系统应用参数区初始化完成标志((默0x66AA,修改后参数将复位)
 #define	DEF_DFT_SYSCFG_SUM						((u16)0x0000)			// 需要根据具体参数计算!!!!
-#define	DEF_DFT_SYSCFG_AESTYPE				((u8)0x00)					// 加密类型	
+#define	DEF_DFT_SYSCFG_AESTYPE				((u8)0x00)					// 加密类型
 #define	DEF_DFT_SYSCFG_AESKEY					("")					// 秘钥
-#define	DEF_DFT_SYSCFG_APN						("")					// 系统APN	
-#define	DEF_DFT_SYSCFG_APNUSER				("")						// 系统APN登陆用户	
-#define	DEF_DFT_SYSCFG_APNPASS				("")						// 系统APN登陆密码	
+#define	DEF_DFT_SYSCFG_APN						("")					// 系统APN
+#define	DEF_DFT_SYSCFG_APNUSER				("")						// 系统APN登陆用户
+#define	DEF_DFT_SYSCFG_APNPASS				("")						// 系统APN登陆密码
 #define	DEF_DFT_SYSCFG_DOMAINEN				((u8)0)                     // 域名连接使能如果为1则使能域名连接为0则禁止域名连接即IP连接
 #define	DEF_DFT_SYSCFG_DNSIP					("202.106.0.20")		// 系统域名服务器IP地址
 #define	DEF_DFT_SYSCFG_DOMAIN1				("null1")					// 系统域名1
@@ -218,8 +222,8 @@ $GPVTG,0.00,T,,M,0.00,N,0.00,K,N*32
 #define	DEF_DFT_SYSCFG_PORT1					("21009")				// 系统主服务器端口号
 #define	DEF_DFT_SYSCFG_IP2						("58.83.189.147")		// 系统辅助服务器IP地址(辅助IP)
 #define	DEF_DFT_SYSCFG_PORT2					("21009")				// 系统辅助服务器端口号
-#define	DEF_DFT_SYSCFG_NATIONCODE			("86")						// 国家代码(中国默认"86")使用PDU方式发送短信时使用		
-#define	DEF_DFT_SYSCFG_SMSCENTER			("")						// 监控平台SMS猫电话号码	
+#define	DEF_DFT_SYSCFG_NATIONCODE			("86")						// 国家代码(中国默认"86")使用PDU方式发送短信时使用
+#define	DEF_DFT_SYSCFG_SMSCENTER			("")						// 监控平台SMS猫电话号码
 
 
 

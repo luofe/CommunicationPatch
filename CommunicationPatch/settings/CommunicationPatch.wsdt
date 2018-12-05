@@ -14,7 +14,7 @@
           
           
           
-        <Column0>166</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+        <Column0>247</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
       </Workspace>
       <Debug-Log>
         
@@ -35,7 +35,7 @@
     <Windows>
       
       
-    <Wnd2>
+    <Wnd0>
         <Tabs>
           <Tab>
             <Identity>TabID-20584-32525</Identity>
@@ -47,7 +47,7 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd2><Wnd3>
+      <SelectedTab>0</SelectedTab></Wnd0><Wnd1>
         <Tabs>
           <Tab>
             <Identity>TabID-7745-32561</Identity>
@@ -69,20 +69,20 @@
           </Tab>
         <Tab><Identity>TabID-30435-12673</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab><Tab><Identity>TabID-29035-17202</Identity><TabName>Ambiguous Definitions</TabName><Factory>Select-Ambiguous-Definitions</Factory><Session/></Tab></Tabs>
         
-      <SelectedTab>1</SelectedTab></Wnd3></Windows>
+      <SelectedTab>1</SelectedTab></Wnd1></Windows>
     <Editor>
       
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\App\src\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>44</YPos2><SelStart2>1793</SelStart2><SelEnd2>1793</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\App\src\Core.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>555</YPos2><SelStart2>14458</SelStart2><SelEnd2>14458</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\Server_Comm\Server_Comm.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>1434</YPos2><SelStart2>63611</SelStart2><SelEnd2>63611</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\ExtFlash\ExtFlash.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>761</YPos2><SelStart2>24065</SelStart2><SelEnd2>24065</SelEnd2></Tab><ActiveTab>3</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\Print\Print.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>199</YPos2><SelStart2>7663</SelStart2><SelEnd2>7663</SelEnd2></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\App\src\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>44</YPos2><SelStart2>1428</SelStart2><SelEnd2>1428</SelEnd2></Tab><ActiveTab>0</ActiveTab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-00CD1E00><key>iaridepm.enu1</key></Toolbar-00CD1E00></Sizes></Row0></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>480</Bottom><Right>257</Right><x>-2</x><y>-2</y><xscreen>1062</xscreen><yscreen>12</yscreen><sizeHorzCX>777452</sizeHorzCX><sizeHorzCY>17493</sizeHorzCY><sizeVertCX>189605</sizeVertCX><sizeVertCY>702624</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>161</Bottom><Right>1368</Right><x>-2</x><y>-2</y><xscreen>1370</xscreen><yscreen>163</yscreen><sizeHorzCX>1002928</sizeHorzCX><sizeHorzCY>237609</sizeHorzCY><sizeVertCX>777452</sizeVertCX><sizeVertCY>17493</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-05B7A4E8><key>iaridepm.enu1</key></Toolbar-05B7A4E8></Sizes></Row0></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>579</Bottom><Right>321</Right><x>-2</x><y>-2</y><xscreen>1062</xscreen><yscreen>12</yscreen><sizeHorzCX>777452</sizeHorzCX><sizeHorzCY>17518</sizeHorzCY><sizeVertCX>236457</sizeVertCX><sizeVertCY>848175</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>61</Bottom><Right>1368</Right><x>-2</x><y>-2</y><xscreen>1370</xscreen><yscreen>63</yscreen><sizeHorzCX>1002928</sizeHorzCX><sizeHorzCY>91971</sizeHorzCY><sizeVertCX>777452</sizeVertCX><sizeVertCY>17518</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 
