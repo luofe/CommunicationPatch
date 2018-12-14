@@ -646,9 +646,12 @@ void Server_Comm_Package_Bale(u16 cmd)
 
             if((g_SysInitStatusFlag == TRUE) && (g_WireLessModuleInitFlag == TRUE))   //初始化完毕,无线模块也初始化完成了
             {
-                //数据长度
-                s_ServerCommPackage.Length = i + 6;
-                Server_Comm_Package_Send();
+                if(g_ExtFlashHaveData == FALSE) //如果不是正在发送存储包就可以发送
+                {
+                    //数据长度
+                    s_ServerCommPackage.Length = i + 6;
+                    Server_Comm_Package_Send();
+                }
             }
             else
             {
@@ -662,6 +665,8 @@ void Server_Comm_Package_Bale(u16 cmd)
                 memcpy(&temp_array[2], s_ServerCommPackage.ADF.Data, i);
 
                 Data_Storge_Process(temp_array, (i + 2));
+
+                g_ExtFlashHaveData = TRUE;  //置标志有存储包
             }
         }
         break;
@@ -835,6 +840,7 @@ void Server_Comm_Package_Bale(u16 cmd)
             Server_Comm_Package_Send();
 
             s_ServerCommTx.WaitResponse = NEED_RESPONSE;    //等待应答
+            s_ServerCommTx.RepeatNum = 0;
         }
         break;
 
@@ -892,26 +898,25 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
 
                     g_SysInitStatusFlag = TRUE;
                 }
-                if(g_SysInitStatusFlag == TRUE)    //如果已经握手完毕
+                if(g_ExtFlashHaveData == TRUE)    //如果是有存储数据包待发送
                 {
                     if(s_ServerCommPackage.ADF.CMD == SERVER_COMM_PACKAGE_CMD_REPORT_FLASH)
                     {
+                        u8 page_num[2];
                         s_ServerCommTx.WaitResponse = DONT_RESPONSE;    //等待应答标志复位
                         s_ServerCommTx.RepeatNum = 0;   //重发次数复位
                         g_DataPageNum--;
+                        //如果发送完毕
+                        if((g_DataPageNum < SENSOR_DATA_MIN_PAGE_NUM))
+                        {
+                            g_ExtFlashHaveData = FALSE;
+                        }
+                        //将当前最新页码写入回去，避免丢失导致重复传输
+                        page_num[0] = (u8)(g_DataPageNum >> 8);
+                        page_num[1] = (u8)(g_DataPageNum >> 0);
+                        SPI_FLASH_SectorErase(FLASH_PACKAGE_NUM_ADDRESS);
+                        SPI_FLASH_BufferWrite(page_num, FLASH_PACKAGE_NUM_ADDRESS, sizeof(page_num));
                     }
-                }
-
-
-                //如果有数据包存储到片外Flash
-                if((g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM) && (g_DataPageNum < 0xFFFF))
-                {
-
-#if (SERVER_PRINTF_EN)
-                    printf("g_DataPageNum=%d,共%d帧\r\n", g_DataPageNum, ((g_DataPageNum - SENSOR_DATA_MIN_PAGE_NUM) + 1));
-#endif
-
-                    Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_FLASH);
                 }
             }
             else
@@ -1469,26 +1474,26 @@ void Server_Comm_Rec_Monitor(void)
     }
 }
 
-//********************************************************
-//函数名称: Server_Comm_Error_Process
-//函数功能: 与服务器通信的错误处理函数
-//输    入: 无
-//输    出: 无
-//备    注: 无
-//********************************************************
-void Server_Comm_Error_Process(void)
-{
-    u8 temp_status = s_ServerCommTx.WaitResponse;   //保存等待应答状态
-
-    s_ServerCommTx.WaitResponse = DONT_RESPONSE;    //等待应答标志复位
-
-    s_ServerCommPackage.ADF.Data[0] = FAILURE;
-    s_ServerCommPackage.Length = 9;     //放入数据长度
-
-    Server_Comm_Package_Send();
-
-    s_ServerCommTx.WaitResponse = temp_status;   //恢复等待应答状态
-}
+////********************************************************
+////函数名称: Server_Comm_Error_Process
+////函数功能: 与服务器通信的错误处理函数
+////输    入: 无
+////输    出: 无
+////备    注: 无
+////********************************************************
+//void Server_Comm_Error_Process(void)
+//{
+//    u8 temp_status = s_ServerCommTx.WaitResponse;   //保存等待应答状态
+//
+//    s_ServerCommTx.WaitResponse = DONT_RESPONSE;    //等待应答标志复位
+//
+//    s_ServerCommPackage.ADF.Data[0] = FAILURE;
+//    s_ServerCommPackage.Length = 9;     //放入数据长度
+//
+//    Server_Comm_Package_Send();
+//
+//    s_ServerCommTx.WaitResponse = temp_status;   //恢复等待应答状态
+//}
 
 /*****************************************
 //名称: Server_Comm_Test

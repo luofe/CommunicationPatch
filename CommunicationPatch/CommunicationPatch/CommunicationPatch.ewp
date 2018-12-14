@@ -2135,24 +2135,6 @@
     </group>
     <group>
       <name>Driver</name>
-      <group>
-        <name>FATFS</name>
-        <excluded>
-          <configuration>Debug</configuration>
-        </excluded>
-        <file>
-          <name>$PROJ_DIR$\User\Driver\FATFS\source\diskio.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\User\Driver\FATFS\source\ff.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\User\Driver\FATFS\source\ffunicode.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\User\Driver\FATFS\source\SysFatfs.c</name>
-        </file>
-      </group>
       <file>
         <name>$PROJ_DIR$\User\Driver\Device_Comm\Device_Comm.c</name>
       </file>
@@ -2167,12 +2149,6 @@
       </file>
       <file>
         <name>$PROJ_DIR$\User\Driver\Print\Print.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\User\Driver\SDCard\SDCard.c</name>
-        <excluded>
-          <configuration>Debug</configuration>
-        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\User\Driver\Server_Comm\Server_Comm.c</name>

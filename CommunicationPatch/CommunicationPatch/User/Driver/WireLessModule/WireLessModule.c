@@ -22,6 +22,9 @@
 // 无线模块初始化完成标志
 u8  g_WireLessModuleInitFlag = FALSE;
 
+// 无线模块插卡状态
+u8  g_WireLessSIMCardInsertFlag = TRUE;    //默认是已插卡
+
 
 
 
@@ -357,7 +360,19 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
             {
                 if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
+                    g_WireLessSIMCardInsertFlag = TRUE;
                     return SUCCEED;
+                }
+                // 未插卡
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+
+#if (SERVER_AT_PRINTF_EN)
+    printf("SIM卡未插！！！\r\n");
+#endif
+
+                    g_WireLessSIMCardInsertFlag = FALSE; //未插卡，则以后也不初始化了
+                    return FAILURE;
                 }
             }
             if(repeat_sta == TRUE)  //重复AT
@@ -375,6 +390,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                 {
                     return SUCCEED;
                 }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
+                }
             }
             if(repeat_sta == TRUE)  //重复AT
             {
@@ -390,6 +409,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                 if((buf[i] == '0') && (buf[i + 2] == '1') && (buf[i + 7] == 'O') && (buf[i + 8] == 'K'))
                 {
                     return SUCCEED;
+                }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
                 }
             }
             if(repeat_sta == TRUE)  //重复AT
@@ -407,6 +430,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                 {
                     return SUCCEED;
                 }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
+                }
             }
             if(repeat_sta == TRUE)  //重复AT
             {
@@ -422,6 +449,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                 if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
                     return SUCCEED;
+                }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
                 }
             }
             if(repeat_sta == TRUE)  //重复AT
@@ -439,6 +470,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                 {
                     return SUCCEED;
                 }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
+                }
             }
             if(repeat_sta == TRUE)  //重复AT
             {
@@ -454,6 +489,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                 if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
                     return SUCCEED;
+                }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
                 }
             }
             if(repeat_sta == TRUE)  //重复AT
@@ -471,6 +510,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                 {
                     return SUCCEED;
                 }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
+                }
             }
             if(repeat_sta == TRUE)  //重复AT
             {
@@ -486,6 +529,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                 if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
                     return SUCCEED;
+                }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
                 }
             }
             if(repeat_sta == TRUE)  //重复AT
@@ -505,6 +552,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                 {
                     return SUCCEED;
                 }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
+                }
             }
             if(repeat_sta == TRUE)  //重复AT
             {
@@ -520,6 +571,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                 if((buf[i] == 'O') && (buf[i + 1] == 'K'))
                 {
                     return SUCCEED;
+                }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
                 }
             }
             if(repeat_sta == TRUE)  //重复AT
@@ -541,6 +596,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                 {
                     return SUCCEED;
                 }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
+                }
             }
         }
         break;
@@ -554,6 +613,10 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
                        && (buf[i + 6] == 'T'))
                 {
                     return SUCCEED;
+                }
+                else if((buf[i] == 'E') && (buf[i + 1] == 'R') && (buf[i + 2] == 'R') && (buf[i + 3] == 'O') && (buf[i + 4] == 'R'))
+                {
+                    return FAILURE;
                 }
             }
             if(repeat_sta == TRUE)  //重复AT

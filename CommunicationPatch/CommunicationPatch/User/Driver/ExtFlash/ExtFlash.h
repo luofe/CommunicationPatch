@@ -15,31 +15,31 @@
 #define FLASH_SPI_CLK               RCC_APB2Periph_SPI1
 #define FLASH_SPI_CLK_INIT          RCC_APB2PeriphClockCmd
 //SCK引脚
-#define FLASH_SPI_SCK_PIN           GPIO_Pin_5                  
-#define FLASH_SPI_SCK_GPIO_PORT     GPIOA                       
+#define FLASH_SPI_SCK_PIN           GPIO_Pin_5
+#define FLASH_SPI_SCK_GPIO_PORT     GPIOA
 #define FLASH_SPI_SCK_GPIO_CLK      RCC_APB2Periph_GPIOA
 #define FLASH_SPI_SCK_PINSOURCE     GPIO_PinSource5
 #define FLASH_SPI_SCK_AF            GPIO_AF_SPI1
 //MISO引脚
-#define FLASH_SPI_MISO_PIN          GPIO_Pin_6                
-#define FLASH_SPI_MISO_GPIO_PORT    GPIOA                   
+#define FLASH_SPI_MISO_PIN          GPIO_Pin_6
+#define FLASH_SPI_MISO_GPIO_PORT    GPIOA
 #define FLASH_SPI_MISO_GPIO_CLK     RCC_APB2Periph_GPIOA
 #define FLASH_SPI_MISO_PINSOURCE    GPIO_PinSource6
 #define FLASH_SPI_MISO_AF           GPIO_AF_SPI1
 //MOSI引脚
-#define FLASH_SPI_MOSI_PIN          GPIO_Pin_7                
-#define FLASH_SPI_MOSI_GPIO_PORT    GPIOA                      
+#define FLASH_SPI_MOSI_PIN          GPIO_Pin_7
+#define FLASH_SPI_MOSI_GPIO_PORT    GPIOA
 #define FLASH_SPI_MOSI_GPIO_CLK     RCC_APB2Periph_GPIOA
 #define FLASH_SPI_MOSI_PINSOURCE    GPIO_PinSource7
 #define FLASH_SPI_MOSI_AF           GPIO_AF_SPI1
 //CS(NSS)引脚
-#define FLASH_CS_PIN                GPIO_Pin_4                
-#define FLASH_CS_GPIO_PORT          GPIOA                     
+#define FLASH_CS_PIN                GPIO_Pin_4
+#define FLASH_CS_GPIO_PORT          GPIOA
 #define FLASH_CS_GPIO_CLK           RCC_APB2Periph_GPIOA
 #define FLASH_SPI_CS_PINSOURCE      GPIO_PinSource4
 //控制CS(NSS)引脚输出低电平
-#define SPI_FLASH_CS_LOW()          GPIO_ResetBits(FLASH_CS_GPIO_PORT, FLASH_CS_PIN)	
-//控制CS(NSS)引脚输出高电平			
+#define SPI_FLASH_CS_LOW()          GPIO_ResetBits(FLASH_CS_GPIO_PORT, FLASH_CS_PIN)
+//控制CS(NSS)引脚输出高电平
 #define SPI_FLASH_CS_HIGH()         GPIO_SetBits(FLASH_CS_GPIO_PORT, FLASH_CS_PIN)
 
 
@@ -73,22 +73,22 @@
 
 /* Private define ------------------------------------------------------------*/
 /*命令定义-开头*******************************/
-#define W25X_WriteEnable		    0x06 
-#define W25X_WriteDisable		    0x04 
-#define W25X_ReadStatusReg		    0x05 
-#define W25X_WriteStatusReg		    0x01 
-#define W25X_ReadData			    0x03 
-#define W25X_FastReadData		    0x0B 
-#define W25X_FastReadDual		    0x3B 
-#define W25X_PageProgram		    0x02 
-#define W25X_BlockErase			    0xD8 
-#define W25X_SectorErase		    0x20 
-#define W25X_ChipErase			    0xC7 
-#define W25X_PowerDown			    0xB9 
-#define W25X_ReleasePowerDown	    0xAB 
-#define W25X_DeviceID			    0xAB 
-#define W25X_ManufactDeviceID   	0x90 
-#define W25X_JedecDeviceID		    0x9F 
+#define W25X_WriteEnable		    0x06
+#define W25X_WriteDisable		    0x04
+#define W25X_ReadStatusReg		    0x05
+#define W25X_WriteStatusReg		    0x01
+#define W25X_ReadData			    0x03
+#define W25X_FastReadData		    0x0B
+#define W25X_FastReadDual		    0x3B
+#define W25X_PageProgram		    0x02
+#define W25X_BlockErase			    0xD8
+#define W25X_SectorErase		    0x20
+#define W25X_ChipErase			    0xC7
+#define W25X_PowerDown			    0xB9
+#define W25X_ReleasePowerDown	    0xAB
+#define W25X_DeviceID			    0xAB
+#define W25X_ManufactDeviceID   	0x90
+#define W25X_JedecDeviceID		    0x9F
 
 #define WIP_Flag                    0x01  /* Write In Progress (WIP) flag */
 #define Dummy_Byte                  0xFF
@@ -132,7 +132,10 @@
 *******************************************************************************/
 // 存储数据的页码
 extern u16 g_DataPageNum;
-	
+
+// 外部存储是否有数据待发送
+extern u8  g_ExtFlashHaveData;
+
 
 
 
@@ -154,8 +157,14 @@ extern u16 g_DataPageNum;
 //函数功能: SPI初始化函数
 void SPI_FLASH_Init(void);
 
+//函数功能: 擦除FLASH扇区函数
+void SPI_FLASH_SectorErase(u32 SectorAddr);
+
 //函数功能: 擦除FLASH扇区，整片擦除函数
 void SPI_FLASH_BulkErase(void);
+
+//函数功能: 对FLASH写入数据，调用本函数写入数据前需要先擦除扇区
+void SPI_FLASH_BufferWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite);
 
 //函数功能: 读取FLASH数据
 void SPI_FLASH_BufferRead(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead);

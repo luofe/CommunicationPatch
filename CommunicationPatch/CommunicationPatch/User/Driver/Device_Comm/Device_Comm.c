@@ -62,6 +62,9 @@ u8  g_DeviceInitFlag = FALSE;
 // Debug口数据转发的标志
 u8  g_DebugInterfaceTransmitFlag = FALSE;
 
+// 初始化设备端的时间间隔
+u8  g_ReSetDeviceTimeCnt = 0;
+
 
 
 
@@ -818,7 +821,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
         case DEVICE_READ_IP_ADDR_CMD:   //如果是读取IP地址和端口号
         {
             u8  temp_addr;
-            //艹你妈的，这个命令的应答没有“\r\n”，干！！！
+            //这个命令的应答没有“\r\n”！！！
             //获取IP
             i = 0;
             temp_str[i++] = '"';   //加"
@@ -1670,6 +1673,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }
 
             s_SensorData.got_status = TRUE; //获得了传感器数据
+
             //获取日期和时间
             //示例：2018-9-28	3:26:1
             //year
@@ -1722,7 +1726,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 }
             }while((resp_str[index] != ':'));
             temp_str[i++] = '\0';   //加结束符
-            s_RTC.hour = atoi(temp_str);
+            s_RTC.hour = atoi(temp_str);    //服务器的时间要在此基础上加8小时
             index += 1;
             //min
             i = 0;
@@ -1749,6 +1753,26 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             }while((resp_str[index] != '\r') && (resp_str[index + 1] != '\n'));
             temp_str[i++] = '\0';   //加结束符
             s_RTC.sec = atoi(temp_str);
+
+            if(g_SysInitStatusFlag == FALSE) //如果还没有与服务器握手，因为要以服务器的时间为准
+            {
+                struct tm p_t;
+                p_t.tm_year = s_RTC.year - 1900;
+                p_t.tm_mon = s_RTC.month - 1;
+                p_t.tm_mday = s_RTC.day;
+                p_t.tm_hour = s_RTC.hour;
+                p_t.tm_min = s_RTC.min;
+                p_t.tm_sec = s_RTC.sec;
+                p_t.tm_isdst = -1;       //此句话一定要写0或者-1，否则会出错！！！！！！！！
+                //转换成UTC时间
+                s_GPSInfo.gmtTime = mktime(&p_t);
+            }
+
+#if (DEVICE_PRINTF_EN)
+            printf("UTC时间 = 0x%X\r\n", s_GPSInfo.gmtTime);
+            time_t rightTime = s_GPSInfo.gmtTime;
+            printf("rightTime = %s\r\n", ctime(&rightTime));
+#endif
 
             // 控制隐藏传感器数据的打印
             Device_Printf_Ctr(DEVICE_CTR_SENSOR_HIDE_CMD);
@@ -2831,7 +2855,7 @@ u8 Device_Initial(void)
     s_DeviceCommRx.Index = 0;
     s_DeviceCommRx.Timeout_Count = 0;
 
-#if (SERVER_AT_PRINTF_EN)
+#if (DEVICE_PRINTF_EN)
     printf("等待复位设备端\r\n");
 #endif
 
@@ -2850,7 +2874,7 @@ u8 Device_Initial(void)
         }
     }
 
-#if (SERVER_AT_PRINTF_EN)
+#if (DEVICE_PRINTF_EN)
     printf("获取设备端GPS\r\n");
 #endif
 
@@ -2867,35 +2891,35 @@ u8 Device_Initial(void)
         }
     }
 
-#if (SERVER_AT_PRINTF_EN)
+#if (DEVICE_PRINTF_EN)
     printf("获取设备端设备编号\r\n");
 #endif
 
     //获取设备编号
     Device_Printf_Ctr(DEVICE_READ_DEVICE_ID);
 
-#if (SERVER_AT_PRINTF_EN)
+#if (DEVICE_PRINTF_EN)
     printf("获取传感器数据上传间隔\r\n");
 #endif
 
     //查询通用数据上传间隔
     Device_Printf_Ctr(DEVICE_READ_UPLOAD_INTERVAL_CMD);
 
-#if (SERVER_AT_PRINTF_EN)
+#if (DEVICE_PRINTF_EN)
     printf("获取心跳上传间隔\r\n");
 #endif
 
     //查询心跳包上传间隔
     Device_Printf_Ctr(DEVICE_READ_HEARTBEAT_INTERVAL_CMD);
 
-#if (SERVER_AT_PRINTF_EN)
+#if (DEVICE_PRINTF_EN)
     printf("获取设备端IP和端口\r\n");
 #endif
 
     // 获取IP端口
     Device_Printf_Ctr(DEVICE_READ_IP_ADDR_CMD);
 
-#if (SERVER_AT_PRINTF_EN)
+#if (DEVICE_PRINTF_EN)
     printf("获取设备端电池电压\r\n");
 #endif
 

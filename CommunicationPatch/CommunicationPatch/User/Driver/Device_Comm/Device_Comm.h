@@ -2,7 +2,7 @@
 /*******************************************************************************
 //Device_Comm.h
 //与设备通信的驱动头文件
-备注: 
+备注:
 *******************************************************************************/
 
 #ifndef	DEVICE_COMM_H
@@ -30,7 +30,7 @@
 
 
 //Modbus通信数据最大长度
-#define DEVICE_COMM_DATA_MAX_LENGTH            1024  
+#define DEVICE_COMM_DATA_MAX_LENGTH            1024
 
 
 //数据包命令码列表
@@ -78,7 +78,7 @@
 
 
 // 读取设备端传感器数据的时间间隔
-#define DEVICE_COMM_GET_SENSOR_DATA_INTERVAL    (1000 * 10) 
+#define DEVICE_COMM_GET_SENSOR_DATA_INTERVAL    (1000 * 10)
 
 // 设备启动完毕所需最大时间
 #define DEVICE_INITIAL_OVER_TIMEOUT             (1000 * 20)
@@ -94,6 +94,9 @@
 
 // 设备启动后读取IP地址和端口的最大时间
 #define DEVICE_GET_DEVICE_IP_TIMEOUT            (1000 * 2)
+
+// 重新配置设备端的时间间隔
+#define RESET_DEVICE_INTERVAL                   (1000UL * 60 * 2) //默认1分钟
 
 
 
@@ -118,9 +121,9 @@ typedef struct
         u8  Buffer[DEVICE_COMM_DATA_MAX_LENGTH]; //发送数据缓冲区
         u16 Index;                          //发送数据计数
     }LineUp[2];
-    
+
     u8  RepeatNum;                      //重发次数，0—不用重发
-    
+
     u8  WaitResponse;                   //等待设备端应答标志
     u16 WaitResponseTimeout;            //等待应答的超时时间
 }DeviceCommTxStruct;
@@ -177,10 +180,10 @@ typedef struct
     u8  got_status;     //获取状态，TRUE—获得了
     u8  device_sta[4];  //设备状态字
     u8  sensor_num;     //传感器个数
-    
+
     struct
     {
-        u8     status;   //状态，是否有数据 
+        u8     status;   //状态，是否有数据
         float temp;     //温度
         float humi;     //湿度
     }TRH;
@@ -258,7 +261,7 @@ typedef struct
 }SensorDataStruct;
 
 // GPS定位信息
-typedef struct 
+typedef struct
 {
     u8  got_status;     //获取状态
     u8  status;         // 定位状态'A'定位，'V'不定位
@@ -319,6 +322,9 @@ extern u8  g_DeviceInitFlag;
 
 // Debug口数据转发的标志
 extern u8  g_DebugInterfaceTransmitFlag;
+
+// 初始化设备端的时间间隔
+extern u8  g_ReSetDeviceTimeCnt;
 
 
 

@@ -17,12 +17,12 @@
 //#define SERVER_COMM_USART_IRQn                      USART1_IRQn
 //#define SERVER_COMM_USART_IRQHandler                USART1_IRQHandler
 //
-////SERVER_COMM_USART_TX ----------------------------------------------- 
+////SERVER_COMM_USART_TX -----------------------------------------------
 //#define SERVER_COMM_USART_TX_GPIO_CLK               RCC_APB2Periph_GPIOA         //定义SERVER_COMM_USART_TX端口的时钟
 //#define SERVER_COMM_USART_TX_GPIO_PORT              GPIOA                        //定义SERVER_COMM_USART_TX占用的GPIO端口
 //#define SERVER_COMM_USART_TX_GPIO_PIN               GPIO_Pin_9                   //定义SERVER_COMM_USART_TX的GPIO引脚号
 //
-////SERVER_COMM_USART_RX ----------------------------------------------- 
+////SERVER_COMM_USART_RX -----------------------------------------------
 //#define SERVER_COMM_USART_RX_GPIO_CLK               RCC_APB2Periph_GPIOA         //定义SERVER_COMM_USART_RX端口的时钟
 //#define SERVER_COMM_USART_RX_GPIO_PORT              GPIOA                        //定义SERVER_COMM_USART_RX占用的GPIO端口
 //#define SERVER_COMM_USART_RX_GPIO_PIN               GPIO_Pin_10                  //定义SERVER_COMM_USART_RX的GPIO引脚号
@@ -34,12 +34,12 @@
 #define SERVER_COMM_USART_IRQn                  USART2_IRQn
 #define SERVER_COMM_USART_IRQHandler            USART2_IRQHandler
 
-//SERVER_COMM_USART_TX ----------------------------------------------- 
+//SERVER_COMM_USART_TX -----------------------------------------------
 #define SERVER_COMM_USART_TX_GPIO_CLK           RCC_APB2Periph_GPIOA         //定义SERVER_COMM_USART_TX端口的时钟
 #define SERVER_COMM_USART_TX_GPIO_PORT          GPIOA                        //定义SERVER_COMM_USART_TX占用的GPIO端口
 #define SERVER_COMM_USART_TX_GPIO_PIN           GPIO_Pin_2                   //定义SERVER_COMM_USART_TX的GPIO引脚号
 
-//SERVER_COMM_USART_RX ----------------------------------------------- 
+//SERVER_COMM_USART_RX -----------------------------------------------
 #define SERVER_COMM_USART_RX_GPIO_CLK           RCC_APB2Periph_GPIOA         //定义SERVER_COMM_USART_RX端口的时钟
 #define SERVER_COMM_USART_RX_GPIO_PORT          GPIOA                        //定义SERVER_COMM_USART_RX占用的GPIO端口
 #define SERVER_COMM_USART_RX_GPIO_PIN           GPIO_Pin_3                  //定义SERVER_COMM_USART_RX的GPIO引脚号
@@ -133,12 +133,15 @@
 //USART接收超时
 #define SERVER_COMM_RX_DATA_TIMEOUT             5	    //没有接收超时5ms就是接收完毕
 //与服务器通信最大重发次数
-#define SERVER_COMM_REPEAT_SEND_TIME            2       //重发次数2次
+#define SERVER_COMM_REPEAT_SEND_TIME            3       //重发次数2次
 //与服务器通信最大等待间隔时间
-#define SERVER_COMM_WAIT_RESPONSE_TIMEOUT       (1000 * 3)  //等待服务器应答超时
+#define SERVER_COMM_WAIT_RESPONSE_TIMEOUT       (1000 * 5)  //等待服务器应答超时
 
 //发送握手指令给服务器的时间间隔
 #define SERVER_COMM_HANDSHAKE_INTERVAL          (1000 * 30) //
+
+// 重新配置无线模块的时间间隔
+#define RESET_WIRELESSMODULE_INTERVAL           (1000UL * 60 * 2) //默认1分钟
 
 
 
@@ -164,9 +167,9 @@ typedef struct
 {
     u8  Buffer[PC_COM_MAX_DATA_LENGTH]; //发送数据缓冲区
     u16 Index;                          //发送数据计数
-        
+
     u8  RepeatNum;                      //重发次数，0—不用重发
-    
+
     u8  WaitResponse;                   //等待服务器应答标志
     u16 WaitResponseTimeout;            //等待应答的超时时间
 }ServerCommTxStruct;
@@ -221,17 +224,17 @@ typedef struct
 //    // 心跳上传间隔(min)
 //    u16 Heartbeat_interval;
     //协议类型
-    u8  proc_type; 
+    u8  proc_type;
     //厂商
     u8  manu_type;
     //设备类型
-    u8  device_type; 
+    u8  device_type;
     //设备编号
-    u8  deviceID[4];  
+    u8  deviceID[4];
     //密文序列
-    u8  Code[8];   
+    u8  Code[8];
     // 软件版本
-    u8  Ver[5]; 
+    u8  Ver[5];
 }SystemParaStruct;
 
 // SIM卡相关参数
@@ -239,13 +242,13 @@ typedef struct
 {
     u8  num_len;    //sim卡号长度，中国是11位
     u8  num[2 + 11];//前面加86
-    
+
     u8  IMSI_len;   //imsi码长度
     u8  IMSI[15];    //一般都是15位
-    
+
     u8  IMEI_len;   //imei码长度
     u8  IMEI[15];    //一般都是15位
-    
+
     u8  CCID_len;   //ccid码长度
     u8  CCID[20];    //一般都是20位
 }SIMCardParaStruct;

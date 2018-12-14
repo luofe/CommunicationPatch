@@ -2,7 +2,7 @@
 /*******************************************************************************
 //Copyright(C)2018 , 蛙鸣公司
 // All rights reserved.
-// Version: v1.0 
+// Version: v1.0
 // Device : STM32F103C8T6
 // Built  : IAR For ARM v7.70(Language: C)
 // Date   : 2018-10-27
@@ -29,7 +29,7 @@ u8 g_PublicDataBuffer[PUBLIC_DATA_BUFFER_MAX_LENGTH] = {0};
 u8 g_SysPulloutEnableFlag = TRUE;       //
 
 //系统发送POLL数据包给服务器的计时
-u32 g_SysPollTimeCnt = 0;     //默认启动后发送一次POLL包  
+u32 g_SysPollTimeCnt = 0;     //默认启动后发送一次POLL包
 
 //系统查询设备端状态的计时
 u32 g_GetPulloutStatusTimeCnt = 0;
@@ -78,6 +78,9 @@ u32 g_SendSensorDataTimeCnt = 0;
 
 // 读取传感器数据的计时
 u32 g_GetDeviceSensorDataTimeCnt = 0;
+
+// 重新配置无线模块的间隔计时
+u32 g_ReSetWireLessModuleTimeCnt = 0;
 
 
 
@@ -145,25 +148,25 @@ void System_Status_Collection(void);
 ******************************************/
 int SysStr2Int(char* str)
 {
-    int data = 0;  
+    int data = 0;
     const char *ptr = str;
-    
-    if(*str == '-'){  
-        str ++;  
-    }  
-    while(*str != '\0'){  
-        if(*str < '0' || *str > '9'){  
-            break;  
-        }  
-        data = data * 10 + (*str - '0');  
-        str ++;  
-    }  
-    if(*ptr == '-'){  
-        data =-data;  
-    }  
-    
-    return data; 
-}   
+
+    if(*str == '-'){
+        str ++;
+    }
+    while(*str != '\0'){
+        if(*str < '0' || *str > '9'){
+            break;
+        }
+        data = data * 10 + (*str - '0');
+        str ++;
+    }
+    if(*ptr == '-'){
+        data =-data;
+    }
+
+    return data;
+}
 
 /*****************************************
 //名称: SysInt2Str
@@ -174,42 +177,42 @@ int SysStr2Int(char* str)
 ******************************************/
 char* SysInt2Str(int val, char* dst, int radix)
 {
-    char *_pdst = dst; 
-    char *_first = _pdst;     
-    char _cov;           
+    char *_pdst = dst;
+    char *_first = _pdst;
+    char _cov;
     unsigned int _rem;
-    
-    if (!val)//允许val等于0 
+
+    if (!val)//允许val等于0
     {
         *_pdst = '0';
         *++_pdst = '\0';
-        
+
         return dst;
-    }           
+    }
     if(val <0)
     {
         *_pdst++ = '-';
         val = -val;
     }
-    
+
     while(val > 0)
     {
         _rem = (unsigned int)(val % radix);
         val /= radix;//每次计算一位 ，从低到高
         if  (_rem > 9)//16进制
-            *_pdst++ = (char)(_rem - 10 + 'a'); 
+            *_pdst++ = (char)(_rem - 10 + 'a');
         else
-            *_pdst++ = (char)(_rem + '0');      
-    }      
+            *_pdst++ = (char)(_rem + '0');
+    }
     *_pdst-- = '\0';
     do{ //由于数据是地位到高位储存的，需要转换位置
         _cov = *_pdst;
         *_pdst = *_first;
         *_first = _cov;
         _pdst--;
-        _first++;        
-    }while(_first < _pdst); 
-    
+        _first++;
+    }while(_first < _pdst);
+
     return dst;
 }
 
@@ -223,27 +226,27 @@ char* SysInt2Str(int val, char* dst, int radix)
 char* SysCharDateAscend(char* c_date)
 {
     char *pr = c_date;
-    
+
     char c_year[5] = "";
     char c_month[3]= "";
     char c_day[3]  = "";
-    
+
     u16   year;
     u8    month;
     u8    day;
     u8    leap_year_day;
-    
+
     memcpy(c_year, &pr[0], 4);
     c_year[4] = '\0';
     memcpy(c_month, &pr[4], 2);
     c_month[2] = '\0';
     memcpy(c_day, &pr[6], 2);
     c_day[2] = '\0';
-    
+
     year    = atoi(c_year);
     month   = atoi(c_month);
     day     = atoi(c_day);
-    
+
     switch(month)
     {
         case 1:
@@ -274,7 +277,7 @@ char* SysCharDateAscend(char* c_date)
             }
         }
         break;
-        
+
         case 2:
         {
             //判断是否为闰年
@@ -298,7 +301,7 @@ char* SysCharDateAscend(char* c_date)
             }
         }
         break;
-        
+
         case 4:
         case 6:
         case 9:
@@ -317,7 +320,7 @@ char* SysCharDateAscend(char* c_date)
         }
         break;
     }
-    
+
     SysInt2Str(year, c_year, 10);
     SysInt2Str(month, c_month, 10);
     if(month < 10)  //如果是一位数
@@ -331,11 +334,11 @@ char* SysCharDateAscend(char* c_date)
         c_day[1] = c_day[0];
         c_day[0] = '0';
     }
-    
+
     memcpy(&pr[0], c_year, 4);
     memcpy(&pr[4], c_month, 2);
     memcpy(&pr[6], c_day, 2);
-    
+
     return c_date;
 }
 
@@ -354,7 +357,7 @@ u8 SysCharArrayCmp(const char *data1, const char *data2)
             return FALSE;
         }
     }
-    
+
     return TRUE;
 }
 
@@ -367,7 +370,7 @@ u8 SysCharArrayCmp(const char *data1, const char *data2)
 u8 SysU8ArrayCmp(u8 *data1, u8 *data2, u16 datal)
 {
     u16 i = 0;
-    
+
     for(; i < datal; i++)
     {
         if(data1[i] > data2[i]) //如果出现数组1大于数组2的情况
@@ -379,12 +382,12 @@ u8 SysU8ArrayCmp(u8 *data1, u8 *data2, u16 datal)
             return 2;
         }
     }
-    
+
     if(i == datal)  //如果都比较完毕，说明都相等
     {
         return 0;
     }
-    
+
     return 0;
 }
 
@@ -393,11 +396,11 @@ u8 SysU8ArrayCmp(u8 *data1, u8 *data2, u16 datal)
 //函数功能: 交换U16数据的高低字节的函数
 //输    入: u16 data——需要交换的数据
 //输    出: u16——返回交换后的值
-//备    注: 
+//备    注:
 //********************************************************
-u16 U16_Change_Order(u16 data)	
-{	
-	return ((data << 8) + (data >> 8));	
+u16 U16_Change_Order(u16 data)
+{
+	return ((data << 8) + (data >> 8));
 }
 
 //********************************************************
@@ -405,21 +408,24 @@ u16 U16_Change_Order(u16 data)
 //函数功能: 系统外设初始化函数
 //输    入: 无
 //输    出: 无
-//备    注: 
+//备    注:
 //********************************************************
 void SysPeripheralInit(void)
 {
 	USART_ITConfig(SERVER_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
 	USART_ITConfig(DEVICE_COMM_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
+	USART_ITConfig(DEBUG_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
+
     //设备端初始化
     Device_Initial();
-    
+
     //无线模块的初始化
     WireLess_Initial();
-    
+
     Ext_Flash_Detect();     //检测片外flash是否存在
-    
-	USART_ITConfig(DEBUG_USART, USART_IT_RXNE, ENABLE);	//使能USART接收中断
+
+    g_SendSensorDataTimeCnt = g_ms_Timing_Count;
+    g_ReSetWireLessModuleTimeCnt = g_ms_Timing_Count;
 }
 
 //********************************************************
@@ -427,27 +433,31 @@ void SysPeripheralInit(void)
 //函数功能: 系统所有的全局变量初始化
 //输    入: 无
 //输    出: 无
-//备    注: 
+//备    注:
 //********************************************************
 void SysGlobalVariableInit(void)
 {
     u8  i = 0;
     //读取片内Flash的数据
     Internal_Flash_ReadOut();
-    
+
     //与服务器端通信相关的变量
     s_ServerCommRx.Status = FALSE;
     s_ServerCommRx.Timeout_Count = 0;
     s_ServerCommRx.Index = 0;
     memset(s_ServerCommRx.Buffer, 0, sizeof(s_ServerCommRx.Buffer));
-    
+    s_ServerCommTx.Index = 0;
+    s_ServerCommTx.RepeatNum = 0;
+    s_ServerCommTx.WaitResponse = DONT_RESPONSE;
+    s_ServerCommTx.WaitResponseTimeout = 0;
+
     // 与服务器通信的数据包结构体
     s_ServerCommPackage.Head        = SERVER_COMM_PACKAGE_HEAD;
     s_ServerCommPackage.Identify    = SERVER_COMM_PACKAGE_IDENTIFY;
     s_ServerCommPackage.Length      = 0;
     s_ServerCommPackage.ADF.SN      = 1;    //序列号从1开始
     s_ServerCommPackage.ADF.CMD     = SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE;
-    
+
     //系统参数
     s_SystemPara.proc_type      = 0x10;
     s_SystemPara.manu_type      = 0x01;
@@ -460,7 +470,7 @@ void SysGlobalVariableInit(void)
     memset(s_SIMCardPara.CCID, 0, s_SIMCardPara.CCID_len);
     memset(s_SIMCardPara.IMEI, 0, s_SIMCardPara.IMEI_len);
     memset(s_SIMCardPara.IMSI, 0, s_SIMCardPara.IMSI_len);
-    
+
     i = 0;
     s_IPAddrPort.ip_port[i++] = '"';
     memcpy(&s_IPAddrPort.ip_port[i], WIRELESS_SERVER_IP, strlen(WIRELESS_SERVER_IP));
@@ -469,11 +479,11 @@ void SysGlobalVariableInit(void)
     s_IPAddrPort.ip_port[i++] = ',';
     memcpy(&s_IPAddrPort.ip_port[i], WIRELESS_SERVER_REMOTE_PORT, strlen(WIRELESS_SERVER_REMOTE_PORT));
     s_IPAddrPort.got_status   = FALSE;
-    
+
     // 设备端相关参数
     s_UploadInterval.time1      = SEND_SENSOR_DATA_TIME_INTERVAL;
     s_UploadInterval.heartbeat  = SEND_POLL_PACKAGE_TIME_INTERVAL;
-    
+
     memset(&s_SensorData, 0, sizeof(s_SensorData));
     memset(s_SensorData.device_sta, 0xFF, sizeof(s_SensorData.device_sta));
     s_SensorData.got_status     = FALSE;
@@ -491,7 +501,7 @@ void SysGlobalVariableInit(void)
     s_SensorData.ExtSensor.status= FALSE;
     s_DevicePower.vol[0]        = 0;
     s_DevicePower.vol[1]        = 0;
-    
+
     s_GPSInfo.got_status = FALSE;
     memset(&s_GPSInfo, 0, sizeof(s_GPSInfo));
 }
@@ -501,21 +511,41 @@ void SysGlobalVariableInit(void)
 //函数功能: 系统各种功能控制
 //输    入: 无
 //输    出: 无
-//备    注: 
+//备    注:
 //********************************************************
 void System_Function_Control(void)
 {
     if(g_SysInitStatusFlag == TRUE) //初始化完毕
     {
         //如果到发送心跳的时间了
-        if(abs(g_ms_Timing_Count - g_SysPollTimeCnt) >= (s_UploadInterval.heartbeat * 60 * 1000))
+        if(abs(g_ms_Timing_Count - g_SysPollTimeCnt) >= (s_UploadInterval.heartbeat * 60 * 1000))   //分钟要转换成ms
         {
             g_SysPollTimeCnt = g_ms_Timing_Count;
-            
+
             Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_HEARTBEAT);
         }
+        else if(g_ExtFlashHaveData == TRUE) //存储包待发送
+        {
+            if((s_ServerCommTx.WaitResponse == DONT_RESPONSE) || (s_ServerCommTx.WaitResponseTimeout >= SERVER_COMM_WAIT_RESPONSE_TIMEOUT))
+            {
+
+#if (SERVER_PRINTF_EN)
+                printf("g_DataPageNum=%d,还剩%d包\r\n", g_DataPageNum, (g_DataPageNum - SENSOR_DATA_MIN_PAGE_NUM));
+#endif
+
+                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_FLASH);
+                s_ServerCommTx.RepeatNum++;
+                if(s_ServerCommTx.RepeatNum >= SERVER_COMM_REPEAT_SEND_TIME)        //超过重发次数则不发了
+                {
+                    s_ServerCommTx.RepeatNum = 0;
+                    s_ServerCommTx.WaitResponse = 0;
+                    g_ExtFlashHaveData = FALSE;
+                }
+                s_ServerCommTx.WaitResponseTimeout = 0;
+            }
+        }
     }
-    else 
+    else
     {
         if(g_WireLessModuleInitFlag == TRUE)   //假如无线模块也初始化完成了
         {
@@ -523,18 +553,28 @@ void System_Function_Control(void)
             if(abs(g_ms_Timing_Count - g_SysPollTimeCnt) >= SERVER_COMM_HANDSHAKE_INTERVAL)
             {
                 g_SysPollTimeCnt = g_ms_Timing_Count;
-                
+
                 Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE);
             }
         }
         else
         {
-            //无线模块的初始化
-            WireLess_Initial();
+            //到重新配置无线模块的时间了
+            if(abs(g_ms_Timing_Count - g_ReSetWireLessModuleTimeCnt) >= RESET_WIRELESSMODULE_INTERVAL)
+            {
+                // 如果是插SIM卡了，并且不是在透传过程中
+                if((g_WireLessSIMCardInsertFlag == TRUE) && (g_DebugInterfaceTransmitFlag == FALSE))   //Debug透传模式下即使网络连接异常也不重新配置
+                {
+                    //无线模块的初始化
+                    WireLess_Initial();
+                }
+                g_ReSetWireLessModuleTimeCnt = g_ms_Timing_Count;
+            }
         }
     }
+
     //如果到发送传感器数据的时间了
-    if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))//30
+    if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))//秒要转成ms
     {
         //只有等获得了设备端的传感器数据才上报
         if(s_SensorData.got_status == TRUE)
@@ -547,11 +587,11 @@ void System_Function_Control(void)
             g_SendSensorDataTimeCnt = g_ms_Timing_Count - (s_UploadInterval.heartbeat * 60 * 1000);
         }
     }
-    
+
     // 如果不是在透传过程中
     if(g_DebugInterfaceTransmitFlag == FALSE)
     {
-        if(g_DeviceInitFlag == TRUE)
+        if(g_DeviceInitFlag == TRUE)    //设备初始化完成
         {
             // 到读取设备端传感器数据的时候了
             if(abs(g_ms_Timing_Count - g_GetDeviceSensorDataTimeCnt) >= DEVICE_COMM_GET_SENSOR_DATA_INTERVAL)
@@ -561,13 +601,14 @@ void System_Function_Control(void)
                 Device_Printf_Ctr(DEVICE_CTR_SENSOR_PRINTF_CMD);
             }
         }
-        else
+        else if(abs(g_ms_Timing_Count - g_ReSetDeviceTimeCnt) >= RESET_DEVICE_INTERVAL)
         {
             //设备端初始化
             Device_Initial();
+            g_ReSetDeviceTimeCnt = g_ms_Timing_Count;
         }
     }
-    
+
     // RTC秒计时
     if((u16)(s_Timing_Count / 1000))
     {

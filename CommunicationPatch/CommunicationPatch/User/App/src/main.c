@@ -2,7 +2,7 @@
 /*******************************************************************************
 //Copyright(C)2018 , 蛙鸣公司
 // All rights reserved.
-// Version: v1.0 
+// Version: v1.0
 // Device : STM32F103C8T6
 // Built  : IAR For ARM v7.70(Language: C)
 // Date   : 2018-10-27
@@ -41,17 +41,17 @@
 //函数功能: 系统主函数
 //输    入: 无
 //输    出: 无
-//备    注: 
+//备    注:
 ********************************************************/
 int main(void)
 {
     MCU_Init();                     //单片机各接口初始化
-    
+
     SysGlobalVariableInit();        //系统所有的全局变量初始化
-    
+
     SysPeripheralInit();            //系统所有外设初始化
-  
-    while(1)       
+
+    while(1)
     {
         Server_Comm_Rec_Monitor();      //与服务器的通信监测
 
@@ -74,8 +74,8 @@ int main(void)
 
 
 
-        
-    
+
+
 
 
 
@@ -86,7 +86,7 @@ int main(void)
 //函数功能: 函数参数检查失败处理函数
 //输    入: * file，uint8_t，指向源文件名；
 //输    出: * line，uint32_t，assert_param错误的源文件行号；
-//备    注: 
+//备    注:
 //********************************************************
 #ifdef USE_FULL_ASSERT
 void assert_failed(uint8_t* file, uint32_t line)

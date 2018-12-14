@@ -2,7 +2,7 @@
 /*******************************************************************************
 //WireLessModule.h
 //配置无线模块的驱动头文件
-备注: 
+备注:
 *******************************************************************************/
 
 #ifndef	WIRELESSMODULE_H
@@ -45,9 +45,9 @@
 //服务器类型
 #define WIRELESS_SOCKET_TYPE        "TCP"   //有TCP、UDP、TCP-Listener等
 //服务器IP地址
-#define WIRELESS_SERVER_IP          "58.83.189.147"  
+#define WIRELESS_SERVER_IP          "58.83.189.147"
 //服务器外网端口号
-#define WIRELESS_SERVER_REMOTE_PORT "21009" 
+#define WIRELESS_SERVER_REMOTE_PORT "21009"
 //数据通道模式
 #define WIRELESS_SERVER_ACCESS_MODE 2       //有0-Buffer模式、1-Direct模式 和 2-透传模式
 
@@ -71,21 +71,21 @@
 // 等待激活PDP上下文的最大等待时间
 #define WIRELESS_WAIT_QIACT_EN_TIMEOUT  (1000 * 150)    //10s
 // 等待检测PDP上下文的最大等待时间
-#define WIRELESS_WAIT_QIACT_DE_TIMEOUT  (1000 * 5)    //10s 
+#define WIRELESS_WAIT_QIACT_DE_TIMEOUT  (1000 * 5)    //10s
 // 等待检测可接受的最小服务质量的最大等待时间
-#define WIRELESS_WAIT_CGQMIN_DE_TIMEOUT (1000 * 5)    //10s 
+#define WIRELESS_WAIT_CGQMIN_DE_TIMEOUT (1000 * 5)    //10s
 // 等待配置服务器IP地址和端口号、建立连接的最大等待时间
-#define WIRELESS_WAIT_QIOPEN_TIMEOUT    (1000 * 150)    //10s 
+#define WIRELESS_WAIT_QIOPEN_TIMEOUT    (1000 * 150)    //10s
 // 等待关闭TCP连接的最大等待时间
-#define WIRELESS_WAIT_QICLOSE_TIMEOUT   (1000 * 5)    //10s 
+#define WIRELESS_WAIT_QICLOSE_TIMEOUT   (1000 * 5)    //10s
 // 等待切换到命令模式的最大等待时间
-#define WIRELESS_WAIT_SWITCH_CMD_TIMEOUT (1000 * 10)    //10s 
+#define WIRELESS_WAIT_SWITCH_CMD_TIMEOUT (1000 * 10)    //10s
 // 等待切换回透传模式的最大等待时间
-#define WIRELESS_WAIT_ATO_TIMEOUT       (1000 * 5)    //10s 
+#define WIRELESS_WAIT_ATO_TIMEOUT       (1000 * 5)    //10s
 // 等待获取SIM卡的CCID号的最大等待时间
-#define WIRELESS_WAIT_QCCID_TIMEOUT     (1000 * 5)    //10s 
+#define WIRELESS_WAIT_QCCID_TIMEOUT     (1000 * 5)    //10s
 // 等待获取SIM卡的ISMI号的最大等待时间
-#define WIRELESS_WAIT_CIMI_TIMEOUT      (1000 * 5)    //10s 
+#define WIRELESS_WAIT_CIMI_TIMEOUT      (1000 * 5)    //10s
 // 等待获取SIM卡的IMEI号的最大等待时间
 #define WIRELESS_WAIT_CGSN_TIMEOUT      (1000 * 5)    //10s
 // 等待进入命令模式的最大等待时间
@@ -135,6 +135,9 @@
 *******************************************************************************/
 // 无线模块初始化完成标志
 extern u8  g_WireLessModuleInitFlag;
+
+// 无线模块插卡状态
+extern u8  g_WireLessSIMCardInsertFlag;
 
 
 

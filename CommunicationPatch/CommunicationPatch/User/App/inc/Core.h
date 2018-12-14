@@ -14,7 +14,7 @@ core.h	核心算法函数头文件
 
 //求整形的高低字节
 #define LSB(a)                              ((a).cV[0])
-#define MSB(a)   	                        ((a).cV[1])  
+#define MSB(a)   	                        ((a).cV[1])
 
 //求字节型的高低4位
 #define HALF_LSB(a)	                        ((a).HalfByte.Lsb)
@@ -33,13 +33,13 @@ core.h	核心算法函数头文件
 #define DEVICE_MACHINE_TYPE_ID              1
 
 //本机设备号
-#define LOCAL_DEVICE_ID                     1      
+#define LOCAL_DEVICE_ID                     1
 
 //判断货道是否正常
 #define JUDGE_TUNNEL_RUNNING_STATUS         0x40        //
 
 //判断货道内商品剩余数
-#define JUDGE_TUNNEL_RESIDUE_NUMBER         0x3F   
+#define JUDGE_TUNNEL_RESIDUE_NUMBER         0x3F
 
 //发送POLL指令给服务器的时间间隔
 #define SEND_POLL_PACKAGE_TIME_INTERVAL     (60) //默认是1h，单位是分钟
@@ -134,18 +134,18 @@ typedef enum
 }CommResponseFlagEnum;
 
 // vmc_st即售货机状态的枚举
-typedef enum 
+typedef enum
 {
     DEVICE_WORK_NORMAL = 0,     //工作正常
-    DEVICE_ERROR,               //故障 
-    DEVICE_BUSY,                //忙碌中 
-//    DEVICE_MAINTAIN             //设备维护     
+    DEVICE_ERROR,               //故障
+    DEVICE_BUSY,                //忙碌中
+//    DEVICE_MAINTAIN             //设备维护
 }VMCStatusEnum;
 
 // 维护模式状态的枚举
-typedef enum 
+typedef enum
 {
-    EXIT_MAINTAIN = 0,              //退出维护模式   
+    EXIT_MAINTAIN = 0,              //退出维护模式
     ACCESS_MAINTAIN                 //进入维护模式
 }MaintainModeEnum;
 
@@ -283,7 +283,7 @@ typedef enum
     LOCATE_DOOR,            //定位取物门中
     WAIT_TAKE_GOODS,        //等待取走货物
     BACK_TO_ORIGIN,         //回原点中
-    
+
     GET_GOODS_OVER,         //出货结束
     GET_GOODS_ERROR = 0xFF  //出货错误
 }GetGoodsProcessEnum;
@@ -364,13 +364,13 @@ typedef enum
 //变量定义/声明
 *******************************************************************************/
 // 公用数据缓冲区，用于数据解析、数据发送、数据存储等
-extern u8 g_PublicDataBuffer[];   
+extern u8 g_PublicDataBuffer[];
 
 // 系统出货使能标志
 extern u8 g_SysPulloutEnableFlag;
 
 //系统发送POLL数据包给服务器的计时
-extern u32 g_SysPollTimeCnt;   
+extern u32 g_SysPollTimeCnt;
 
 //系统查询设备端状态的计时
 extern u32 g_GetPulloutStatusTimeCnt;
@@ -385,7 +385,7 @@ extern u16 g_SysWorkTimeJudgeCnt;
 extern u8 g_SysEnergySaveTimeFlag;
 
 //系统售卖时间段标志
-extern u8 g_SysSaleTimeFlag;  
+extern u8 g_SysSaleTimeFlag;
 
 // 系统节能时间段设置标志
 extern u8 g_SysEnergySaveTimeSetFlag;
@@ -400,7 +400,7 @@ extern u8 g_SysRunStatusChangeFlag;
 extern u8 g_PulloutBoardReseted;
 
 // 系统校时标志
-extern u8 g_SysCorrectDateTimeFlag; 
+extern u8 g_SysCorrectDateTimeFlag;
 
 // 系统初始化状态标志
 extern u8 g_SysInitStatusFlag;
@@ -416,6 +416,9 @@ extern u8 g_SystemDeviceErrorFlag;
 
 // 发送传感器数据的计时
 extern u32 g_SendSensorDataTimeCnt;
+
+// 重新配置无线模块的间隔计时
+extern u32 g_ReSetWireLessModuleTimeCnt;
 
 
 

@@ -14,7 +14,7 @@
           
           
           
-        <Column0>247</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+        <Column0>217</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
       </Workspace>
       <Debug-Log>
         
@@ -43,7 +43,7 @@
             <Factory>Workspace</Factory>
             <Session>
               
-            <NodeDict><ExpandedNode>&lt;ws&gt;</ExpandedNode><ExpandedNode>CommunicationPatch</ExpandedNode><ExpandedNode>CommunicationPatch/FWLib</ExpandedNode><ExpandedNode>CommunicationPatch/User</ExpandedNode><ExpandedNode>CommunicationPatch/User/App</ExpandedNode><ExpandedNode>CommunicationPatch/User/Driver</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/FWLib</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/FWLib/CMSIS</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User/App</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User/Driver</ExpandedNode></NodeDict></Session>
+            <NodeDict><ExpandedNode>&lt;ws&gt;</ExpandedNode><ExpandedNode>CommunicationPatch</ExpandedNode><ExpandedNode>CommunicationPatch/Doc</ExpandedNode><ExpandedNode>CommunicationPatch/FWLib</ExpandedNode><ExpandedNode>CommunicationPatch/User</ExpandedNode><ExpandedNode>CommunicationPatch/User/App</ExpandedNode><ExpandedNode>CommunicationPatch/User/Driver</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/FWLib</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/FWLib/CMSIS</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User/App</ExpandedNode><ExpandedNode>CommunicationPatch_BootLoader/User/Driver</ExpandedNode></NodeDict></Session>
           </Tab>
         </Tabs>
         
@@ -75,14 +75,14 @@
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\App\src\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>44</YPos2><SelStart2>1428</SelStart2><SelEnd2>1428</SelEnd2></Tab><ActiveTab>0</ActiveTab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\App\src\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>37</YPos2><SelStart2>1504</SelStart2><SelEnd2>1504</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\Doc\Readme.txt</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>410</SelStart2><SelEnd2>482</SelEnd2></Tab><ActiveTab>1</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\ExtFlash\ExtFlash.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>786</YPos2><SelStart2>24559</SelStart2><SelEnd2>24559</SelEnd2></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-05B7A4E8><key>iaridepm.enu1</key></Toolbar-05B7A4E8></Sizes></Row0></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>579</Bottom><Right>321</Right><x>-2</x><y>-2</y><xscreen>1062</xscreen><yscreen>12</yscreen><sizeHorzCX>777452</sizeHorzCX><sizeHorzCY>17518</sizeHorzCY><sizeVertCX>236457</sizeVertCX><sizeVertCY>848175</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>61</Bottom><Right>1368</Right><x>-2</x><y>-2</y><xscreen>1370</xscreen><yscreen>63</yscreen><sizeHorzCX>1002928</sizeHorzCX><sizeHorzCY>91971</sizeHorzCY><sizeVertCX>777452</sizeVertCX><sizeVertCY>17518</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-00A6EA48><key>iaridepm.enu1</key></Toolbar-00A6EA48></Sizes></Row0></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>495</Bottom><Right>308</Right><x>-2</x><y>-2</y><xscreen>1062</xscreen><yscreen>12</yscreen><sizeHorzCX>777452</sizeHorzCX><sizeHorzCY>17518</sizeHorzCY><sizeVertCX>226940</sizeVertCX><sizeVertCY>725547</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>145</Bottom><Right>1368</Right><x>-2</x><y>-2</y><xscreen>1370</xscreen><yscreen>147</yscreen><sizeHorzCX>1002928</sizeHorzCX><sizeHorzCY>214599</sizeHorzCY><sizeVertCX>777452</sizeVertCX><sizeVertCY>17518</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 
