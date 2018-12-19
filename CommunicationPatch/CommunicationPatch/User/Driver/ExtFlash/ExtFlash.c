@@ -776,11 +776,9 @@ u8  Ext_Flash_Detect(void)
 //********************************************************
 void Data_Storge_Process(u8* data, u16 len)
 {
-//    u8  temp_index;
-//    for(temp_index = 0; temp_index < 50; temp_index++)  //测试用！加快50倍测试写入
+//    for(u8 temp_index = 0; temp_index < 50; temp_index++)  //测试用！加快50倍测试写入
     {
         u8  page_num[2];
-        //    u8  temp_array[SPI_FLASH_PageSize * SPI_FLASH_PerSectorPage] = {0}; //开辟一个扇区的存储空间
 
         SPI_FLASH_BufferRead(page_num, FLASH_PACKAGE_NUM_ADDRESS, sizeof(page_num));
         g_DataPageNum = page_num[0] * 256 + page_num[1];

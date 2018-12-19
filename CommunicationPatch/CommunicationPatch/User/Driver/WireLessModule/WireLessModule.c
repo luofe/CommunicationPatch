@@ -921,7 +921,7 @@ u8 WireLess_AT_Command_Ctr(u8 cmd)
 ******************************************/
 u8 WireLess_Initial(void)
 {
-    u8  index = 0;
+    u8  index1, index2;
 //    u8  temp_sta = FALSE;
 
 #if (SERVER_AT_PRINTF_EN)
@@ -1024,7 +1024,9 @@ u8 WireLess_Initial(void)
         return FAILURE;
     }
 
-    ForceReconnect:
+    index1 = 0;
+    index2 = 0;
+ForceReconnect:
 //    if(temp_sta == TRUE)
     {
 
@@ -1044,11 +1046,10 @@ u8 WireLess_Initial(void)
 #endif
 
     //激活PDP上下文
-    index = 0;
     if(WireLess_AT_Command_Ctr(AT_COMMAND_QIACT_EN) == FAILURE)
     {
-        index++;
-        if(index >= 2)
+        index1++;
+        if(index1 >= 2)
         {
             return FAILURE;
         }
@@ -1058,7 +1059,6 @@ u8 WireLess_Initial(void)
             goto ForceReconnect;
         }
     }
-    index = 0;
 //    temp_sta = FALSE;
 
 #if (SERVER_AT_PRINTF_EN)
@@ -1086,11 +1086,10 @@ u8 WireLess_Initial(void)
 #endif
 
     //配置服务器IP地址和端口号，建立连接
-    index = 0;
     if(WireLess_AT_Command_Ctr(AT_COMMAND_QIOPEN) == FAILURE)
     {
-        index++;
-        if(index >= 2)
+        index2++;
+        if(index2 >= 2)
         {
             return FAILURE;
         }

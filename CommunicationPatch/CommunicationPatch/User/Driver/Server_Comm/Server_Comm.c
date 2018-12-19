@@ -644,13 +644,15 @@ void Server_Comm_Package_Bale(u16 cmd)
             //最后放入传感器个数
             s_ServerCommPackage.ADF.Data[sen_num_index] = s_SensorData.sensor_num;
 
-            if((g_SysInitStatusFlag == TRUE) && (g_WireLessModuleInitFlag == TRUE))   //初始化完毕,无线模块也初始化完成了
+            if((g_SysInitStatusFlag == TRUE) && (g_WireLessModuleInitFlag == TRUE) && (s_ServerCommTx.WaitResponse == DONT_RESPONSE))   //初始化完毕,无线模块也初始化完成了
             {
                 if(g_ExtFlashHaveData == FALSE) //如果不是正在发送存储包就可以发送
                 {
                     //数据长度
                     s_ServerCommPackage.Length = i + 6;
                     Server_Comm_Package_Send();
+                    s_ServerCommTx.WaitResponse = NEED_RESPONSE;    //需要等待应答
+                    s_ServerCommTx.WaitResponseTimeout = 0;
                 }
             }
             else
@@ -922,6 +924,12 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
             else
             {
                 //判断是否要重发
+            }
+            //假如是发送传感器数据在等待应答
+            if(s_ServerCommPackage.ADF.CMD == SERVER_COMM_PACKAGE_CMD_REPORT_DATA)
+            {
+                 s_ServerCommTx.WaitResponse = DONT_RESPONSE;
+                 s_ServerCommTx.WaitResponseTimeout = 0;
             }
         }
         break;

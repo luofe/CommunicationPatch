@@ -588,6 +588,18 @@ void System_Function_Control(void)
         }
     }
 
+    // 如果超时没有应答
+    if((s_ServerCommPackage.ADF.CMD == SERVER_COMM_PACKAGE_CMD_REPORT_DATA) && (s_ServerCommTx.WaitResponse == NEED_RESPONSE))
+    {
+        if(s_ServerCommTx.WaitResponseTimeout >= (1000 * 10))
+        {
+            Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);  //此时会存储到flash中
+
+            s_ServerCommTx.WaitResponseTimeout = 0;
+            s_ServerCommTx.WaitResponse = DONT_RESPONSE;
+        }
+    }
+
     // 如果不是在透传过程中
     if(g_DebugInterfaceTransmitFlag == FALSE)
     {

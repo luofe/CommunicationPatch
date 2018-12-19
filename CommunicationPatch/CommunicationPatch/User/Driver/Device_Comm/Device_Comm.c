@@ -2250,6 +2250,10 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
                 }
             }
 
+#if (DEVICE_PRINTF_EN)
+            printf("\r\n经度: %d，纬度: %d，高度: %d\r\n", s_GPSInfo.longitude, s_GPSInfo.latitude, s_GPSInfo.high);
+#endif
+
             s_GPSInfo.got_status = TRUE;    //获取成功
 
             // 控制隐藏GPS数据的打印
