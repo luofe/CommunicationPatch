@@ -871,6 +871,11 @@ u8 WireLess_Rec_AT_Command_Monitor(u8 cmd)
                 return FAILURE;
             }
         }
+        //如果到了要发送传感器数据的时间了
+        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))
+        {
+            return FAILURE;
+        }
     }
 }
 
@@ -907,6 +912,11 @@ u8 WireLess_AT_Command_Ctr(u8 cmd)
         else    //如果成功了，则退出
         {
             break;
+        }
+        //如果到了要发送传感器数据的时间了
+        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))
+        {
+            return FAILURE;
         }
     }
 

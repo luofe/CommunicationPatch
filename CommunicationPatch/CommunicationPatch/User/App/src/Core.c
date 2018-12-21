@@ -34,41 +34,8 @@ u32 g_SysPollTimeCnt = 0;     //默认启动后发送一次POLL包
 //系统查询设备端状态的计时
 u32 g_GetPulloutStatusTimeCnt = 0;
 
-//系统温度控制的计时
-u16 g_SysTempCtrTimeCnt = 0;
-
-//系统工作时间判断的计时
-u16 g_SysWorkTimeJudgeCnt = 0;
-
-//系统节能时间段标志
-u8 g_SysEnergySaveTimeFlag = OTHER_WORK_TIME;  //默认是非节能时间段
-
-//系统售卖时间段标志
-u8 g_SysSaleTimeFlag = SALE_WORK_TIME;  //默认是售卖时间段
-
-// 系统节能时间段设置标志
-u8 g_SysEnergySaveTimeSetFlag = ACCORD_TO_NO_TEMP;    //默认是没有下发温度，不控制压缩机加热器，只开风扇
-
-// 系统售卖时间段设置标志
-u8 g_SysSaleTimeSetFlag = FALSE;      //默认是没有设置
-
-// 系统运行状态变化标志
-u8 g_SysRunStatusChangeFlag = SYSTEM_RUN_STATUS_STAY;    //默认没有变化
-
-// 设备端复位标志
-u8 g_PulloutBoardReseted = FALSE;    //默认设备端未复位完毕
-
-// 系统校时标志
-u8 g_SysCorrectDateTimeFlag = FALSE;    //默认没有校时
-
 // 系统初始化状态标志
 u8 g_SysInitStatusFlag = FALSE;         //默认未完成
-
-// 系统进入/退出故障状态时保存整机状态值的变量
-u8 g_SysAccessExitErrorVMCStatus;
-
-//// 电磁锁打开后关闭的计时
-//u16 g_SysEMLockOpenCnt = 0;
 
 // 设备故障标志
 u8 g_SystemDeviceErrorFlag = FALSE;
@@ -574,6 +541,15 @@ void System_Function_Control(void)
     }
 
     //如果到发送传感器数据的时间了
+//    u32 temp_time_cnt;
+//    if((g_SysInitStatusFlag == TRUE) && (g_WireLessModuleInitFlag == TRUE) && (s_ServerCommTx.WaitResponse == DONT_RESPONSE))
+//    {
+//        temp_time_cnt = s_UploadInterval.time1 * 1000;
+//    }
+//    else
+//    {
+//        temp_time_cnt = (u32)((float)s_UploadInterval.time1 * 1000 * 0.8);
+//    }
     if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))//秒要转成ms
     {
         //只有等获得了设备端的传感器数据才上报

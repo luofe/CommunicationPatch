@@ -375,41 +375,8 @@ extern u32 g_SysPollTimeCnt;
 //系统查询设备端状态的计时
 extern u32 g_GetPulloutStatusTimeCnt;
 
-//系统温度控制的计时
-extern u16 g_SysTempCtrTimeCnt;
-
-//系统工作时间判断的计时
-extern u16 g_SysWorkTimeJudgeCnt;
-
-//系统节能时间段标志
-extern u8 g_SysEnergySaveTimeFlag;
-
-//系统售卖时间段标志
-extern u8 g_SysSaleTimeFlag;
-
-// 系统节能时间段设置标志
-extern u8 g_SysEnergySaveTimeSetFlag;
-
-// 系统售卖时间设置标志
-extern u8 g_SysSaleTimeSetFlag;
-
-// 系统运行状态变化标志
-extern u8 g_SysRunStatusChangeFlag;
-
-// 设备端复位标志
-extern u8 g_PulloutBoardReseted;
-
-// 系统校时标志
-extern u8 g_SysCorrectDateTimeFlag;
-
 // 系统初始化状态标志
 extern u8 g_SysInitStatusFlag;
-
-// 系统进入/退出故障状态时保存整机状态值的变量
-extern u8 g_SysAccessExitErrorVMCStatus;
-
-//// 电磁锁打开后关闭的计时
-//extern u16 g_SysEMLockOpenCnt;
 
 // 设备故障标志
 extern u8 g_SystemDeviceErrorFlag;
