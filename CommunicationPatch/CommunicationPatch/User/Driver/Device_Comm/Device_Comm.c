@@ -355,18 +355,18 @@ void Device_Comm_Package_Bale(u8 cmd)
         }
         break;
 
-        case DEVICE_READ_SENSOR_ADJUST_CMD:   //如果是读取传感器校准数据
-        {
-            index = 1;
-            strcat(data_str, "Q_SSL:");
-            index += strlen("Q_SSL:");
-            //放入type
-            memset(temp_str, 0, sizeof(temp_str));  //先清空
-            SysInt2Str(s_SensorAdj.type, temp_str, 10);
-            strcat(data_str, temp_str);
-            index += strlen(temp_str);
-        }
-        break;
+//        case DEVICE_READ_SENSOR_ADJUST_CMD:   //如果是读取传感器校准数据
+//        {
+//            index = 1;
+//            strcat(data_str, "Q_SSL:");
+//            index += strlen("Q_SSL:");
+//            //放入type
+//            memset(temp_str, 0, sizeof(temp_str));  //先清空
+//            SysInt2Str(s_SensorAdj.type, temp_str, 10);
+//            strcat(data_str, temp_str);
+//            index += strlen(temp_str);
+//        }
+//        break;
 
         case DEVICE_READ_DEVICE_ID:   //如果是读取设备ID
         {

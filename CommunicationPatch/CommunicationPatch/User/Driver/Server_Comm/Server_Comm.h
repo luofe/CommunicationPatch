@@ -128,7 +128,7 @@
 
 
 //与服务器通信的数据最大长度
-#define PC_COM_MAX_DATA_LENGTH                  (1024)     //是对设备端进行升级时的数据包大小
+#define PC_COM_MAX_DATA_LENGTH                  (512)     //是对设备端进行升级时的数据包大小
 
 //USART接收超时
 #define SERVER_COMM_RX_DATA_TIMEOUT             5	    //没有接收超时5ms就是接收完毕
@@ -284,6 +284,9 @@ extern SystemParaStruct s_SystemPara;
 
 // SIM卡参数结构体声明
 extern SIMCardParaStruct s_SIMCardPara;
+
+// 最新一次发送的命令码
+extern u16 g_LastSendServerCmd;
 
 
 

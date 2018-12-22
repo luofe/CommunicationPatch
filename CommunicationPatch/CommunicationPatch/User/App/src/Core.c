@@ -106,35 +106,35 @@ void System_Status_Collection(void);
 /******************************************************************************
 //函数定义
 *******************************************************************************/
-/*****************************************
-//名称: SysStr2Int
-//功能: 字符串转整形数的函数
-//入口: char* dst——字符串
-//出口: int——转换后的整形数
-//备注: 即atoi()函数的原型
-******************************************/
-int SysStr2Int(char* str)
-{
-    int data = 0;
-    const char *ptr = str;
-
-    if(*str == '-'){
-        str ++;
-    }
-    while(*str != '\0'){
-        if(*str < '0' || *str > '9'){
-            break;
-        }
-        data = data * 10 + (*str - '0');
-        str ++;
-    }
-    if(*ptr == '-'){
-        data =-data;
-    }
-
-    return data;
-}
-
+///*****************************************
+////名称: SysStr2Int
+////功能: 字符串转整形数的函数
+////入口: char* dst——字符串
+////出口: int——转换后的整形数
+////备注: 即atoi()函数的原型
+//******************************************/
+//int SysStr2Int(char* str)
+//{
+//    int data = 0;
+//    const char *ptr = str;
+//
+//    if(*str == '-'){
+//        str ++;
+//    }
+//    while(*str != '\0'){
+//        if(*str < '0' || *str > '9'){
+//            break;
+//        }
+//        data = data * 10 + (*str - '0');
+//        str ++;
+//    }
+//    if(*ptr == '-'){
+//        data =-data;
+//    }
+//
+//    return data;
+//}
+//
 /*****************************************
 //名称: SysInt2Str
 //功能: 整形数转字符串的函数
@@ -183,192 +183,192 @@ char* SysInt2Str(int val, char* dst, int radix)
     return dst;
 }
 
-/*****************************************
-//名称: SysCharDateAscend
-//功能: 字符串型的日期递增函数
-//入口: const TCHAR* c_date——字符串型的日期
-//出口: char*——返回递增后的字符串
-//备注: 必须是以“年月日”的格式的字符串
-******************************************/
-char* SysCharDateAscend(char* c_date)
-{
-    char *pr = c_date;
-
-    char c_year[5] = "";
-    char c_month[3]= "";
-    char c_day[3]  = "";
-
-    u16   year;
-    u8    month;
-    u8    day;
-    u8    leap_year_day;
-
-    memcpy(c_year, &pr[0], 4);
-    c_year[4] = '\0';
-    memcpy(c_month, &pr[4], 2);
-    c_month[2] = '\0';
-    memcpy(c_day, &pr[6], 2);
-    c_day[2] = '\0';
-
-    year    = atoi(c_year);
-    month   = atoi(c_month);
-    day     = atoi(c_day);
-
-    switch(month)
-    {
-        case 1:
-        case 3:
-        case 5:
-        case 7:
-        case 8:
-        case 10:
-        case 12:
-        {
-            //如果到了31号
-            if(day == 31)
-            {
-                day = 1;
-                if(month == 12)
-                {
-                    month = 1;
-                    year++;
-                }
-                else
-                {
-                    month++;
-                }
-            }
-            else
-            {
-                day++;
-            }
-        }
-        break;
-
-        case 2:
-        {
-            //判断是否为闰年
-            if((year%4 == 0) && (year%100 != 0) || (year%400 == 0))
-            {
-                leap_year_day = 29;
-            }
-            else
-            {
-                leap_year_day = 28;
-            }
-            //如果到了29号
-            if(day == leap_year_day)
-            {
-                day = 1;
-                month++;
-            }
-            else
-            {
-                day++;
-            }
-        }
-        break;
-
-        case 4:
-        case 6:
-        case 9:
-        case 11:
-        {
-            //如果到了30号
-            if(day == 30)
-            {
-                day = 1;
-                month++;
-            }
-            else
-            {
-                day++;
-            }
-        }
-        break;
-    }
-
-    SysInt2Str(year, c_year, 10);
-    SysInt2Str(month, c_month, 10);
-    if(month < 10)  //如果是一位数
-    {
-        c_month[1] = c_month[0];
-        c_month[0] = '0';
-    }
-    SysInt2Str(day, c_day, 10);
-    if(day < 10)  //如果是一位数
-    {
-        c_day[1] = c_day[0];
-        c_day[0] = '0';
-    }
-
-    memcpy(&pr[0], c_year, 4);
-    memcpy(&pr[4], c_month, 2);
-    memcpy(&pr[6], c_day, 2);
-
-    return c_date;
-}
-
-/*****************************************
-//名称: SysCharArrayCmp
-//功能: 系统字符串比较函数
-//入口: const char *data1——字符串1, const char *data2——字符串2
-//出口: u8——返回的比较状态，1—相等，0—不相等
-******************************************/
-u8 SysCharArrayCmp(const char *data1, const char *data2)
-{
-    while((*data1 != '\0') && (*data2 != '\0'))
-    {
-        if(*data1++ != *data2++)
-        {
-            return FALSE;
-        }
-    }
-
-    return TRUE;
-}
-
-/*****************************************
-//名称: SysU8ArrayCmp
-//功能: 系统u8型数组比较函数
-//入口: u8 *data1——数组1, u8 *data2——数组2, u16 datal——比较的长度
-//出口: u8——返回的比较状态，0—相等，1—数组1比数组2大，2—数组1比数组2小
-******************************************/
-u8 SysU8ArrayCmp(u8 *data1, u8 *data2, u16 datal)
-{
-    u16 i = 0;
-
-    for(; i < datal; i++)
-    {
-        if(data1[i] > data2[i]) //如果出现数组1大于数组2的情况
-        {
-            return 1;
-        }
-        else if(data1[i] < data2[i])//如果出现数组1小于数组2的情况
-        {
-            return 2;
-        }
-    }
-
-    if(i == datal)  //如果都比较完毕，说明都相等
-    {
-        return 0;
-    }
-
-    return 0;
-}
-
-//********************************************************
-//函数名称: U16_Change_Order
-//函数功能: 交换U16数据的高低字节的函数
-//输    入: u16 data——需要交换的数据
-//输    出: u16——返回交换后的值
-//备    注:
-//********************************************************
-u16 U16_Change_Order(u16 data)
-{
-	return ((data << 8) + (data >> 8));
-}
+///*****************************************
+////名称: SysCharDateAscend
+////功能: 字符串型的日期递增函数
+////入口: const TCHAR* c_date——字符串型的日期
+////出口: char*——返回递增后的字符串
+////备注: 必须是以“年月日”的格式的字符串
+//******************************************/
+//char* SysCharDateAscend(char* c_date)
+//{
+//    char *pr = c_date;
+//
+//    char c_year[5] = "";
+//    char c_month[3]= "";
+//    char c_day[3]  = "";
+//
+//    u16   year;
+//    u8    month;
+//    u8    day;
+//    u8    leap_year_day;
+//
+//    memcpy(c_year, &pr[0], 4);
+//    c_year[4] = '\0';
+//    memcpy(c_month, &pr[4], 2);
+//    c_month[2] = '\0';
+//    memcpy(c_day, &pr[6], 2);
+//    c_day[2] = '\0';
+//
+//    year    = atoi(c_year);
+//    month   = atoi(c_month);
+//    day     = atoi(c_day);
+//
+//    switch(month)
+//    {
+//        case 1:
+//        case 3:
+//        case 5:
+//        case 7:
+//        case 8:
+//        case 10:
+//        case 12:
+//        {
+//            //如果到了31号
+//            if(day == 31)
+//            {
+//                day = 1;
+//                if(month == 12)
+//                {
+//                    month = 1;
+//                    year++;
+//                }
+//                else
+//                {
+//                    month++;
+//                }
+//            }
+//            else
+//            {
+//                day++;
+//            }
+//        }
+//        break;
+//
+//        case 2:
+//        {
+//            //判断是否为闰年
+//            if((year%4 == 0) && (year%100 != 0) || (year%400 == 0))
+//            {
+//                leap_year_day = 29;
+//            }
+//            else
+//            {
+//                leap_year_day = 28;
+//            }
+//            //如果到了29号
+//            if(day == leap_year_day)
+//            {
+//                day = 1;
+//                month++;
+//            }
+//            else
+//            {
+//                day++;
+//            }
+//        }
+//        break;
+//
+//        case 4:
+//        case 6:
+//        case 9:
+//        case 11:
+//        {
+//            //如果到了30号
+//            if(day == 30)
+//            {
+//                day = 1;
+//                month++;
+//            }
+//            else
+//            {
+//                day++;
+//            }
+//        }
+//        break;
+//    }
+//
+//    SysInt2Str(year, c_year, 10);
+//    SysInt2Str(month, c_month, 10);
+//    if(month < 10)  //如果是一位数
+//    {
+//        c_month[1] = c_month[0];
+//        c_month[0] = '0';
+//    }
+//    SysInt2Str(day, c_day, 10);
+//    if(day < 10)  //如果是一位数
+//    {
+//        c_day[1] = c_day[0];
+//        c_day[0] = '0';
+//    }
+//
+//    memcpy(&pr[0], c_year, 4);
+//    memcpy(&pr[4], c_month, 2);
+//    memcpy(&pr[6], c_day, 2);
+//
+//    return c_date;
+//}
+//
+///*****************************************
+////名称: SysCharArrayCmp
+////功能: 系统字符串比较函数
+////入口: const char *data1——字符串1, const char *data2——字符串2
+////出口: u8——返回的比较状态，1—相等，0—不相等
+//******************************************/
+//u8 SysCharArrayCmp(const char *data1, const char *data2)
+//{
+//    while((*data1 != '\0') && (*data2 != '\0'))
+//    {
+//        if(*data1++ != *data2++)
+//        {
+//            return FALSE;
+//        }
+//    }
+//
+//    return TRUE;
+//}
+//
+///*****************************************
+////名称: SysU8ArrayCmp
+////功能: 系统u8型数组比较函数
+////入口: u8 *data1——数组1, u8 *data2——数组2, u16 datal——比较的长度
+////出口: u8——返回的比较状态，0—相等，1—数组1比数组2大，2—数组1比数组2小
+//******************************************/
+//u8 SysU8ArrayCmp(u8 *data1, u8 *data2, u16 datal)
+//{
+//    u16 i = 0;
+//
+//    for(; i < datal; i++)
+//    {
+//        if(data1[i] > data2[i]) //如果出现数组1大于数组2的情况
+//        {
+//            return 1;
+//        }
+//        else if(data1[i] < data2[i])//如果出现数组1小于数组2的情况
+//        {
+//            return 2;
+//        }
+//    }
+//
+//    if(i == datal)  //如果都比较完毕，说明都相等
+//    {
+//        return 0;
+//    }
+//
+//    return 0;
+//}
+//
+////********************************************************
+////函数名称: U16_Change_Order
+////函数功能: 交换U16数据的高低字节的函数
+////输    入: u16 data——需要交换的数据
+////输    出: u16——返回交换后的值
+////备    注:
+////********************************************************
+//u16 U16_Change_Order(u16 data)
+//{
+//	return ((data << 8) + (data >> 8));
+//}
 
 //********************************************************
 //函数名称: SysPeripheralInit
@@ -405,8 +405,6 @@ void SysPeripheralInit(void)
 void SysGlobalVariableInit(void)
 {
     u8  i = 0;
-    //读取片内Flash的数据
-    Internal_Flash_ReadOut();
 
     //与服务器端通信相关的变量
     s_ServerCommRx.Status = FALSE;
@@ -507,6 +505,9 @@ void System_Function_Control(void)
                     s_ServerCommTx.RepeatNum = 0;
                     s_ServerCommTx.WaitResponse = 0;
                     g_ExtFlashHaveData = FALSE;
+                    //判定网络断了
+                    g_SysInitStatusFlag = FALSE;
+                    g_WireLessModuleInitFlag = FALSE;
                 }
                 s_ServerCommTx.WaitResponseTimeout = 0;
             }
@@ -539,17 +540,7 @@ void System_Function_Control(void)
             }
         }
     }
-
-    //如果到发送传感器数据的时间了
-//    u32 temp_time_cnt;
-//    if((g_SysInitStatusFlag == TRUE) && (g_WireLessModuleInitFlag == TRUE) && (s_ServerCommTx.WaitResponse == DONT_RESPONSE))
-//    {
-//        temp_time_cnt = s_UploadInterval.time1 * 1000;
-//    }
-//    else
-//    {
-//        temp_time_cnt = (u32)((float)s_UploadInterval.time1 * 1000 * 0.8);
-//    }
+    //到了发送传感器数据包的时候了
     if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))//秒要转成ms
     {
         //只有等获得了设备端的传感器数据才上报
@@ -560,20 +551,18 @@ void System_Function_Control(void)
         }
         else    //否则得上报心跳包，防止网络断联
         {
-            g_SendSensorDataTimeCnt = g_ms_Timing_Count - (s_UploadInterval.heartbeat * 60 * 1000);
+            g_SysPollTimeCnt = g_ms_Timing_Count - (s_UploadInterval.heartbeat * 60 * 1000);
         }
     }
 
     // 如果超时没有应答
-    if((s_ServerCommPackage.ADF.CMD == SERVER_COMM_PACKAGE_CMD_REPORT_DATA) && (s_ServerCommTx.WaitResponse == NEED_RESPONSE))
+    if((s_ServerCommTx.WaitResponse == NEED_RESPONSE) && (g_LastSendServerCmd == SERVER_COMM_PACKAGE_CMD_REPORT_DATA)
+       && (s_ServerCommTx.WaitResponseTimeout >= SERVER_COMM_WAIT_RESPONSE_TIMEOUT))
     {
-        if(s_ServerCommTx.WaitResponseTimeout >= (1000 * 10))
-        {
-            Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);  //此时会存储到flash中
+        Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);  //此时会存储到flash中
 
-            s_ServerCommTx.WaitResponseTimeout = 0;
-            s_ServerCommTx.WaitResponse = DONT_RESPONSE;
-        }
+        s_ServerCommTx.WaitResponseTimeout = 0;
+        s_ServerCommTx.WaitResponse = DONT_RESPONSE;
     }
 
     // 如果不是在透传过程中
@@ -595,13 +584,6 @@ void System_Function_Control(void)
             Device_Initial();
             g_ReSetDeviceTimeCnt = g_ms_Timing_Count;
         }
-    }
-
-    // RTC秒计时
-    if((u16)(s_Timing_Count / 1000))
-    {
-        s_GPSInfo.gmtTime += (u16)(s_Timing_Count / 1000);
-        s_Timing_Count = 0;
     }
 }
 

@@ -47,6 +47,10 @@ int main(void)
 {
     MCU_Init();                     //单片机各接口初始化
 
+#if (SERVER_PRINTF_EN)
+    printf("------------------固件版本20181222175500)------------------\r\n");
+#endif
+
     SysGlobalVariableInit();        //系统所有的全局变量初始化
 
     SysPeripheralInit();            //系统所有外设初始化

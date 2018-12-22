@@ -643,23 +643,21 @@ void Server_Comm_Package_Bale(u16 cmd)
             }
             //最后放入传感器个数
             s_ServerCommPackage.ADF.Data[sen_num_index] = s_SensorData.sensor_num;
-
-            if((g_SysInitStatusFlag == TRUE) && (g_WireLessModuleInitFlag == TRUE) && (s_ServerCommTx.WaitResponse == DONT_RESPONSE))   //初始化完毕,无线模块也初始化完成了
+            //无线模块初始化完毕、与服务器握手成功、不是在等待应答、不是在传输补传数据
+            if((g_SysInitStatusFlag == TRUE) && (g_WireLessModuleInitFlag == TRUE)
+               && (s_ServerCommTx.WaitResponse == DONT_RESPONSE) && (g_ExtFlashHaveData == FALSE))   //初始化完毕,无线模块也初始化完成了
             {
-                if(g_ExtFlashHaveData == FALSE) //如果不是正在发送存储包就可以发送
-                {
-                    //数据长度
-                    s_ServerCommPackage.Length = i + 6;
-                    Server_Comm_Package_Send();
-                    s_ServerCommTx.WaitResponse = NEED_RESPONSE;    //需要等待应答
-                    s_ServerCommTx.WaitResponseTimeout = 0;
-                }
+                //数据长度
+                s_ServerCommPackage.Length = i + 6;
+                Server_Comm_Package_Send();
+                s_ServerCommTx.WaitResponse = NEED_RESPONSE;    //需要等待应答
+                s_ServerCommTx.WaitResponseTimeout = 0;
             }
             else
             {
 
 #if (SERVER_PRINTF_EN)
-                printf("将传感器上传数据包存储到Flash中\r\n");
+                printf("将传感器上传数据包存储到Flash中，UTC时间=%08X\r\n", s_GPSInfo.gmtTime);
 #endif
 
                 temp_array[0] = 0x02;       //数据内容类型
@@ -667,8 +665,6 @@ void Server_Comm_Package_Bale(u16 cmd)
                 memcpy(&temp_array[2], s_ServerCommPackage.ADF.Data, i);
 
                 Data_Storge_Process(temp_array, (i + 2));
-
-                g_ExtFlashHaveData = TRUE;  //置标志有存储包
             }
         }
         break;
@@ -899,10 +895,19 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
 #endif
 
                     g_SysInitStatusFlag = TRUE;
+
+                    if(g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM)    //如果是有存储数据包待发送
+                    {
+                        g_ExtFlashHaveData = TRUE;  //置标志有存储包
+                    }
+                    else
+                    {
+                        g_ExtFlashHaveData = FALSE;
+                    }
                 }
-                if(g_ExtFlashHaveData == TRUE)    //如果是有存储数据包待发送
+                if(g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM)    //如果是有存储数据包待发送
                 {
-                    if(s_ServerCommPackage.ADF.CMD == SERVER_COMM_PACKAGE_CMD_REPORT_FLASH)
+                    if(g_LastSendServerCmd == SERVER_COMM_PACKAGE_CMD_REPORT_FLASH)
                     {
                         u8 page_num[2];
                         s_ServerCommTx.WaitResponse = DONT_RESPONSE;    //等待应答标志复位
@@ -920,16 +925,16 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                         SPI_FLASH_BufferWrite(page_num, FLASH_PACKAGE_NUM_ADDRESS, sizeof(page_num));
                     }
                 }
+                //假如是发送传感器数据在等待应答
+                if(g_LastSendServerCmd == SERVER_COMM_PACKAGE_CMD_REPORT_DATA)
+                {
+                    s_ServerCommTx.WaitResponse = DONT_RESPONSE;
+                    s_ServerCommTx.WaitResponseTimeout = 0;
+                }
             }
             else
             {
                 //判断是否要重发
-            }
-            //假如是发送传感器数据在等待应答
-            if(s_ServerCommPackage.ADF.CMD == SERVER_COMM_PACKAGE_CMD_REPORT_DATA)
-            {
-                 s_ServerCommTx.WaitResponse = DONT_RESPONSE;
-                 s_ServerCommTx.WaitResponseTimeout = 0;
             }
         }
         break;
@@ -1475,10 +1480,11 @@ void Server_Comm_Rec_Monitor(void)
         }
     }
     //假如很长时间没有接收到服务器的数据，说明服务器要么掉电关机了，要么串口线出故障了，则重新进入初始化流程
-    else if(s_ServerCommRx.Timeout_Count >= SERVER_COMM_NO_DATA_REC_TIMEOUT)
+    else if(s_ServerCommRx.Timeout_Count >= ((s_UploadInterval.time1 * 1000) + SERVER_COMM_WAIT_RESPONSE_TIMEOUT))//SERVER_COMM_NO_DATA_REC_TIMEOUT
     {
         s_ServerCommRx.Timeout_Count = 0;
         g_SysInitStatusFlag = FALSE;
+        g_WireLessModuleInitFlag = FALSE;
     }
 }
 

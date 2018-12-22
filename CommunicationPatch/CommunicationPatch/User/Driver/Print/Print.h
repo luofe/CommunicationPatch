@@ -29,12 +29,12 @@
 //#define DEBUG_USART_IRQn                USART3_IRQn
 //#define DEBUG_USART_IRQHandler          USART3_IRQHandler
 //
-////DEBUG_USART_TX ----------------------------------------------- 
+////DEBUG_USART_TX -----------------------------------------------
 //#define DEBUG_USART_TX_GPIO_CLK         RCC_APB2Periph_GPIOB         //定义DEBUG_USART_TX端口的时钟
 //#define DEBUG_USART_TX_GPIO_PORT        GPIOB                        //定义DEBUG_USART_TX占用的GPIO端口
 //#define DEBUG_USART_TX_GPIO_PIN         GPIO_Pin_10                   //定义DEBUG_USART_TX的GPIO引脚号
 //
-////DEBUG_USART_RX ----------------------------------------------- 
+////DEBUG_USART_RX -----------------------------------------------
 //#define DEBUG_USART_RX_GPIO_CLK         RCC_APB2Periph_GPIOB         //定义DEBUG_USART_RX端口的时钟
 //#define DEBUG_USART_RX_GPIO_PORT        GPIOB                        //定义DEBUG_USART_RX占用的GPIO端口
 //#define DEBUG_USART_RX_GPIO_PIN         GPIO_Pin_11                  //定义DEBUG_USART_RX的GPIO引脚号
@@ -46,12 +46,12 @@
 #define DEBUG_USART_IRQn                USART1_IRQn
 #define DEBUG_USART_IRQHandler          USART1_IRQHandler
 
-//DEBUG_USART_TX ----------------------------------------------- 
+//DEBUG_USART_TX -----------------------------------------------
 #define DEBUG_USART_TX_GPIO_CLK         RCC_APB2Periph_GPIOA         //定义DEBUG_USART_TX端口的时钟
 #define DEBUG_USART_TX_GPIO_PORT        GPIOA                        //定义DEBUG_USART_TX占用的GPIO端口
 #define DEBUG_USART_TX_GPIO_PIN         GPIO_Pin_9                   //定义DEBUG_USART_TX的GPIO引脚号
 
-//DEBUG_USART_RX ----------------------------------------------- 
+//DEBUG_USART_RX -----------------------------------------------
 #define DEBUG_USART_RX_GPIO_CLK         RCC_APB2Periph_GPIOA         //定义DEBUG_USART_RX端口的时钟
 #define DEBUG_USART_RX_GPIO_PORT        GPIOA                        //定义DEBUG_USART_RX占用的GPIO端口
 #define DEBUG_USART_RX_GPIO_PIN         GPIO_Pin_10                  //定义DEBUG_USART_RX的GPIO引脚号
@@ -60,15 +60,6 @@
 
 
 
-
-// 通信数据包解析状态
-#define DEBUG_COMM_PACKAGE_ANALYSIS_HEAD       0       //包头
-#define DEBUG_COMM_PACKAGE_ANALYSIS_LENGTH     1       //数据长度
-#define DEBUG_COMM_PACKAGE_ANALYSIS_FUNCTION   2       //功能码—确认+版本号
-#define DEBUG_COMM_PACKAGE_ANALYSIS_CMD        3       //命令码—消息类型
-#define DEBUG_COMM_PACKAGE_ANALYSIS_SERIAL     4       //序列号
-#define DEBUG_COMM_PACKAGE_ANALYSIS_DATA       5       //数据体
-#define DEBUG_COMM_PACKAGE_ANALYSIS_CHECK      6       //校验码
 
 
 //USART接收超时
@@ -89,7 +80,7 @@ typedef struct
     u16 RxTimeout_Count;            //接收超时计数,单位ms
     u8  RxBuffer[250];              //接收数据缓冲区
     u16 RxIndex;                    //接收数据计数
-    
+
     u8  TxBuffer[250];              //发送数据缓冲区
     u16 TxIndex;                    //发送数据计数
 }DebugCommStruct;

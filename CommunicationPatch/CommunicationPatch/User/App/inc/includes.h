@@ -38,7 +38,6 @@
 #include "Device_Comm/Device_Comm.h"                    //与设备端通信的驱动头文件
 #include "Server_Comm/Server_Comm.h"                    //与服务器通信的驱动头文件
 #include "Print/Print.h"                                //程序调试用的驱动头文件
-#include "Internal_Flash/Internal_Flash.h"              //单片机内部的flash存储的驱动头文件
 #include "ExtFlash/ExtFlash.h"                          //片外flash存储的驱动头文件
 #include "MCU/MCU.h"                                    //单片机初始化函数头文件
 

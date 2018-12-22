@@ -2,7 +2,7 @@
 /*******************************************************************************
 //Copyright(C)2018 , 蛙鸣公司
 // All rights reserved.
-// Version: v1.0 
+// Version: v1.0
 // Device : STM32F103C8T6
 // Built  : IAR For ARM v7.70(Language: C)
 // Date   : 2018-10-27
@@ -72,15 +72,15 @@ void HardFault_Handler(void)
   /* Go to infinite loop when Hard Fault exception occurs */
   while (1)
   {
-        
-#if (SERVER_PRINTF_EN)
-printf("硬件错误！！！！！！！！！！！！\r\n");
-printf("复位！！！！！！！！！！！！\r\n");
-#endif	
 
-        __set_FAULTMASK(1);      // 关闭所有中断
+#if (SERVER_PRINTF_EN)
+      printf("硬件错误！！！！！！！！！！！！\r\n");
+      printf("复位！！！！！！！！！！！！\r\n");
+#endif
+
+      __set_FAULTMASK(1);      // 关闭所有中断
         NVIC_SystemReset();// 复位
-    
+
   }
 }
 
@@ -171,15 +171,20 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
 	g_ms_Timing_Count++;	            //ms计时
-    
+
     s_Timing_Count++;                   //s计时
-    
+    if(s_Timing_Count == 1000)
+    {
+        s_GPSInfo.gmtTime++;
+        s_Timing_Count = 0;
+    }
+
     s_ServerCommRx.Timeout_Count++;     //接收服务器数据超时等待计数
-    
+
     s_DeviceCommRx.Timeout_Count++;     //接收设备端的数据超时等待计数
-    
+
     s_DebugComm.RxTimeout_Count++;      //与调试口通信的数据接收等待超时计数
-    
+
     s_ServerCommTx.WaitResponseTimeout++;   //与服务器通信时等待服务器应答数据包的计数
 
     s_DeviceCommTx.WaitResponseTimeout++;   //与设备端通信时等待服务器应答数据包的计数
@@ -207,7 +212,7 @@ void SERVER_COMM_USART_IRQHandler(void)
         s_ServerCommRx.Buffer[s_ServerCommRx.Index++] = USART_ReceiveData(SERVER_COMM_USART);
         s_ServerCommRx.Timeout_Count = 0;
 	}
-    
+
 	if (USART_GetFlagStatus(SERVER_COMM_USART, USART_FLAG_ORE) != RESET)//注意！必须要清除ORE中断
 	{
 		USART_ReceiveData(SERVER_COMM_USART);
@@ -232,7 +237,7 @@ void DEVICE_COMM_USART_IRQHandler(void)
         s_DeviceCommRx.Buffer[s_DeviceCommRx.Index++] = USART_ReceiveData(DEVICE_COMM_USART);
         s_DeviceCommRx.Timeout_Count = 0;
 	}
-    
+
 	if (USART_GetFlagStatus(DEVICE_COMM_USART, USART_FLAG_ORE) != RESET)//注意！必须要清除ORE中断
 	{
 		USART_ReceiveData(DEVICE_COMM_USART);
@@ -257,7 +262,7 @@ void DEBUG_USART_IRQHandler(void)
         s_DebugComm.RxBuffer[s_DebugComm.RxIndex++] = USART_ReceiveData(DEBUG_USART);
         s_DebugComm.RxTimeout_Count = 0;
 	}
-    
+
 	if (USART_GetFlagStatus(DEBUG_USART, USART_FLAG_ORE) != RESET)//注意！必须要清除ORE中断
 	{
 		USART_ReceiveData(DEBUG_USART);

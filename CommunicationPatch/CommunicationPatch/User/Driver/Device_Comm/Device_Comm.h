@@ -30,7 +30,7 @@
 
 
 //Modbus通信数据最大长度
-#define DEVICE_COMM_DATA_MAX_LENGTH            1024
+#define DEVICE_COMM_DATA_MAX_LENGTH            512
 
 
 //数据包命令码列表

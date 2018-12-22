@@ -745,15 +745,14 @@ u8  Ext_Flash_Detect(void)
         //读取出当前已经存储的数据包个数
         SPI_FLASH_BufferRead(page_num, FLASH_PACKAGE_NUM_ADDRESS, sizeof(page_num));
         g_DataPageNum = page_num[0] * 256 + page_num[1];
-        if((g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM) && (g_DataPageNum < 0xFFFF))
-        {
-            g_ExtFlashHaveData = TRUE;  //有数据包待发送
 
 #if (FLASH_PRINTF_EN)
+        if((g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM) && (g_DataPageNum < 0xFFFF))
+        {
             printf("有%d个存储包待发送\r\n", (g_DataPageNum - SENSOR_DATA_MIN_PAGE_NUM));
-#endif
 
         }
+#endif
         return SUCCEED;
     }
     else

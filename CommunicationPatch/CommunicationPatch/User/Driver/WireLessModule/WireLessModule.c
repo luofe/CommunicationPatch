@@ -46,7 +46,7 @@ void WireLess_Send_AT_Command(u8 cmd);
 u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta);
 
 //函数功能: 无线模块接收AT指令应答的监测函数
-u8 WireLess_Rec_AT_Command_Monitor(u8 cmd);
+u8 WireLess_Rec_AT_Command_Monitor(u8 cmd, u8 repeat_time);
 
 //功能: 无线模块AT指令控制函数
 u8 WireLess_AT_Command_Ctr(u8 cmd);
@@ -693,16 +693,124 @@ u8 WireLess_AT_Command_Analysis(u8 cmd, u8* buf, u16 len, u8 repeat_sta)
 //********************************************************
 //函数名称: WireLess_Rec_AT_Command_Monitor
 //函数功能: 无线模块接收AT指令应答的监测函数
-//输    入: u8 cmd——命令码
+//输    入: u8 cmd——命令码, u8 repeat_time——重复次数
 //输    出: u8——返回解析结果，成功或者失败
 //备    注: 无
 //********************************************************
-u8 WireLess_Rec_AT_Command_Monitor(u8 cmd)
+u8 WireLess_Rec_AT_Command_Monitor(u8 cmd, u8 repeat_time)
 {
     u32 temp_time_count = 0;
     u16 temp_l = 0;
     u8  temp_sta = FAILURE; //解析结果：包括成功、失败、只是接收到无线模块对请求指令的重复包（还没有结果的）
-    u8  repeat_sta = TRUE;  //无线模块对请求指令的重复包标志
+//    u8  repeat_sta = TRUE;  //无线模块对请求指令的重复包标志
+
+    switch(cmd)
+    {
+        case AT_COMMAND_QPWOD://如果是重启命令
+        {
+            temp_time_count = WIRELESS_WAIT_RDY_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_CPIN://检测SIM卡状态
+        {
+            temp_time_count = WIRELESS_WAIT_CPIN_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_CREG:   //检测卡的网络注册状态
+        {
+            temp_time_count = WIRELESS_WAIT_CREG_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_CGREG:  //检测卡的GPRS网络注册状态
+        {
+            temp_time_count = WIRELESS_WAIT_CGREG_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_QICSGP:  //配置APN和上下文ID
+        {
+            temp_time_count = WIRELESS_WAIT_QICSGP_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_CGQMIN:  //配置可接受的最小服务质量
+        {
+            temp_time_count = WIRELESS_WAIT_CGQMIN_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_QIDEACT:  //失能PDP上下文
+        {
+            temp_time_count = WIRELESS_WAIT_QIDEACT_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_QIACT_EN:  //激活PDP上下文
+        {
+            temp_time_count = WIRELESS_WAIT_QIACT_EN_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_QIACT_DE:  //检测PDP上下文
+        {
+            temp_time_count = WIRELESS_WAIT_QIACT_DE_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_CGQMIN_DE:  //检测可接受的最小服务质量
+        {
+            temp_time_count = WIRELESS_WAIT_CGQMIN_DE_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_QIOPEN:  //配置服务器IP地址和端口号，建立连接
+        {
+            temp_time_count = WIRELESS_WAIT_QIOPEN_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_QICLOSE:  //关闭TCP连接
+        {
+            temp_time_count = WIRELESS_WAIT_QICLOSE_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_SWITCH_CMD:  //切换到命令模式“+++”
+        {
+            temp_time_count = WIRELESS_WAIT_SWITCH_CMD_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_ATO:  //切换回透传模式
+        {
+            temp_time_count = WIRELESS_WAIT_ATO_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_QCCID:  //获取SIM卡的CCID号
+        {
+            temp_time_count = WIRELESS_WAIT_QCCID_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_CIMI:  //获取SIM卡的ISMI号
+        {
+            temp_time_count = WIRELESS_WAIT_CIMI_TIMEOUT;
+        }
+        break;
+
+        case AT_COMMAND_CGSN:  //获取SIM卡的IMEI号
+        {
+            temp_time_count = WIRELESS_WAIT_CGSN_TIMEOUT;
+        }
+        break;
+
+        default:
+        break;
+    }
 
     s_ServerCommRx.Status = FALSE;
     s_ServerCommRx.Index = 0;
@@ -738,132 +846,27 @@ u8 WireLess_Rec_AT_Command_Monitor(u8 cmd)
 #endif
 
                 //解析接收到的AT指令
-                temp_sta = WireLess_AT_Command_Analysis(cmd, g_PublicDataBuffer, temp_l, repeat_sta);
+                temp_sta = WireLess_AT_Command_Analysis(cmd, g_PublicDataBuffer, temp_l, 0);//repeat_sta
                 if(temp_sta == FAILURE)  //如果应答失败
                 {
-                    return FAILURE;
+                    if(repeat_time) //如果是重复发送的命令还是失败的话，则退出
+                    {
+                        return FAILURE;
+                    }
                 }
                 else if(temp_sta == SUCCEED)
                 {
                     return SUCCEED;
                 }
-                else
-                {
-                    repeat_sta = FALSE;
-                }
+//                else
+//                {
+//                    repeat_sta = FALSE;
+//                }
             }
         }
         //假如超时没有接收到想要的应答，则退出
         else
         {
-            switch(cmd)
-            {
-                case AT_COMMAND_QPWOD://如果是重启命令
-                {
-                    temp_time_count = WIRELESS_WAIT_RDY_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_CPIN://检测SIM卡状态
-                {
-                    temp_time_count = WIRELESS_WAIT_CPIN_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_CREG:   //检测卡的网络注册状态
-                {
-                    temp_time_count = WIRELESS_WAIT_CREG_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_CGREG:  //检测卡的GPRS网络注册状态
-                {
-                    temp_time_count = WIRELESS_WAIT_CGREG_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_QICSGP:  //配置APN和上下文ID
-                {
-                    temp_time_count = WIRELESS_WAIT_QICSGP_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_CGQMIN:  //配置可接受的最小服务质量
-                {
-                    temp_time_count = WIRELESS_WAIT_CGQMIN_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_QIDEACT:  //失能PDP上下文
-                {
-                    temp_time_count = WIRELESS_WAIT_QIDEACT_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_QIACT_EN:  //激活PDP上下文
-                {
-                    temp_time_count = WIRELESS_WAIT_QIACT_EN_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_QIACT_DE:  //检测PDP上下文
-                {
-                    temp_time_count = WIRELESS_WAIT_QIACT_DE_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_CGQMIN_DE:  //检测可接受的最小服务质量
-                {
-                    temp_time_count = WIRELESS_WAIT_CGQMIN_DE_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_QIOPEN:  //配置服务器IP地址和端口号，建立连接
-                {
-                    temp_time_count = WIRELESS_WAIT_QIOPEN_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_QICLOSE:  //关闭TCP连接
-                {
-                    temp_time_count = WIRELESS_WAIT_QICLOSE_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_SWITCH_CMD:  //切换到命令模式“+++”
-                {
-                    temp_time_count = WIRELESS_WAIT_SWITCH_CMD_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_ATO:  //切换回透传模式
-                {
-                    temp_time_count = WIRELESS_WAIT_ATO_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_QCCID:  //获取SIM卡的CCID号
-                {
-                    temp_time_count = WIRELESS_WAIT_QCCID_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_CIMI:  //获取SIM卡的ISMI号
-                {
-                    temp_time_count = WIRELESS_WAIT_CIMI_TIMEOUT;
-                }
-                break;
-
-                case AT_COMMAND_CGSN:  //获取SIM卡的IMEI号
-                {
-                    temp_time_count = WIRELESS_WAIT_CGSN_TIMEOUT;
-                }
-                break;
-
-                default:
-                break;
-            }
-
             if(s_ServerCommRx.Timeout_Count >= temp_time_count)
             {
                 s_ServerCommRx.Timeout_Count = 0;
@@ -871,10 +874,14 @@ u8 WireLess_Rec_AT_Command_Monitor(u8 cmd)
                 return FAILURE;
             }
         }
-        //如果到了要发送传感器数据的时间了
-        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))
+        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))//秒要转成ms
         {
-            return FAILURE;
+            //只有等获得了设备端的传感器数据才上报
+            if(s_SensorData.got_status == TRUE)
+            {
+                g_SendSensorDataTimeCnt = g_ms_Timing_Count;
+                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);
+            }
         }
     }
 }
@@ -895,7 +902,7 @@ u8 WireLess_AT_Command_Ctr(u8 cmd)
     index = 0;
     while(9)
     {
-        temp_sta = WireLess_Rec_AT_Command_Monitor(cmd);
+        temp_sta = WireLess_Rec_AT_Command_Monitor(cmd, index);
         if(temp_sta == FAILURE) //如果失败了
         {
             index++;
@@ -913,10 +920,14 @@ u8 WireLess_AT_Command_Ctr(u8 cmd)
         {
             break;
         }
-        //如果到了要发送传感器数据的时间了
-        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))
+        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))//秒要转成ms
         {
-            return FAILURE;
+            //只有等获得了设备端的传感器数据才上报
+            if(s_SensorData.got_status == TRUE)
+            {
+                g_SendSensorDataTimeCnt = g_ms_Timing_Count;
+                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);
+            }
         }
     }
 
@@ -947,11 +958,6 @@ u8 WireLess_Initial(void)
         printf("等待无线模块启动后的\"RDY\"\r\n");
 #endif
 
-//        //先等待接收无线模块启动后的“RDY”
-//        if(WireLess_AT_Command_Ctr(AT_COMMAND_QPWOD) == FAILURE)
-//        {
-//            return FAILURE;
-//        }
     }
 
 #if (SERVER_AT_PRINTF_EN)
@@ -1101,6 +1107,9 @@ ForceReconnect:
         index2++;
         if(index2 >= 2)
         {
+            //重启无线模块
+            WireLess_Send_AT_Command(AT_COMMAND_QPWOD);
+
             return FAILURE;
         }
         else
