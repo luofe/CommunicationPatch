@@ -288,6 +288,9 @@ extern SIMCardParaStruct s_SIMCardPara;
 // 最新一次发送的命令码
 extern u16 g_LastSendServerCmd;
 
+// 系统时间同步标志
+extern u8  g_SystemDateTimeSynchronizationFlag;
+
 
 
 /******************************************************************************

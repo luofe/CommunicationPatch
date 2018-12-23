@@ -549,16 +549,17 @@ void System_Function_Control(void)
             g_SendSensorDataTimeCnt = g_ms_Timing_Count;
             Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);
         }
-        else    //否则得上报心跳包，防止网络断联
-        {
-            g_SysPollTimeCnt = g_ms_Timing_Count - (s_UploadInterval.heartbeat * 60 * 1000);
-        }
     }
 
     // 如果超时没有应答
     if((s_ServerCommTx.WaitResponse == NEED_RESPONSE) && (g_LastSendServerCmd == SERVER_COMM_PACKAGE_CMD_REPORT_DATA)
        && (s_ServerCommTx.WaitResponseTimeout >= SERVER_COMM_WAIT_RESPONSE_TIMEOUT))
     {
+
+#if (SERVER_PRINTF_EN)
+            printf("传感器数据包超时没有应答\r\n");
+#endif
+
         Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);  //此时会存储到flash中
 
         s_ServerCommTx.WaitResponseTimeout = 0;

@@ -1754,7 +1754,7 @@ u8 Device_Comm_Package_Process(u8 cmd, u8* resp_str, u16 len)
             temp_str[i++] = '\0';   //加结束符
             s_RTC.sec = atoi(temp_str);
 
-            if(g_SysInitStatusFlag == FALSE) //如果还没有与服务器握手，因为要以服务器的时间为准
+            if(g_SystemDateTimeSynchronizationFlag == FALSE) //如果服务器系统时间未同步
             {
                 struct tm p_t;
                 p_t.tm_year = s_RTC.year - 1900;
@@ -2802,6 +2802,16 @@ u8 Device_Rec_Response_Cmd_Monitor(u8 cmd)
                 return FAILURE;
             }
         }
+
+        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))//秒要转成ms
+        {
+            //只有等获得了设备端的传感器数据才上报
+            if(s_SensorData.got_status == TRUE)
+            {
+                g_SendSensorDataTimeCnt = g_ms_Timing_Count;
+                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);
+            }
+        }
     }
 }
 
@@ -2839,6 +2849,16 @@ u8 Device_Printf_Ctr(u8 cmd)
         else    //如果成功了，则退出
         {
             break;
+        }
+
+        if(abs(g_ms_Timing_Count - g_SendSensorDataTimeCnt) >= (s_UploadInterval.time1 * 1000))//秒要转成ms
+        {
+            //只有等获得了设备端的传感器数据才上报
+            if(s_SensorData.got_status == TRUE)
+            {
+                g_SendSensorDataTimeCnt = g_ms_Timing_Count;
+                Server_Comm_Package_Bale(SERVER_COMM_PACKAGE_CMD_REPORT_DATA);
+            }
         }
     }
 

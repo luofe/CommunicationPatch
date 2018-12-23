@@ -43,6 +43,9 @@ u8  g_RecServerPackageResult = SUCCEED;
 // 最新一次发送的命令码
 u16 g_LastSendServerCmd = SERVER_COMM_PACKAGE_CMD_REPORT_HANDSHAKE; //默认是握手包
 
+// 系统时间同步标志
+u8  g_SystemDateTimeSynchronizationFlag = FALSE;
+
 
 uc16 CRC_TABLE_XW[256] =
 {
@@ -663,8 +666,11 @@ void Server_Comm_Package_Bale(u16 cmd)
                 temp_array[0] = 0x02;       //数据内容类型
                 temp_array[1] = i;          //数据内容长度(从RTC时间开始到校验码前的数据内容)
                 memcpy(&temp_array[2], s_ServerCommPackage.ADF.Data, i);
-
-                Data_Storge_Process(temp_array, (i + 2));
+                // 如果不是在发送存储包
+                if(g_ExtFlashHaveData == FALSE)
+                {
+                    Data_Storge_Process(temp_array, (i + 2));
+                }
             }
         }
         break;
@@ -896,6 +902,8 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
 
                     g_SysInitStatusFlag = TRUE;
 
+                    g_SendSensorDataTimeCnt = g_ms_Timing_Count - (s_UploadInterval.time1 * 1000);  //赶紧发一个传感器数据
+
                     if(g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM)    //如果是有存储数据包待发送
                     {
                         g_ExtFlashHaveData = TRUE;  //置标志有存储包
@@ -1001,6 +1009,7 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                         s_GPSInfo.gmtTime <<= 8;
                         s_GPSInfo.gmtTime += data[i++];
                     }
+                    g_SystemDateTimeSynchronizationFlag = TRUE;
                     g_RecServerPackageResult = RES_SUCCEED;
                 }
                 break;

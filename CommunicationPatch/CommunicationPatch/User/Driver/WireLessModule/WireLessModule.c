@@ -943,98 +943,80 @@ u8 WireLess_AT_Command_Ctr(u8 cmd)
 u8 WireLess_Initial(void)
 {
     u8  index1, index2;
-//    u8  temp_sta = FALSE;
 
+    //先进入命令模式
 #if (SERVER_AT_PRINTF_EN)
     printf("等待无线模块退出透传模式\r\n");
 #endif
+    WireLess_AT_Command_Ctr(AT_COMMAND_SWITCH_CMD);
 
-    //先进入命令模式
-//    Delay_ms(1500);
-    if(WireLess_AT_Command_Ctr(AT_COMMAND_SWITCH_CMD) == FAILURE)
-    {
-
-#if (SERVER_AT_PRINTF_EN)
-        printf("等待无线模块启动后的\"RDY\"\r\n");
-#endif
-
-    }
-
+    //检测SIM卡状态
 #if (SERVER_AT_PRINTF_EN)
     printf("检测SIM卡状态\r\n");
 #endif
-
-    //检测SIM卡状态
     if(WireLess_AT_Command_Ctr(AT_COMMAND_CPIN) == FAILURE)
     {
         return FAILURE;
     }
 
+    //获取SIM卡的CCID号
 #if (SERVER_AT_PRINTF_EN)
     printf("获取SIM卡的CCID号\r\n");
 #endif
-
-    //获取SIM卡的CCID号
     if(WireLess_AT_Command_Ctr(AT_COMMAND_QCCID) == FAILURE)
     {
         return FAILURE;
     }
 
+    //获取SIM卡的IMSI号
 #if (SERVER_AT_PRINTF_EN)
     printf("获取SIM卡的IMSI号\r\n");
 #endif
-
-    //获取SIM卡的IMSI号
     if(WireLess_AT_Command_Ctr(AT_COMMAND_CIMI) == FAILURE)
     {
         return FAILURE;
     }
 
+    //获取SIM卡的IMEI号
 #if (SERVER_AT_PRINTF_EN)
     printf("获取SIM卡的IMEI号\r\n");
 #endif
-
-    //获取SIM卡的IMEI号
     if(WireLess_AT_Command_Ctr(AT_COMMAND_CGSN) == FAILURE)
     {
         return FAILURE;
     }
 
+    //检测卡的网络注册状态
 #if (SERVER_AT_PRINTF_EN)
     printf("检测卡的网络注册状态\r\n");
 #endif
-
-    //检测卡的网络注册状态
     if(WireLess_AT_Command_Ctr(AT_COMMAND_CREG) == FAILURE)
     {
         return FAILURE;
     }
 
+    //检测卡的GPRS网络注册状态
 #if (SERVER_AT_PRINTF_EN)
     printf("检测卡的GPRS网络注册状态\r\n");
 #endif
-
-    //检测卡的GPRS网络注册状态
     if(WireLess_AT_Command_Ctr(AT_COMMAND_CGREG) == FAILURE)
     {
         return FAILURE;
     }
 
+    //配置APN和上下文ID
 #if (SERVER_AT_PRINTF_EN)
     printf("配置APN和上下文ID\r\n");
 #endif
-
-    //配置APN和上下文ID
     if(WireLess_AT_Command_Ctr(AT_COMMAND_QICSGP) == FAILURE)
     {
         return FAILURE;
     }
 
+    //配置可接受的最小服务质量
 #if (SERVER_AT_PRINTF_EN)
     printf("配置可接受的最小服务质量\r\n");
 #endif
-
-    //配置可接受的最小服务质量
     if(WireLess_AT_Command_Ctr(AT_COMMAND_CGQMIN) == FAILURE)
     {
         return FAILURE;
@@ -1043,25 +1025,19 @@ u8 WireLess_Initial(void)
     index1 = 0;
     index2 = 0;
 ForceReconnect:
-//    if(temp_sta == TRUE)
-    {
-
+    //失能PDP上下文
 #if (SERVER_AT_PRINTF_EN)
-        printf("失能PDP上下文\r\n");
+    printf("失能PDP上下文\r\n");
 #endif
-
-        //失能PDP上下文
-        if(WireLess_AT_Command_Ctr(AT_COMMAND_QIDEACT) == FAILURE)
-        {
-            return FAILURE;
-        }
+    if(WireLess_AT_Command_Ctr(AT_COMMAND_QIDEACT) == FAILURE)
+    {
+        return FAILURE;
     }
 
+    //激活PDP上下文
 #if (SERVER_AT_PRINTF_EN)
     printf("激活PDP上下文\r\n");
 #endif
-
-    //激活PDP上下文
     if(WireLess_AT_Command_Ctr(AT_COMMAND_QIACT_EN) == FAILURE)
     {
         index1++;
@@ -1071,37 +1047,32 @@ ForceReconnect:
         }
         else
         {
-//            temp_sta = TRUE;
             goto ForceReconnect;
         }
     }
-//    temp_sta = FALSE;
 
+    //检测PDP上下文
 #if (SERVER_AT_PRINTF_EN)
     printf("检测PDP上下文\r\n");
 #endif
-
-    //检测PDP上下文
     if(WireLess_AT_Command_Ctr(AT_COMMAND_QIACT_DE) == FAILURE)
     {
         return FAILURE;
     }
 
+    //检测可接受的最小服务质量
 #if (SERVER_AT_PRINTF_EN)
     printf("检测可接受的最小服务质量\r\n");
 #endif
-
-    //检测可接受的最小服务质量
     if(WireLess_AT_Command_Ctr(AT_COMMAND_CGQMIN_DE) == FAILURE)
     {
         return FAILURE;
     }
 
+    //配置服务器IP地址和端口号，建立连接
 #if (SERVER_AT_PRINTF_EN)
     printf("配置服务器IP地址和端口号，建立连接\r\n");
 #endif
-
-    //配置服务器IP地址和端口号，建立连接
     if(WireLess_AT_Command_Ctr(AT_COMMAND_QIOPEN) == FAILURE)
     {
         index2++;
@@ -1114,12 +1085,9 @@ ForceReconnect:
         }
         else
         {
-//            temp_sta = TRUE;
             goto ForceReconnect;
         }
     }
-
-    //    Delay_ms(100);
 
     g_WireLessModuleInitFlag = TRUE;    //无线模块初始化完成
 
