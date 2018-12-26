@@ -775,7 +775,7 @@ u8  Ext_Flash_Detect(void)
 //********************************************************
 void Data_Storge_Process(u8* data, u16 len)
 {
-//    for(u8 temp_index = 0; temp_index < 50; temp_index++)  //测试用！加快50倍测试写入
+    for(u8 temp_index = 0; temp_index < 50; temp_index++)  //测试用！加快50倍测试写入
     {
         u8  page_num[2];
 
@@ -788,7 +788,7 @@ void Data_Storge_Process(u8* data, u16 len)
         else                        //否则是之前已经存储过了
         {
             g_DataPageNum++;
-            if(g_DataPageNum > SENSOR_DATA_MAX_PAGE_NUM)       //注意：此处必须是">"
+            if(g_DataPageNum >= SENSOR_DATA_MAX_PAGE_NUM)       //注意：此处必须是">="
             {
                 g_DataPageNum = SENSOR_DATA_MIN_PAGE_NUM;
             }

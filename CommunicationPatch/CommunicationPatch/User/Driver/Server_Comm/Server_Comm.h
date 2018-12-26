@@ -131,7 +131,7 @@
 #define PC_COM_MAX_DATA_LENGTH                  (512)     //是对设备端进行升级时的数据包大小
 
 //USART接收超时
-#define SERVER_COMM_RX_DATA_TIMEOUT             5	    //没有接收超时5ms就是接收完毕
+#define SERVER_COMM_RX_DATA_TIMEOUT             50	    //没有接收超时5ms就是接收完毕
 //与服务器通信最大重发次数
 #define SERVER_COMM_REPEAT_SEND_TIME            3       //重发次数2次
 //与服务器通信最大等待间隔时间

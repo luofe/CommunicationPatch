@@ -5,7 +5,7 @@
     
     
     
-  <CurrentConfigs><Project>CommunicationPatch/Debug</Project><Project>CommunicationPatch_BootLoader/Debug</Project></CurrentConfigs><CurrentProj>CommunicationPatch</CurrentProj><OverviewSelected>0</OverviewSelected></ConfigDictionary>
+  <CurrentConfigs><Project>CommunicationPatch_BootLoader/Debug</Project><Project>CommunicationPatch/Debug</Project></CurrentConfigs><CurrentProj>CommunicationPatch</CurrentProj><OverviewSelected>0</OverviewSelected></ConfigDictionary>
   <Desktop>
     <Static>
       <Workspace>
@@ -14,7 +14,7 @@
           
           
           
-        <Column0>176</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+        <Column0>149</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
       </Workspace>
       <Debug-Log>
         
@@ -75,14 +75,14 @@
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\App\src\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>48</YPos2><SelStart2>1616</SelStart2><SelEnd2>1616</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\App\src\Core.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>564</YPos2><SelStart2>16790</SelStart2><SelEnd2>16790</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\Server_Comm\Server_Comm.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>556</YPos2><SelStart2>31826</SelStart2><SelEnd2>31826</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\ExtFlash\ExtFlash.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>774</YPos2><SelStart2>24197</SelStart2><SelEnd2>24213</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\WireLessModule\WireLessModule.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>940</YPos2><SelStart2>29333</SelStart2><SelEnd2>29333</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\Device_Comm\Device_Comm.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>2831</YPos2><SelStart2>90217</SelStart2><SelEnd2>90217</SelEnd2></Tab><ActiveTab>5</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\Doc\Readme.txt</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>534</SelStart2><SelEnd2>534</SelEnd2></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\App\src\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>47</YPos2><SelStart2>1931</SelStart2><SelEnd2>1931</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\ExtFlash\ExtFlash.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>773</YPos2><SelStart2>23984</SelStart2><SelEnd2>23984</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\ExtFlash\ExtFlash.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>91</YPos2><SelStart2>4078</SelStart2><SelEnd2>4103</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\App\src\Core.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>270</YPos2><SelStart2>8496</SelStart2><SelEnd2>8496</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\Print\Print.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>204</YPos2><SelStart2>7446</SelStart2><SelEnd2>7446</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\User\Driver\Server_Comm\Server_Comm.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>909</YPos2><SelStart2>43616</SelStart2><SelEnd2>43616</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\CommunicationPatch\Doc\Readme.txt</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>560</SelStart2><SelEnd2>560</SelEnd2></Tab><ActiveTab>6</ActiveTab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-05ADEB00><key>iaridepm.enu1</key></Toolbar-05ADEB00></Sizes></Row0></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>509</Bottom><Right>267</Right><x>-2</x><y>-2</y><xscreen>1062</xscreen><yscreen>12</yscreen><sizeHorzCX>777452</sizeHorzCX><sizeHorzCY>17518</sizeHorzCY><sizeVertCX>196925</sizeVertCX><sizeVertCY>745985</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>131</Bottom><Right>1368</Right><x>-2</x><y>-2</y><xscreen>1370</xscreen><yscreen>133</yscreen><sizeHorzCX>1002928</sizeHorzCX><sizeHorzCY>194161</sizeHorzCY><sizeVertCX>777452</sizeVertCX><sizeVertCY>17518</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-066CA418><key>iaridepm.enu1</key></Toolbar-066CA418></Sizes></Row0></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>473</Bottom><Right>240</Right><x>-2</x><y>-2</y><xscreen>1062</xscreen><yscreen>12</yscreen><sizeHorzCX>777452</sizeHorzCX><sizeHorzCY>17518</sizeHorzCY><sizeVertCX>177160</sizeVertCX><sizeVertCY>693431</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>167</Bottom><Right>1368</Right><x>-2</x><y>-2</y><xscreen>1370</xscreen><yscreen>169</yscreen><sizeHorzCX>1002928</sizeHorzCX><sizeHorzCY>246715</sizeHorzCY><sizeVertCX>777452</sizeVertCX><sizeVertCY>17518</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 

@@ -263,7 +263,7 @@ void Debug_Comm_Rec_Monitor(void)
         }
     }
     //假如很长时间没有接收到Debug口数据，则说明透传结束了
-    else if(s_DeviceCommRx.Timeout_Count >= (1000UL * 60 * 3))
+    else if(s_DeviceCommRx.Timeout_Count >= (1000UL * 60 * 2))
     {
         s_DebugComm.RxTimeout_Count = 0;
         g_DebugInterfaceTransmitFlag = FALSE;   //透传结束
@@ -271,7 +271,7 @@ void Debug_Comm_Rec_Monitor(void)
         Device_Printf_Ctr(DEVICE_CTR_ALL_HIDE_CMD);
 
 #if (SERVER_PRINTF_EN)
-        printf("\r\n超时退出透传模式\r\n");
+        printf("\r\n超时2分钟退出透传模式\r\n");
 #endif
 
     }

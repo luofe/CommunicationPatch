@@ -1091,6 +1091,8 @@ ForceReconnect:
 
     g_WireLessModuleInitFlag = TRUE;    //无线模块初始化完成
 
+    g_SysPollTimeCnt = g_ms_Timing_Count - SERVER_COMM_HANDSHAKE_INTERVAL;  //赶紧握手
+
 #if (SERVER_AT_PRINTF_EN)
     printf("无线模块初始化成功！\r\n");
 #endif

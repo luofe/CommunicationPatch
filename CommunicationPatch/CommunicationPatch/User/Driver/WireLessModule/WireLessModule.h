@@ -101,7 +101,7 @@
 
 
 //USART接收超时
-#define WIRELESS_RX_AT_DATA_TIMEOUT     30	    //没有接收超时
+#define WIRELESS_RX_AT_DATA_TIMEOUT     50	    //没有接收超时
 
 
 

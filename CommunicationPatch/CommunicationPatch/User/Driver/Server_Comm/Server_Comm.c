@@ -1282,6 +1282,7 @@ u8 Server_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
     u16 temp_index = 0;        //数据索引
 	u8  data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_HEAD;	    //数据分析状态
     u8  packet_analysis_error_status = PACKAGE_ANALYSIS_SUCCEED;    //数据包解析错误状态
+    u8  temp_sta = PACKAGE_ANALYSIS_UNKNOWN_ERROR;
 
     ServerCommPackageStruct *p_Package = (ServerCommPackageStruct*)malloc(sizeof(ServerCommPackageStruct));
     if(p_Package == NULL)
@@ -1413,6 +1414,7 @@ u8 Server_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
                         Server_Comm_Package_Process(p_Package->ADF.CMD, p_Package->ADF.Data, (p_Package->Length - 6));
 
                         data_analysis_status = SERVER_COMM_PACKAGE_ANALYSIS_HEAD;	//状态转为查找包头
+                        temp_sta = PACKAGE_ANALYSIS_SUCCEED;    //曾经成功过
                     }
                     else        //否则校验码错误
                     {
@@ -1435,6 +1437,9 @@ u8 Server_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
             break;
 		}
 	}
+    //释放空间
+    free(p_Package);
+    p_Package = NULL;
 
     //如果解析失败
     if(packet_analysis_error_status != PACKAGE_ANALYSIS_SUCCEED)
@@ -1453,12 +1458,19 @@ u8 Server_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
                 g_WireLessModuleInitFlag = FALSE;
                 //系统初始化状态复位为未初始化
                 g_SysInitStatusFlag = FALSE;
+
+                return packet_analysis_error_status;
             }
         }
+        //如果没有一个完整的包
+        if(temp_sta == PACKAGE_ANALYSIS_UNKNOWN_ERROR)
+        {
+            //无线模块复位为未初始化
+            g_WireLessModuleInitFlag = FALSE;
+            //系统初始化状态复位为未初始化
+            g_SysInitStatusFlag = FALSE;
+        }
     }
-    //释放空间
-    free(p_Package);
-    p_Package = NULL;
 
     return packet_analysis_error_status;
 }
