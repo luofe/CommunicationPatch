@@ -646,29 +646,28 @@ void Server_Comm_Package_Bale(u16 cmd)
             }
             //最后放入传感器个数
             s_ServerCommPackage.ADF.Data[sen_num_index] = s_SensorData.sensor_num;
-            //无线模块初始化完毕、与服务器握手成功、不是在等待应答、不是在传输补传数据
-            if((g_SysInitStatusFlag == TRUE) && (g_WireLessModuleInitFlag == TRUE)
-               && (s_ServerCommTx.WaitResponse == DONT_RESPONSE) && (g_ExtFlashHaveData == FALSE))   //初始化完毕,无线模块也初始化完成了
-            {
-                //数据长度
-                s_ServerCommPackage.Length = i + 6;
-                Server_Comm_Package_Send();
-                s_ServerCommTx.WaitResponse = NEED_RESPONSE;    //需要等待应答
-                s_ServerCommTx.WaitResponseTimeout = 0;
-            }
-            else
-            {
 
+            // 如果不是在发送存储包
+            if(g_ExtFlashHaveData == FALSE)
+            {
+                //无线模块初始化完毕、与服务器握手成功、不是在等待应答、不是在传输补传数据
+                if((g_SysInitStatusFlag == TRUE) && (g_WireLessModuleInitFlag == TRUE) && (s_ServerCommTx.WaitResponse == DONT_RESPONSE))
+                {
+                    //数据长度
+                    s_ServerCommPackage.Length = i + 6;
+                    Server_Comm_Package_Send();
+                    s_ServerCommTx.WaitResponse = NEED_RESPONSE;    //需要等待应答
+                    s_ServerCommTx.WaitResponseTimeout = 0;
+                }
+                else
+                {
 #if (SERVER_PRINTF_EN)
-                printf("将传感器上传数据包存储到Flash中，UTC时间=%08X\r\n", s_GPSInfo.gmtTime);
+                    printf("将传感器上传数据包存储到Flash中，UTC时间=0x%08X\r\n", s_GPSInfo.gmtTime);
 #endif
 
-                temp_array[0] = 0x02;       //数据内容类型
-                temp_array[1] = i;          //数据内容长度(从RTC时间开始到校验码前的数据内容)
-                memcpy(&temp_array[2], s_ServerCommPackage.ADF.Data, i);
-                // 如果不是在发送存储包
-                if(g_ExtFlashHaveData == FALSE)
-                {
+                    temp_array[0] = 0x02;       //数据内容类型
+                    temp_array[1] = i;          //数据内容长度(从RTC时间开始到校验码前的数据内容)
+                    memcpy(&temp_array[2], s_ServerCommPackage.ADF.Data, i);
                     Data_Storge_Process(temp_array, (i + 2));
                 }
             }
@@ -904,7 +903,7 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
 
                     g_SendSensorDataTimeCnt = g_ms_Timing_Count - (s_UploadInterval.time1 * 1000);  //赶紧发一个传感器数据
 
-                    if(g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM)    //如果是有存储数据包待发送
+                    if((g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM) && (g_DataPageNum < 0xFFFF))    //如果是有存储数据包待发送
                     {
                         g_ExtFlashHaveData = TRUE;  //置标志有存储包
                     }
@@ -913,7 +912,7 @@ void Server_Comm_Package_Process(u16 cmd, u8* data, u16 len)
                         g_ExtFlashHaveData = FALSE;
                     }
                 }
-                if(g_DataPageNum >= SENSOR_DATA_MIN_PAGE_NUM)    //如果是有存储数据包待发送
+                if(g_ExtFlashHaveData == TRUE)    //如果是有存储数据包待发送
                 {
                     if(g_LastSendServerCmd == SERVER_COMM_PACKAGE_CMD_REPORT_FLASH)
                     {
@@ -1459,6 +1458,8 @@ u8 Server_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
                 //系统初始化状态复位为未初始化
                 g_SysInitStatusFlag = FALSE;
 
+                g_ExtFlashHaveData = FALSE; //停止补传
+
                 return packet_analysis_error_status;
             }
         }
@@ -1469,6 +1470,8 @@ u8 Server_Comm_Package_Analysis(u8 *rec_array, u16 rec_length)
             g_WireLessModuleInitFlag = FALSE;
             //系统初始化状态复位为未初始化
             g_SysInitStatusFlag = FALSE;
+
+            g_ExtFlashHaveData = FALSE; //停止补传
         }
     }
 
@@ -1506,6 +1509,7 @@ void Server_Comm_Rec_Monitor(void)
         s_ServerCommRx.Timeout_Count = 0;
         g_SysInitStatusFlag = FALSE;
         g_WireLessModuleInitFlag = FALSE;
+        g_ExtFlashHaveData = FALSE; //停止补传
     }
 }
 
